@@ -1548,7 +1548,7 @@ async function loadSettings() {
   $("adminStarted").textContent=whenFull(i.startedAt);
   const a=i.app, st=i.status, short=c=>c?c.slice(0,7):"";
   // Shown as v1.0 for 1.0.0; package.json keeps the full x.y.z that npm requires.
-  $("adminVersion").innerHTML=`<b>Version v${esc(String(a.version).replace(/\.0$/,""))}</b>${a.commit?` · build <code>${esc(short(a.commit))}</code>`:""}<div class="meta">${a.mode==="git"?"Git copy":"Windows package"}${a.date?` · ${esc(whenFull(a.date))}`:""}${a.message?` · ${esc(a.message)}`:""}</div>`;
+  $("adminVersion").innerHTML=`<b>Version v${esc(String(a.version).replace(/\.0$/,""))}</b>${a.build?` · build ${esc(a.build)}`:""}${a.commit?` · <code>${esc(short(a.commit))}</code>`:""}<div class="meta">${a.mode==="git"?"Git copy":"Windows package"}${a.date?` · ${esc(whenFull(a.date))}`:""}${a.message?` · ${esc(a.message)}`:""}</div>`;
   const size=x=>`${fmtSize(x.bytes)} · ${plural(x.files,"file")}`;
   const up=st.uptimeSec, upText=up>=86400?`${Math.floor(up/86400)} d ${Math.floor(up%86400/3600)} h`:up>=3600?`${Math.floor(up/3600)} h ${Math.floor(up%3600/60)} min`:`${Math.floor(up/60)} min`;
   $("adminStatus").innerHTML=`<table><tbody>${[
@@ -1558,7 +1558,7 @@ async function loadSettings() {
     ["Backups",`${size(st.backups)}<br><span style="color:var(--muted)">${esc(st.backupDir)}</span>`],
     ["Memory",`${fmt(st.memoryMB)} MB`],["Node.js",esc(st.node)],["System",esc(st.platform)]
   ].map(([k,v])=>`<tr><th style="width:180px">${k}</th><td style="white-space:normal">${v}</td></tr>`).join("")}</tbody></table>`;
-  $("adminUpgradeWhere").textContent=`Installs the latest version from GitHub (${a.repo||"repository not set"}, branch ${a.branch}). A full data backup is taken first${a.mode==="git"?"":" and the current app files are copied to the backup folder"}; then the app restarts. Your data and settings are not changed.`;
+  $("adminUpgradeWhere").textContent=`Installs the latest ${a.mode==="git"?`version from GitHub (${a.repo||"repository not set"}, branch ${a.branch})`:`Windows release from GitHub (${a.repo||"repository not set"}), built automatically on every push`}. A full data backup is taken first${a.mode==="git"?"":" and the current app files are copied to the backup folder"}; then the app restarts. Your data and settings are not changed.`;
   $("adminTokenState").textContent=st.hasToken?"(a token is saved)":"(not set)";
   $("adminTokenClear").hidden=!st.hasToken;
   $("adminRestart").disabled=!i.canRestart;
@@ -1704,8 +1704,9 @@ $("adminCheckUpdate").addEventListener("click",e=>busy(e.currentTarget,"Checking
   hideNotice("upgradeNotice"); $("adminUpgrade").disabled=true;
   try{
     const r=await api("/api/admin/upgrade/check",{method:"POST"}), l=r.latest;
-    if(r.upToDate) return notice("upgradeNotice",`You have the latest version (${l.commit.slice(0,7)} · ${whenFull(l.date)}).`,true);
-    notice("upgradeNotice",`Update available${r.behind?`: ${plural(r.behind,"change")}`:""}. Latest ${l.commit.slice(0,7)} · ${whenFull(l.date)} · ${l.message}`,true);
+    const which=`${l.build?`build ${l.build} · `:""}${l.commit.slice(0,7)} · ${whenFull(l.date)}`;
+    if(r.upToDate) return notice("upgradeNotice",`You have the latest version (${which}).`,true);
+    notice("upgradeNotice",`Update available${r.behind?`: ${plural(r.behind,"change")}`:""}. Latest ${which} · ${l.message}`,true);
     $("adminUpgrade").disabled=false;
   }catch(err){ notice("upgradeNotice",err.message); }
 }));

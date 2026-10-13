@@ -1,0 +1,65 @@
+# Builds the portable Windows package on every push to main and publishes it as a GitHub
+# Release, so installed apps can upgrade from Settings → Upgrade (upgrade.js downloads the
+# latest release's MyThari-windows.zip; version.json lets it check without downloading).
+# Release tags: v<package.json version>-build.<run number>. The last 10 builds are kept.
+name: Windows release
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["**.md"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: windows-release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --omit=dev
+
+      - name: Check that every module loads
+        run: for f in *.js scripts/*.js; do node --check "$f"; done
+
+      - name: Cache the Windows Node.js runtime
+        uses: actions/cache@v4
+        with:
+          path: .cache
+          key: node-win-${{ hashFiles('scripts/build-windows.js') }}
+
+      - name: Build dist/MyThari-windows.zip
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: npm run build:win
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v${VERSION}-build.${{ github.run_number }}"
+          NOTES=$(printf 'Build %s from %s\n\n%s\n\nWindows: unzip MyThari-windows.zip and double-click "Start My Thari", or upgrade from Settings → Upgrade.' \
+            "${{ github.run_number }}" "${GITHUB_SHA::7}" "$(git log -1 --format=%s)")
+          gh release create "$TAG" dist/MyThari-windows.zip dist/version.json \
+            --target "$GITHUB_SHA" --title "My Thari v${VERSION%.0} (build ${{ github.run_number }})" --notes "$NOTES" --latest
+
+      - name: Keep the last 10 builds
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release list --limit 100 --json tagName --jq '.[].tagName' \
+            | grep -E '^v[0-9.]+-build\.[0-9]+$' | awk -F'-build.' '{print $2, $0}' | sort -n -r | cut -d' ' -f2 | tail -n +11 \
+            | xargs -r -n1 gh release delete --cleanup-tag --yes

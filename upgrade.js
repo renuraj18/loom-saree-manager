@@ -2,10 +2,11 @@
 // Two kinds of install:
 //   git      a git checkout (has .git): fetch + fast-forward merge, npm install if the
 //            dependencies changed. Uses the computer's git login, or the saved GitHub token.
-//   package  the Windows package (no git, no npm): downloads the branch tarball from the GitHub
-//            API and replaces the app files. node_modules ship with the package, so an update
-//            that needs different libraries is refused (install the new package instead).
-//            The installed commit is kept in VERSION.json.
+//   package  the Windows package (no git, no npm): installs the latest GitHub Release built by
+//            .github/workflows/windows-release.yml (MyThari-windows.zip, checked first through
+//            its small version.json asset) and replaces the app files, node_modules included.
+//            Without a release it falls back to the branch tarball, which cannot bring new
+//            libraries (such an update is refused). The installed build is kept in VERSION.json.
 // Before changing anything a full data backup is taken (db-before-upgrade-…), and package
 // installs also copy the files they replace to <backup folder>/app-before-upgrade-<stamp>/.
 // The caller restarts the app (exit code 75) afterwards.
@@ -51,7 +52,7 @@ async function versionInfo() {
       Object.assign(info, { commit, date, message: msg.join(" ") });
     } else if (fs.existsSync(VERSION_FILE)) {
       const v = JSON.parse(fs.readFileSync(VERSION_FILE, "utf8"));
-      Object.assign(info, { commit: v.commit || null, date: v.date || null, message: v.message || null, installedAt: v.installedAt || null });
+      Object.assign(info, { commit: v.commit || null, date: v.date || null, message: v.message || null, build: v.build || null, installedAt: v.installedAt || null });
     }
   } catch { /* version details are optional */ }
   return info;
@@ -117,6 +118,26 @@ async function latestFromApi() {
   return { commit: c.sha, date: c.commit?.committer?.date || null, message: (c.commit?.message || "").split("\n")[0] };
 }
 
+// Latest release from the Windows release workflow, or null when there is none.
+const ZIP_ASSET = "MyThari-windows.zip";
+async function latestRelease() {
+  const { repo } = repoInfo();
+  if (!repo) return null;
+  const r = await httpsGet(`https://api.github.com/repos/${repo}/releases/latest`, apiHeaders());
+  if (r.status !== 200) return null;
+  const rel = JSON.parse(r.body.toString("utf8"));
+  const zip = (rel.assets || []).find(a => a.name === ZIP_ASSET), ver = (rel.assets || []).find(a => a.name === "version.json");
+  if (!zip || !ver) return null;
+  const v = JSON.parse((await downloadAsset(ver)).toString("utf8"));
+  return { commit: v.commit, date: v.date || rel.published_at, message: v.message || rel.name, build: v.build || null, tag: rel.tag_name, zipAsset: zip };
+}
+async function downloadAsset(asset) {
+  const r = await httpsGet(asset.url, { ...apiHeaders(), Accept: "application/octet-stream" });
+  if (r.status !== 200) throw new Error(`Could not download ${asset.name} (GitHub answered ${r.status}).`);
+  return r.body;
+}
+const latestPackage = async () => (await latestRelease()) || (await latestFromApi());
+
 // ---- Check ----
 async function checkUpdate() {
   const current = await versionInfo();
@@ -127,8 +148,9 @@ async function checkUpdate() {
     const [commit, date, ...msg] = (await run("git", ["log", "-1", "--format=%H%n%cI%n%s", `origin/${branch}`])).split("\n");
     return { current, latest: { commit, date, message: msg.join(" ") }, behind, upToDate: behind === 0 };
   }
-  const latest = await latestFromApi();
-  return { current, latest, behind: null, upToDate: !!current.commit && current.commit === latest.commit };
+  const latest = await latestPackage();
+  const { zipAsset, ...shown } = latest;
+  return { current, latest: shown, behind: null, upToDate: !!current.commit && current.commit === latest.commit };
 }
 
 // ---- Upgrade ----
@@ -174,54 +196,68 @@ async function upgradeGit(takeBackup, steps) {
   return { from, to };
 }
 
-// Files a package update replaces (relative to the app folder). node/ and node_modules/ stay.
-const APP_ITEMS = dir => [
+// Files a package update replaces (relative to the app folder). node/ (the running node.exe)
+// always stays; node_modules is replaced only from a release zip, which ships its own.
+const APP_ITEMS = (dir, withModules) => [
   ...fs.readdirSync(dir).filter(f => f.endsWith(".js")),
-  "package.json", "package-lock.json", "public", "scripts"
+  "package.json", "package-lock.json", "public", "scripts", ...(withModules ? ["node_modules"] : [])
 ].filter(f => fs.existsSync(path.join(dir, f)));
 
 async function upgradePackage(takeBackup, steps) {
   const { repo, branch } = repoInfo();
   const current = await versionInfo();
-  const latest = await latestFromApi();
+  const latest = await latestPackage();
   if (current.commit && current.commit === latest.commit) return { upToDate: true };
 
-  const r = await httpsGet(`https://api.github.com/repos/${repo}/tarball/${latest.commit}`, apiHeaders());
-  if (r.status !== 200) throw new Error(`Could not download the update (GitHub answered ${r.status}).`);
-  const stage = path.join(DATA_DIR, ".upgrade");
-  fs.rmSync(stage, { recursive: true, force: true });
-  extractTarball(zlib.gunzipSync(r.body), stage);
-  steps.push(`Downloaded ${latest.commit.slice(0, 7)}`);
+  const download = path.join(DATA_DIR, ".upgrade");
+  fs.rmSync(download, { recursive: true, force: true });
+  let stage;
+  if (latest.zipAsset) {
+    // Release zip: MyThari/app/... is a complete, ready-to-run app folder.
+    extractZip(await downloadAsset(latest.zipAsset), download);
+    stage = path.join(download, "MyThari", "app");
+    steps.push(`Downloaded release ${latest.tag}`);
+  } else {
+    const r = await httpsGet(`https://api.github.com/repos/${repo}/tarball/${latest.commit}`, apiHeaders());
+    if (r.status !== 200) throw new Error(`Could not download the update (GitHub answered ${r.status}).`);
+    extractTarball(zlib.gunzipSync(r.body), download);
+    stage = download;
+    steps.push(`Downloaded ${latest.commit.slice(0, 7)} (no release yet, source only)`);
+  }
+  const withModules = !!latest.zipAsset;
 
-  for (const f of ["server.js", "launcher.js", "package.json", path.join("public", "index.html")]) {
-    if (!fs.existsSync(path.join(stage, f))) throw new Error(`The download is missing ${f}. Nothing was changed.`);
+  for (const f of ["server.js", "launcher.js", "package.json", path.join("public", "index.html"), ...(withModules ? ["node_modules"] : [])]) {
+    if (!fs.existsSync(path.join(stage, f))) { fs.rmSync(download, { recursive: true, force: true }); throw new Error(`The download is missing ${f}. Nothing was changed.`); }
   }
   await checkSyntax(stage);
-  const missing = missingDeps(JSON.parse(fs.readFileSync(path.join(stage, "package.json"), "utf8")));
-  if (missing.length) throw new Error(`This update needs new libraries (${missing.join(", ")}). Install the new Windows package instead. Nothing was changed.`);
+  if (!withModules) {
+    const missing = missingDeps(JSON.parse(fs.readFileSync(path.join(stage, "package.json"), "utf8")));
+    if (missing.length) throw new Error(`This update needs new libraries (${missing.join(", ")}). Install the new Windows package instead. Nothing was changed.`);
+  }
 
   steps.push(`Backup saved: ${takeBackup()}`);
   const { day, time } = localStamp();
   const keep = path.join(backupConfig().dir, `app-before-upgrade-${day}-${time}`);
-  const old = APP_ITEMS(ROOT);
+  const old = APP_ITEMS(ROOT, withModules);
   fs.mkdirSync(keep, { recursive: true });
   for (const f of [...old, "VERSION.json"]) if (fs.existsSync(path.join(ROOT, f))) fs.cpSync(path.join(ROOT, f), path.join(keep, f), { recursive: true });
   steps.push(`Current app files copied to ${keep}`);
   try {
-    for (const f of APP_ITEMS(stage)) {
+    for (const f of APP_ITEMS(stage, withModules)) {
       const dest = path.join(ROOT, f);
       if (fs.statSync(path.join(stage, f)).isDirectory()) fs.rmSync(dest, { recursive: true, force: true });
       fs.cpSync(path.join(stage, f), dest, { recursive: true });
     }
-    fs.writeFileSync(VERSION_FILE, JSON.stringify({ version: readPkg().version, ...latest, installedAt: new Date().toISOString() }, null, 2));
+    const { zipAsset, ...shown } = latest;
+    fs.writeFileSync(VERSION_FILE, JSON.stringify({ version: readPkg().version, ...shown, installedAt: new Date().toISOString() }, null, 2));
   } catch (err) {
     for (const f of old) fs.cpSync(path.join(keep, f), path.join(ROOT, f), { recursive: true, force: true });
     if (fs.existsSync(path.join(keep, "VERSION.json"))) fs.copyFileSync(path.join(keep, "VERSION.json"), VERSION_FILE);
     throw new Error(`Could not replace the app files (${err.message}). The previous files were put back.`);
   } finally {
-    fs.rmSync(stage, { recursive: true, force: true });
+    fs.rmSync(download, { recursive: true, force: true });
   }
-  steps.push(`Updated ${current.commit ? current.commit.slice(0, 7) : "unknown"} → ${latest.commit.slice(0, 7)}`);
+  steps.push(`Updated ${current.commit ? current.commit.slice(0, 7) : "unknown"} → ${latest.commit.slice(0, 7)}${latest.build ? ` (build ${latest.build})` : ""}`);
   return { from: current.commit, to: latest.commit };
 }
 
@@ -247,6 +283,33 @@ function satisfies(version, range) {
   if (range.startsWith("^")) return v[0] === r[0] && (v[1] > r[1] || (v[1] === r[1] && v[2] >= r[2]));
   if (range.startsWith("~")) return v[0] === r[0] && v[1] === r[1] && v[2] >= r[2];
   return /^\d+\.\d+\.\d+$/.test(range.replace(/^=/, "")) ? version === range.replace(/^=/, "") : true;
+}
+
+// Minimal zip reader for the release zip (stored or deflated entries, no zip64), using the
+// central directory for names and sizes. Anything escaping `dest` is skipped.
+function extractZip(buf, dest) {
+  let eocd = -1;
+  for (let i = buf.length - 22; i >= Math.max(0, buf.length - 65557); i--) if (buf.readUInt32LE(i) === 0x06054b50) { eocd = i; break; }
+  if (eocd < 0) throw new Error("The downloaded file is not a valid zip.");
+  const count = buf.readUInt16LE(eocd + 10);
+  let p = buf.readUInt32LE(eocd + 16);
+  const root = path.resolve(dest);
+  for (let n = 0; n < count; n++) {
+    if (buf.readUInt32LE(p) !== 0x02014b50) throw new Error("The downloaded zip is damaged.");
+    const method = buf.readUInt16LE(p + 10), csize = buf.readUInt32LE(p + 20);
+    const nameLen = buf.readUInt16LE(p + 28), extraLen = buf.readUInt16LE(p + 30), commentLen = buf.readUInt16LE(p + 32);
+    const local = buf.readUInt32LE(p + 42), name = buf.toString("utf8", p + 46, p + 46 + nameLen);
+    p += 46 + nameLen + extraLen + commentLen;
+    const target = path.resolve(root, name);
+    if (!target.startsWith(root + path.sep)) continue;
+    if (name.endsWith("/")) { fs.mkdirSync(target, { recursive: true }); continue; }
+    const start = local + 30 + buf.readUInt16LE(local + 26) + buf.readUInt16LE(local + 28);
+    const data = buf.subarray(start, start + csize);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    if (method === 0) fs.writeFileSync(target, data);
+    else if (method === 8) fs.writeFileSync(target, zlib.inflateRawSync(data));
+    else throw new Error(`Unsupported zip compression (${method}) in ${name}.`);
+  }
 }
 
 // Minimal tar reader for GitHub tarballs: regular files and directories, pax / GNU long names.
@@ -276,4 +339,4 @@ function extractTarball(buf, dest) {
   }
 }
 
-module.exports = { versionInfo, appStatus, checkUpdate, upgrade, saveToken, extractTarball };
+module.exports = { versionInfo, appStatus, checkUpdate, upgrade, saveToken, extractTarball, extractZip };

@@ -60,6 +60,8 @@ npm run build:win
 ```
 Creates `dist/MyThari-windows.zip` (bundles the official Windows Node.js runtime). On the Windows PC: unzip, double-click **Start My Thari** (or run **Create desktop shortcut** once). The zip's `README.txt` covers backups, restore, reset and settings.
 
+Every push to `main` also builds this zip on GitHub Actions (`.github/workflows/windows-release.yml`) and publishes it as the latest GitHub Release (`v1.0.0-build.N`). Installed apps upgrade from it in **Settings → Upgrade**: a full backup is taken first, then the new build is installed and the app restarts. The repository is private, so each Windows install needs a GitHub token with read-only Contents access, saved once in Settings → Upgrade.
+
 ## Deploy to Render
 1. Push this folder to a GitHub repository.
 2. Create a Render **Web Service** connected to that repository.

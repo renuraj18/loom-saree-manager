@@ -162,10 +162,14 @@ function copyDir(src, dest) {
   for (const f of ["launcher.js", "server.js", "auth.js", "store.js", "admin.js", "backup.js", "paths.js", "upgrade.js", "package.json", "package-lock.json"]) {
     if (fs.existsSync(path.join(ROOT, f))) fs.copyFileSync(path.join(ROOT, f), path.join(APP, f));
   }
-  // Settings → App → Upgrade compares this commit with the latest one on GitHub.
+  // Settings → App → Upgrade compares this commit with the latest release on GitHub.
+  // BUILD_NUMBER is set by the GitHub Actions release workflow; dist/version.json is uploaded
+  // next to the zip so the app can check a release without downloading it.
   try {
     const [commit, date, ...msg] = execFileSync("git", ["log", "-1", "--format=%H%n%cI%n%s"], { cwd: ROOT, encoding: "utf8" }).trim().split("\n");
-    fs.writeFileSync(path.join(APP, "VERSION.json"), JSON.stringify({ version: require(path.join(ROOT, "package.json")).version, commit, date, message: msg.join(" "), installedAt: new Date().toISOString() }, null, 2));
+    const version = { version: require(path.join(ROOT, "package.json")).version, build: process.env.BUILD_NUMBER ? Number(process.env.BUILD_NUMBER) : null, commit, date, message: msg.join(" "), builtAt: new Date().toISOString() };
+    fs.writeFileSync(path.join(APP, "VERSION.json"), JSON.stringify(version, null, 2));
+    fs.writeFileSync(path.join(DIST, "version.json"), JSON.stringify(version, null, 2));
   } catch { console.warn("Not a git checkout: VERSION.json not written, so the first upgrade always installs the latest."); }
   copyDir(path.join(ROOT, "public"), path.join(APP, "public"));
   fs.mkdirSync(path.join(APP, "scripts"), { recursive: true });
