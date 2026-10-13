@@ -1,0 +1,1755 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Thari – Track all my loom production</title>
+<meta name="theme-color" content="#5532e0">
+<link rel="icon" type="image/png" href="img/thari-icon-64.png">
+<link rel="apple-touch-icon" href="img/thari-icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{--bg:#f5f6fa;--card:#fff;--ink:#182230;--muted:#687386;--line:#e5e9f0;--brand:#5a3ec8;--brand2:#eeeaff;--green:#137a52;--red:#b42318}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial;color:var(--ink)}header{background:linear-gradient(120deg,#25165f,#6245ce);color:#fff;padding:24px max(18px,calc((100% - 1180px)/2)) 22px}header .eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.14em;opacity:.8}h1{font-size:clamp(25px,4vw,36px);margin:7px 0}header p{margin:0;color:#e3ddff}main{max-width:1180px;margin:22px auto;padding:0 16px 48px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.stat,.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 5px 18px #1d25400a}.stat{padding:16px}.stat small{color:var(--muted);display:block}.stat strong{display:block;font-size:27px;margin-top:5px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.tab{border:1px solid var(--line);border-radius:999px;padding:10px 15px;background:#fff;color:var(--ink);cursor:pointer;font-weight:650}.tab.active{background:var(--brand);color:white;border-color:var(--brand)}.layout{display:grid;grid-template-columns: minmax(280px,350px) 1fr;gap:16px;align-items:start}.panel{padding:18px;min-width:0}.panel h2{margin:0 0 4px;font-size:19px}.sub{color:var(--muted);font-size:13px;margin:0 0 16px}.field{margin:12px 0}.field label{display:block;font-size:13px;font-weight:650;margin-bottom:6px}.field input,.field select,.field textarea{width:100%;padding:11px 12px;border:1px solid #d5dbe5;border-radius:9px;background:white;font:inherit;color:var(--ink)}.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid #c7bcff;border-color:var(--brand)}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{width:100%;border:0;border-radius:10px;background:var(--brand);color:#fff;padding:12px 14px;font:inherit;font-weight:700;cursor:pointer}.btn:disabled{opacity:.55;cursor:not-allowed}.notice{display:none;border-radius:10px;padding:11px 12px;margin:12px 0;font-size:13px}.notice.show{display:block}.notice.ok{background:#e9f8f0;color:#126747}.notice.err{background:#fff0ef;color:#9d2219}.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:13px}th,td{text-align:left;border-bottom:1px solid var(--line);padding:12px 10px}th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:#fafbfe}.pill{display:inline-block;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:750;background:#eeeaff;color:#5138b4}.pill.green{background:#e5f7ee;color:#137a52}.pill.gray{background:#eef1f5;color:#596579}.empty{text-align:center;color:var(--muted);padding:28px 10px}.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.sectionhead h2{margin:0}.sectionhead span{font-size:12px;color:var(--muted)}.full{grid-column:1/-1}.hint{font-size:12px;color:var(--muted);line-height:1.5;margin-top:7px}.smallbtn{background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px 10px;cursor:pointer;color:var(--ink)}footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}main{margin-top:14px}.panel{padding:15px}.formpanel{order:1}.listpanel{order:2}}@media(max-width:420px){.two{grid-template-columns:1fr}.stats{gap:8px}.stat{padding:12px}.stat strong{font-size:23px}}
+</style>
+<style>
+[hidden]{display:none!important}.tab{text-decoration:none;display:inline-block}header a{color:inherit;text-decoration:none}.homegrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}.homegrid .full{grid-column:1/-1}a.smallbtn{text-decoration:none;font-size:12px;font-weight:650;white-space:nowrap}.sectionhead .actions{display:flex;align-items:center;gap:10px}.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.chip{border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:12px;color:var(--muted)}.chip strong{display:block;font-size:20px;color:var(--ink)}.bar{width:110px;height:6px;background:var(--line);border-radius:3px;margin-top:5px;overflow:hidden}.bar i{display:block;height:100%;background:var(--brand)}.empty a,footer a{color:var(--brand);font-weight:650}
+/* ---- Theme: gradients + frosted cards ---- */
+:root{--bg:#f5f3ff;--ink:#1c1838;--muted:#6c6a8a;--line:#e8e5f6;--brand:#6d4aff;--grad:linear-gradient(135deg,#6d4aff 0%,#a646ff 55%,#ff5fa2 100%);--grad-soft:linear-gradient(135deg,#f1edff 0%,#fdebf4 100%);--shadow:0 12px 32px -12px rgba(76,52,180,.22)}
+body{background:radial-gradient(1100px 520px at 0% -5%,#e2d9ff 0%,transparent 60%),radial-gradient(900px 480px at 100% 0%,#ffe0ee 0%,transparent 55%),radial-gradient(800px 600px at 50% 110%,#dff3ff 0%,transparent 60%),#f6f4fd;background-attachment:fixed;min-height:100vh}
+header{background:radial-gradient(170px 170px at calc(100% - 90px) 50px,rgba(255,255,255,.22),transparent 100%),linear-gradient(120deg,#24156e 0%,#5532e0 42%,#a53ad8 72%,#ff5f9e 100%);border-radius:0 0 28px 28px;box-shadow:0 18px 40px -20px rgba(85,50,224,.6);position:relative;z-index:10}
+
+.stat,.panel{background:rgba(255,255,255,.78);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.95);border-radius:22px;box-shadow:var(--shadow)}
+.stat{position:relative;overflow:hidden}.stat::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:var(--grad)}
+.stat strong{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;width:max-content}
+.tab{background:rgba(255,255,255,.75);border-color:rgba(255,255,255,.95);box-shadow:0 4px 12px -6px rgba(76,52,180,.25);transition:transform .15s}.tab:hover{transform:translateY(-1px)}
+.tab.active{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 10px 22px -8px rgba(166,70,255,.6)}
+.btn,.actbtn{background:var(--grad);box-shadow:0 10px 22px -10px rgba(166,70,255,.7);transition:transform .15s,box-shadow .15s}.btn:hover:not(:disabled),.actbtn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 14px 26px -10px rgba(166,70,255,.8)}
+.btn{border-radius:12px}.field input,.field select,.field textarea{border-radius:12px;border-color:#dcd8ef}.field input:focus,.field select:focus,.field textarea:focus{outline:3px solid #e2d9ff;border-color:var(--brand)}
+th{background:transparent}.bar{background:#ece9f8}.bar i{background:var(--grad);border-radius:3px}
+.chip{background:var(--grad-soft);border-color:transparent}.chip strong{color:var(--ink)}
+a.smallbtn{background:var(--grad-soft);border-color:transparent;color:#4b2fc4}
+.pill{background:#efeaff;color:#5532e0}.pill.amber{background:#fff1dc;color:#9a5b06}
+/* ---- Warp board ---- */
+.boardhead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:6px 0 14px}.boardhead h2{margin:0 0 4px;font-size:24px}.boardhead .sub{margin:0}.boardhead #warpCount{font-weight:650;color:var(--ink)}
+.btn-inline{width:auto;padding:12px 20px}
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
+.col{--c1:#6d4aff;--c2:#a646ff;--t:#4b2fc4;background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.9);border-radius:22px;padding:10px;transition:background .15s,box-shadow .15s}
+.col[data-stage=ready]{--c1:#f59e0b;--c2:#f9733a;--t:#9a5b06}.col[data-stage=running]{--c1:#10b981;--c2:#0ea5b7;--t:#04704e}
+.col.over{background:rgba(255,255,255,.92);box-shadow:inset 0 0 0 2px var(--c1),0 16px 30px -16px var(--c1)}
+.col.blocked{opacity:.55}.col.blocked.over{opacity:.8;box-shadow:inset 0 0 0 2px #e5484d;background:rgba(255,240,240,.8)}
+.colhead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px;border-radius:16px;color:#fff;background:linear-gradient(135deg,var(--c1),var(--c2));box-shadow:0 10px 20px -12px var(--c1);margin-bottom:10px}
+.colhead strong{display:block;font-size:15px}.colhead span{display:block;font-size:11px;opacity:.9;margin-top:1px}.colhead b{background:rgba(255,255,255,.25);border-radius:999px;min-width:28px;text-align:center;padding:3px 9px;font-size:13px}
+.cards{display:flex;flex-direction:column;gap:10px;min-height:96px}
+.colempty{border:2px dashed rgba(108,106,138,.2);border-radius:16px;padding:26px 10px;text-align:center;color:var(--muted);font-size:12px}
+.wcard{position:relative;background:#fff;border-radius:16px;padding:12px 12px 12px 14px;border:1px solid var(--line);box-shadow:0 6px 16px -10px rgba(40,30,90,.35);cursor:grab;-webkit-user-select:none;user-select:none;overflow:hidden;transition:box-shadow .15s,transform .15s}
+.wcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--c1),var(--c2))}
+.wcard:hover{box-shadow:0 12px 24px -12px rgba(40,30,90,.45);transform:translateY(-1px)}
+.wcard.dragging{opacity:.3}.wcard.ghost{position:fixed;z-index:1000;pointer-events:none;margin:0;transform:rotate(2.5deg) scale(1.03);box-shadow:0 26px 50px -16px rgba(40,30,90,.5);cursor:grabbing}
+.wcard h4{margin:0;font-size:15px;padding-right:66px}.wcard .meta{color:var(--muted);font-size:12px;margin-top:3px}
+.grip{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;color:#a5a2c2;font-size:16px;line-height:1;touch-action:none;cursor:grab}.grip:hover{background:#f3f1fb;color:var(--ink)}
+.wstate{margin:9px 0 2px;font-size:12.5px;font-weight:700;color:var(--t)}.wstate small{display:block;font-weight:500;color:var(--muted);margin-top:2px}
+.wcard .bar{width:100%;margin-top:9px}.wcard .bar i{background:linear-gradient(90deg,var(--c1),var(--c2))}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:9px}.mini div{background:#f7f6fd;border-radius:10px;padding:7px 9px;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}.mini b{display:block;font-size:14px;color:var(--ink);text-transform:none;letter-spacing:0;margin-top:2px}.mini i{display:block;font-style:normal;font-size:11.5px;color:var(--ink);text-transform:none;letter-spacing:0}
+.cardact{margin-top:10px;display:flex}.cardact .actbtn{flex:1;border-radius:10px;padding:9px 10px;background:linear-gradient(135deg,var(--c1),var(--c2));box-shadow:0 8px 16px -10px var(--c1)}
+.cardact a{flex:1;text-align:center;font-size:12.5px;font-weight:700;color:var(--t);text-decoration:none;padding:8px;border-radius:10px;background:#f3faf7}
+.actbtn{border:0;border-radius:8px;color:#fff;padding:9px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}.actbtn:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:860px){.board{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.board{grid-template-columns:minmax(0,1fr)}}
+/* ---- Looms, delivery, toast ---- */
+.headbtns{display:flex;gap:10px;flex-wrap:wrap}.boardhead .btn.ghostbtn{background:rgba(255,255,255,.85);color:#4b2fc4;box-shadow:0 6px 16px -10px rgba(76,52,180,.4)}
+.loomgroup{--g1:#6d4aff;--g2:#a646ff;background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.9);border-radius:22px;padding:10px;margin-bottom:16px}.loomgroup[data-group=triple]{--g1:#e0459b;--g2:#f97316}.loomgroup .colhead{background:linear-gradient(135deg,var(--g1),var(--g2));box-shadow:0 10px 20px -12px var(--g1)}.lcard{--c1:#10b981;--c2:#0ea5b7;--t:#04704e}.lcard.idle{--c1:#64748b;--c2:#9aa6b8;--t:#475569}.bar.low i{background:linear-gradient(90deg,#ef4444,#f43f5e)!important}.mini .lowtxt b{color:#dc2626}
+.loomgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;align-items:start}.loomgrid .colempty{grid-column:1/-1}
+.lcard{cursor:default}.lcard .lhead{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.lcard h4{padding-right:0;font-size:17px}
+.lbig{display:flex;align-items:baseline;gap:6px;margin-top:8px}.lbig b{font-size:28px;line-height:1.1;background:linear-gradient(135deg,var(--c1),var(--c2));-webkit-background-clip:text;background-clip:text;color:transparent}.lbig span{font-size:12px;color:var(--muted)}
+.wcard.flash{animation:flash 1.6s ease-out}@keyframes flash{0%,30%{box-shadow:0 0 0 3px var(--c1),0 0 28px -4px var(--c1)}100%{box-shadow:0 6px 16px -10px rgba(40,30,90,.35)}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field .seg label{position:relative;margin:0;cursor:pointer;font-weight:inherit}.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:block;border:2px solid #e3dff5;border-radius:14px;padding:12px 14px;font-weight:700;font-size:14px;background:#fff;transition:all .15s}.seg small{display:block;font-weight:500;color:var(--muted);font-size:12px;margin-top:3px}
+.seg input:checked+span{border-color:var(--brand);background:var(--grad-soft);box-shadow:0 8px 18px -12px var(--brand)}.seg input:focus-visible+span{outline:3px solid #e2d9ff}
+.dloom{margin-bottom:14px}.dloomhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:6px}.dloomhead>div:first-child{min-width:0}.dtotal{flex:none}.dloomhead h3{margin:0;font-size:18px}.dloomhead .meta{color:var(--muted);font-size:12px;margin-top:3px}
+.dtotal{text-align:right}.dtotal b{display:block;font-size:30px;line-height:1.1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}.dtotal span{font-size:12px;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:24px;z-index:2000;transform:translate(-50%,16px);opacity:0;pointer-events:none;max-width:calc(100vw - 32px);background:#1c1838;color:#fff;padding:12px 18px;border-radius:14px;font-size:14px;box-shadow:0 18px 40px -12px rgba(28,24,56,.6);border-left:4px solid #a646ff;transition:opacity .2s,transform .2s}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:600px){.headbtns{width:100%}.headbtns .btn-inline{flex:1}}
+/* ---- Card tools, colours, stop, stock ---- */
+.cardtools{position:absolute;top:6px;right:6px;display:flex;align-items:center;gap:2px}
+.iconbtn{width:30px;height:30px;display:grid;place-items:center;border:0;border-radius:9px;background:transparent;color:#a5a2c2;cursor:pointer;font:inherit;font-size:14px;line-height:1}.iconbtn:hover{background:#fdecec;color:#dc2626}.iconbtn.stop:hover{background:#fff1e6;color:#c2410c}
+.lhead-r{display:flex;align-items:center;gap:2px;margin:-4px -6px 0 0}
+.lcard.stopped{--c1:#ef4444;--c2:#f97316;--t:#b91c1c}.pill.red{background:#fde8e8;color:#b91c1c}
+.btn.danger{background:linear-gradient(135deg,#ef4444,#e11d48);box-shadow:0 10px 22px -10px rgba(225,29,72,.6)}
+.colorpair{display:flex;gap:8px;align-items:center}.colorpair input[type=color]{flex:none;width:46px;height:44px;padding:3px;border-radius:12px;cursor:pointer;background:#fff}.colorpair>input:not([type=color]),.colorpair>select{flex:1;min-width:0}
+.colorpair select{padding:11px 12px;border:1px solid #dcd8ef;border-radius:12px;background:#fff;font:inherit;color:var(--ink)}
+.saree{position:relative;height:30px;border-radius:9px;margin-top:9px;background:linear-gradient(180deg,var(--border) 0 22%,rgba(255,255,255,.6) 22% 26%,var(--body) 26% 74%,rgba(255,255,255,.6) 74% 78%,var(--border) 78%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.saree.unknown::after{content:"?";position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700;color:rgba(0,0,0,.45)}
+button.smallbtn{background:var(--grad-soft);border:1px solid transparent;color:#4b2fc4;font:inherit;font-size:12px;font-weight:650;white-space:nowrap;padding:9px 12px;border-radius:10px}
+.sectiontitle{margin:6px 2px 10px;font-size:17px}
+.stockgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;align-items:start;margin-bottom:18px}.stockgrid .colempty{grid-column:1/-1;background:rgba(255,255,255,.6)}
+.scard{cursor:default}.scard h4{padding-right:0}
+.stages{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.stage{--s1:#0ea5e9;--s2:#6366f1;border-radius:12px;padding:10px;background:#eef6ff;display:flex;flex-direction:column;gap:6px}
+.stage small{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}.stage b{font-size:24px;line-height:1;color:var(--s2)}
+.stage button{border:0;border-radius:8px;padding:7px 8px;font:inherit;font-size:12px;font-weight:700;color:#fff;cursor:pointer;background:linear-gradient(135deg,var(--s1),var(--s2))}.stage button:disabled{opacity:.35;cursor:not-allowed}
+.stage.proc{--s1:#f59e0b;--s2:#ea580c;background:#fff6e9}.stage.stk{--s1:#10b981;--s2:#0f8f8f;background:#ecfbf5}.stage.dsp{--s1:#a646ff;--s2:#db2777;background:#f6efff}
+.stat.s-del::before{background:linear-gradient(135deg,#0ea5e9,#6366f1)}.stat.s-del strong{background:linear-gradient(135deg,#0ea5e9,#6366f1);-webkit-background-clip:text;background-clip:text}
+.stat.s-proc::before{background:linear-gradient(135deg,#f59e0b,#ea580c)}.stat.s-proc strong{background:linear-gradient(135deg,#f59e0b,#ea580c);-webkit-background-clip:text;background-clip:text}
+.stat.s-stk::before{background:linear-gradient(135deg,#10b981,#0f8f8f)}.stat.s-stk strong{background:linear-gradient(135deg,#10b981,#0f8f8f);-webkit-background-clip:text;background-clip:text}
+.clientrow{display:flex;justify-content:space-between;gap:12px;padding:11px 2px;border-bottom:1px solid var(--line)}.clientrow:last-child{border-bottom:0}.clientrow .meta{white-space:pre-line;color:var(--muted);font-size:12px;margin-top:3px}.clientrow .num{text-align:right;flex:none}.clientrow .num b{display:block;font-size:18px}.clientrow .num span{font-size:11px;color:var(--muted)}
+/* ---- Home dashboard + export ---- */
+.homepanel{margin-bottom:16px}.widthhead{display:flex;align-items:center;gap:8px;margin:14px 2px 6px;font-size:13px;font-weight:700;color:var(--ink)}.widthhead::before{content:"";width:10px;height:10px;border-radius:3px;background:linear-gradient(135deg,#6d4aff,#a646ff)}.widthhead.triple::before{background:linear-gradient(135deg,#e0459b,#f97316)}.widthhead span{font-weight:500;color:var(--muted)}
+.saree.mini{display:inline-block;width:40px;height:16px;border-radius:5px;margin:0 9px 0 0;vertical-align:middle;flex:none}.warpcell{display:flex;align-items:center}.warpcell small{display:block;color:var(--muted)}
+.num2 b{display:block}.num2 small{color:var(--muted)}
+.btn.wa{background:linear-gradient(135deg,#25d366,#128c7e);box-shadow:0 10px 22px -10px rgba(18,140,126,.7)}
+/* ---- Admin ---- */
+.adminbtn{position:absolute;top:18px;right:max(18px,calc((100% - 1180px)/2));z-index:1;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.16);color:#fff;border-radius:999px;padding:9px 16px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:background .15s}.adminbtn:hover{background:rgba(255,255,255,.28)}
+header{padding-right:max(130px,calc((100% - 1180px)/2 + 120px))}
+.rowacts{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}.smallbtn.danger{background:#fdecec;color:#b91c1c}
+.check{display:flex;align-items:center;gap:8px;font-size:13px;margin:4px 0 14px;cursor:pointer}.check input{width:18px;height:18px;accent-color:var(--brand)}
+@media(max-width:600px){.adminbtn{top:12px;right:12px;padding:7px 12px;font-size:13px}header{padding-right:110px}}
+/* ---- Sign-in, factory switcher, user menu, settings ---- */
+body.signed-out header,body.signed-out main{display:none}
+.loginscreen{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:16px;background:radial-gradient(600px 400px at 85% 10%,rgba(255,95,158,.45),transparent 60%),linear-gradient(130deg,#24156e,#5532e0 50%,#a53ad8)}
+.logincard{width:min(400px,100%);background:#fff;border-radius:24px;padding:28px;box-shadow:0 40px 90px -20px rgba(20,10,60,.6)}.logincard .btn{margin-top:8px}
+.loginbrand{font-size:26px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;width:max-content;max-width:100%}
+.factorybar{display:inline-flex;align-items:center;gap:6px;max-width:100%;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:3px 10px 3px 12px;margin-bottom:8px;position:relative;z-index:2}
+.factorybar select{-webkit-appearance:none;appearance:none;min-width:0;max-width:52vw;background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 2px center;border:0;color:#fff;font:inherit;font-size:14px;font-weight:700;padding:5px 20px 5px 2px;cursor:pointer;text-overflow:ellipsis}
+.factorybar select option{color:#1c1838}.factorybar select:disabled{cursor:default;background-image:none;padding-right:2px}#factoryLoc{font-size:12px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.usermenu{position:absolute;top:18px;right:max(18px,calc((100% - 1180px)/2));z-index:5}.usermenu .adminbtn{position:static}
+.menu{position:absolute;right:0;top:calc(100% + 8px);min-width:230px;background:#fff;color:var(--ink);border-radius:16px;padding:6px;box-shadow:0 24px 60px -14px rgba(30,20,80,.5)}
+.menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 12px;border-radius:10px;font:inherit;font-size:14px;color:var(--ink);cursor:pointer}.menu button:hover{background:#f3f1fb}
+.menuhead{padding:10px 12px;border-bottom:1px solid var(--line);margin-bottom:4px}.menuhead strong{display:block}.menuhead span{font-size:12px;color:var(--muted)}
+#pwWarn{margin:0 0 12px}#pwWarn .smallbtn{margin-left:8px}#noFactory{margin-top:8px}
+.field .checklist{display:grid;gap:4px;max-height:210px;overflow:auto;border:1px solid #dcd8ef;border-radius:12px;padding:8px 10px}.field .checklist label{display:flex;align-items:center;gap:8px;margin:0;font-weight:500;font-size:14px;cursor:pointer}.checklist input{width:17px;height:17px;accent-color:var(--brand)}
+@media(max-width:600px){.usermenu{top:12px;right:12px}.factorybar select{max-width:44vw}#factoryLoc{display:none}}
+/* ---- Brand (My Thari) ---- */
+.brand{display:flex;align-items:center;gap:16px;color:inherit;text-decoration:none;max-width:100%}
+.logocard{flex:none;line-height:0;background:#fff;border-radius:16px;padding:6px 10px;box-shadow:0 10px 24px -12px rgba(0,0,0,.45)}.logocard img{height:58px;width:auto;display:block}
+.brandtext{min-width:0}.brandtext h1{margin:0}.brandtext p{margin:4px 0 0}
+.loginlogo{display:block;width:100%;height:auto;margin:-8px 0 4px}
+.lbl-hint{font-weight:500;color:var(--muted);font-size:12px}
+.seg-sm span{padding:9px 12px;text-align:center}
+.chip.st-del strong{color:#4f46e5}.chip.st-proc strong{color:#ea580c}.chip.st-stk strong{color:#0f8f8f}
+@media(max-width:600px){.logocard img{height:38px}.logocard{padding:4px 7px;border-radius:12px}.brand{gap:10px}.brandtext h1{font-size:24px}}
+/* ---- Folding stage, tile rearranging ---- */
+.stage.fold{--s1:#ec4899;--s2:#be185d;background:#fdf0f7}.stage.dsp{grid-column:1/-1}
+.stat.s-fold::before{background:linear-gradient(135deg,#ec4899,#be185d)}.stat.s-fold strong{background:linear-gradient(135deg,#ec4899,#be185d);-webkit-background-clip:text;background-clip:text}
+.chip.st-fold strong{color:#be185d}
+.stats.stats5{grid-template-columns:repeat(5,1fr)}
+.lcard{cursor:grab}.lhead-r .grip{width:26px;height:28px}
+@media(max-width:850px){.stats.stats5{grid-template-columns:repeat(2,1fr)}}
+/* ---- Stock buckets: sent, godown, mai, cleaning, lot, damage; returns and adjustments ---- */
+.stage.sent{--s1:#8b5cf6;--s2:#6d28d9;background:#f3efff}.stage.mai{--s1:#d97706;--s2:#92400e;background:#fdf6e7}.stage.cln{--s1:#38bdf8;--s2:#0369a1;background:#ecf8ff}
+.stage.lot{--s1:#94a3b8;--s2:#475569;background:#f1f4f8}.stage.dmg{--s1:#f87171;--s2:#b91c1c;background:#fff0f0}.stage.dsp{grid-column:auto}.stage.ret{--s1:#94a3b8;--s2:#475569;background:#f6f6f9}
+.stage .acts{display:flex;gap:5px;flex-wrap:wrap}.stage .acts button{flex:1 1 auto}.stage button.ghost{background:#fff;color:var(--s2);box-shadow:inset 0 0 0 1px currentColor}
+.stage .note{font-size:11px;color:var(--muted);line-height:1.3}
+.stagehead{margin:12px 2px 0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.stat.s-sent::before{background:linear-gradient(135deg,#8b5cf6,#6d28d9)}.stat.s-sent strong{background:linear-gradient(135deg,#8b5cf6,#6d28d9);-webkit-background-clip:text;background-clip:text}
+.stat.s-mai::before{background:linear-gradient(135deg,#d97706,#92400e)}.stat.s-mai strong{background:linear-gradient(135deg,#d97706,#92400e);-webkit-background-clip:text;background-clip:text}
+.stat.s-lot::before{background:linear-gradient(135deg,#94a3b8,#475569)}.stat.s-lot strong{background:linear-gradient(135deg,#94a3b8,#475569);-webkit-background-clip:text;background-clip:text}
+.stat.s-dmg::before{background:linear-gradient(135deg,#f87171,#b91c1c)}.stat.s-dmg strong{background:linear-gradient(135deg,#f87171,#b91c1c);-webkit-background-clip:text;background-clip:text}
+.stat.s-dsp::before{background:linear-gradient(135deg,#a646ff,#db2777)}.stat.s-dsp strong{background:linear-gradient(135deg,#a646ff,#db2777);-webkit-background-clip:text;background-clip:text}
+.stat .statnote{display:block;font-size:11px;color:var(--muted);margin-top:4px}
+.chip.st-sent strong{color:#6d28d9}.chip.st-mai strong{color:#92400e}.chip.st-lot strong{color:#475569}.chip.st-dmg strong{color:#b91c1c}
+.buckets{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.bucket{padding:12px;gap:8px}.bucket b{font-size:32px}.bucket .bnote{font-size:12px;color:var(--muted)}
+.brows{display:flex;flex-direction:column;gap:2px;max-height:190px;overflow:auto;background:rgba(255,255,255,.65);border-radius:9px;padding:4px 8px}
+.brow{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:3px 0}.brow .saree.mini{margin:0;width:28px;height:12px}.brow span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.brow strong{font-size:13px}
+.brows .empty{padding:6px 0;font-size:12px}
+.instock{margin-top:10px;font-size:12px;color:var(--muted)}.instock b{color:var(--ink)}
+.buckets{margin-bottom:16px}.bucket b{font-size:40px}
+.logbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.logbar select,.logbar input{padding:10px 12px;border:1px solid #dcd8ef;border-radius:12px;background:#fff;font:inherit;color:var(--ink)}.logbar input{flex:1;min-width:180px}
+#logTable td.logtext{white-space:normal;min-width:260px}#logTable td{vertical-align:top}.logmore{text-align:center;padding-top:10px}
+.pill.violet{background:#f3efff;color:#6d28d9}.pill.blue{background:#e8f1ff;color:#1d4ed8}.pill.teal{background:#e3f8f3;color:#0f766e}
+.appver{margin:4px 0 10px;font-size:14px;line-height:1.5}.appver b{font-size:18px}.appver .meta{color:var(--muted);font-size:12px}
+.tokenrow{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}.tokenrow .field{flex:1;min-width:220px;margin:0}
+.upsteps{margin:6px 0 0;padding-left:18px}
+.sortgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.pill.red{background:#fdecec;color:#b91c1c}.pill.amber{background:#fdf3e1;color:#92400e}
+/* ---- Dashboard image: a phone-width report rendered off-screen and saved as JPG ---- */
+.mreport{position:absolute;left:-12000px;top:0;width:480px;padding:14px;background:#f6f4fd;color:#1c1838;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial;font-size:15px;line-height:1.35}
+.mr-head{display:flex;align-items:center;gap:12px;border-radius:16px;padding:14px;color:#fff;background:linear-gradient(120deg,#24156e,#5532e0 45%,#a53ad8 75%,#ff5f9e)}
+.mr-head .logocard img{height:40px}.mr-head h1{margin:0;font-size:21px;line-height:1.2}.mr-head p{margin:3px 0 0;font-size:13px;opacity:.92}
+.mr-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.mr-stat{background:#fff;border-radius:14px;padding:10px 12px;border-top:4px solid #6d4aff}.mr-stat small{display:block;font-size:12px;color:#6c6a8a}.mr-stat b{display:block;font-size:26px;line-height:1.15;color:#4b2fc4}.mr-stat span{font-size:12px;color:#6c6a8a}
+.mr-sec{background:#fff;border-radius:16px;padding:12px;margin-bottom:10px}.mr-sec h2{margin:0 0 6px;font-size:17px;display:flex;justify-content:space-between;align-items:baseline}.mr-sec h2 span{font-size:12px;font-weight:500;color:#6c6a8a}
+.mr-sub{margin:10px 0 2px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6c6a8a}
+.mr-row{padding:9px 0;border-top:1px solid #eeebf8}.mr-row:first-of-type{border-top:0}
+.mr-top{display:flex;justify-content:space-between;align-items:center;gap:8px}.mr-top strong{font-size:16px}
+.mr-warp{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:14px}.mr-warp .saree.mini{margin:0;width:34px;height:15px}
+.mr-meta{font-size:13px;color:#6c6a8a;margin-top:3px}.mr-meta b{color:#1c1838}
+.mr-bar{height:6px;background:#eeebf8;border-radius:3px;margin-top:6px;overflow:hidden}.mr-bar i{display:block;height:100%;background:#6d4aff}.mr-bar.low i{background:#dc2626}
+.mr-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:4px 0 6px}.mr-chip{background:#f4f1ff;border-radius:10px;padding:6px 4px;text-align:center;font-size:11px;color:#6c6a8a}.mr-chip b{display:block;font-size:19px;color:#1c1838}
+.mr-foot{text-align:center;font-size:11px;color:#6c6a8a;padding:4px 0 2px}
+/* ---- Dialogs ---- */
+dialog{border:0;border-radius:24px;padding:0;width:min(460px,calc(100vw - 32px));max-height:calc(100vh - 32px);box-shadow:0 40px 90px -20px rgba(30,20,80,.55);color:var(--ink);overflow:auto}
+dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.dlghead{background:var(--grad);color:#fff;padding:20px 22px}.dlghead h2{margin:0;font-size:20px}.dlghead p{margin:5px 0 0;font-size:13px;opacity:.88}
+.dlgbody{padding:8px 22px 22px}.dlgfoot{display:flex;gap:10px;margin-top:16px}.btn.ghostbtn{background:#f1effa;color:var(--ink);box-shadow:none}
+@media(max-width:850px){.homegrid{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<div class="loginscreen" id="loginScreen" hidden>
+  <form class="logincard" id="loginForm">
+    <img class="loginlogo" src="img/thari-logo-640.png" srcset="img/thari-logo-640.png 640w, img/thari-logo-1280.png 1280w" sizes="344px" alt="Thari – weaving management">
+    <div class="loginbrand">My Thari</div>
+    <p class="sub">Track all my loom production. Sign in to continue.</p>
+    <div class="field"><label for="loginUser">Username</label><input id="loginUser" required autocomplete="username" autocapitalize="none"></div>
+    <div class="field"><label for="loginPass">Password</label><input id="loginPass" type="password" required autocomplete="current-password"></div>
+    <div class="notice" id="loginNotice"></div>
+    <button class="btn" type="submit">Sign in</button>
+  </form>
+</div>
+<header>
+  <div class="factorybar"><span aria-hidden="true">🏭</span><select id="factorySelect" aria-label="Factory"></select><span id="factoryLoc"></span></div>
+  <a href="#home" class="brand"><span class="logocard"><img src="img/thari-logo-640.png" srcset="img/thari-logo-640.png 640w, img/thari-logo-1280.png 1280w" sizes="180px" alt="Thari logo"></span><span class="brandtext"><h1>My Thari</h1><p>Track all my loom production</p></span></a>
+  <div class="usermenu">
+    <button class="adminbtn" id="userBtn" type="button" aria-haspopup="true" aria-expanded="false">👤 <span id="userBtnName"></span> ▾</button>
+    <div class="menu" id="userMenu" hidden>
+      <div class="menuhead"><strong id="menuName"></strong><span id="menuRole"></span></div>
+      <button type="button" data-menu="settings" id="menuSettings">⚙ Settings</button>
+      <button type="button" data-menu="password">🔑 Change password</button>
+      <button type="button" data-menu="signout">↩ Sign out</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div class="notice err show" id="pwWarn" hidden>You are using the default password. <button class="smallbtn" type="button" data-menu="password">Change it now</button></div>
+  <section class="panel empty" id="noFactory" hidden></section>
+  <nav class="tabs">
+    <a class="tab" href="#home">Home</a>
+    <a class="tab" href="#warps">Warp</a>
+    <a class="tab" href="#looms">Production</a>
+    <a class="tab" href="#process">Process</a>
+    <a class="tab" href="#stock">Stock</a>
+    <a class="tab" href="#log">Log</a>
+  </nav>
+
+  <div id="view-home">
+    <div class="boardhead">
+      <div><h2>Dashboard</h2><p class="sub" id="homeAsOf"></p></div>
+      <div class="headbtns"><button class="btn btn-inline ghostbtn" type="button" id="dlDashboard">⬇ Download</button><button class="btn btn-inline wa" type="button" id="waDashboard">Share on WhatsApp</button></div>
+    </div>
+    <div id="homeReport">
+      <section class="stats">
+        <div class="stat"><small>Total looms</small><strong id="statLooms">0</strong></div>
+        <div class="stat"><small>Running looms</small><strong id="statRunning">0</strong></div>
+        <div class="stat"><small>Active warp meters</small><strong id="statMeters">0</strong></div>
+        <div class="stat"><small>Sarees dispatched</small><strong id="statSarees">0</strong></div>
+      </section>
+      <section class="panel homepanel">
+        <div class="sectionhead"><h2>Loom status</h2><span id="homeLoomCount">0 looms</span></div>
+        <div id="homeLoomTables"></div>
+      </section>
+      <section class="panel homepanel">
+        <div class="sectionhead"><h2>Warp status</h2><span id="homeWarpCount"></span></div>
+        <div class="chips">
+          <div class="chip"><strong id="warpOrdered">0</strong>Ordered</div>
+          <div class="chip"><strong id="warpReady">0</strong>Ready</div>
+          <div class="chip"><strong id="warpRunning">0</strong>Running</div>
+          <div class="chip"><strong id="warpDone">0</strong>Done</div>
+        </div>
+        <div id="homeWarpTables"></div>
+      </section>
+      <section class="panel homepanel">
+        <div class="sectionhead"><h2>Stock</h2><a class="smallbtn" href="#stock">Open stock →</a></div>
+        <div class="chips">
+          <div class="chip st-sent"><strong id="hsSent">0</strong>Dispatched</div>
+          <div class="chip st-del"><strong id="hsDelivered">0</strong>At godown</div>
+          <div class="chip st-proc"><strong id="hsProcess">0</strong>In process</div>
+          <div class="chip st-fold"><strong id="hsFolding">0</strong>In folding</div>
+          <div class="chip st-stk"><strong id="hsStock">0</strong>In stock</div>
+          <div class="chip st-mai"><strong id="hsMai">0</strong>Mai</div>
+          <div class="chip st-lot"><strong id="hsLot">0</strong>Lot</div>
+          <div class="chip st-dmg"><strong id="hsDamage">0</strong>Damage</div>
+        </div>
+        <div id="homeStockTable" class="tablewrap"></div>
+      </section>
+    </div>
+  </div>
+
+  <section id="view-warps" hidden>
+    <div class="boardhead">
+      <div><h2>Warp board</h2><p class="sub">Drag a warp card to move it to the next stage. Warps with less than 6.3 m left complete automatically. <span id="warpCount">0 warps</span></p></div>
+      <div class="headbtns"><button class="btn btn-inline ghostbtn" type="button" data-open-loom>+ Add loom</button><button class="btn btn-inline" type="button" id="openWarpForm">+ Add warp</button></div>
+    </div>
+    <div class="notice" id="warpListNotice"></div>
+    <div class="board" id="warpBoard">
+      <div class="col" data-stage="ordered"><div class="colhead"><div><strong>Ordered</strong><span data-meters></span></div><b data-count>0</b></div><div class="cards"></div></div>
+      <div class="col" data-stage="ready"><div class="colhead"><div><strong>Ready</strong><span data-meters></span></div><b data-count>0</b></div><div class="cards"></div></div>
+      <div class="col" data-stage="running"><div class="colhead"><div><strong>Running</strong><span data-meters></span></div><b data-count>0</b></div><div class="cards"></div></div>
+    </div>
+  </section>
+
+  <dialog id="warpDialog" aria-labelledby="warpDialogTitle">
+    <div class="dlghead"><h2 id="warpDialogTitle">Add warp</h2><p>Record width, colours and warp length. New warps start in Ordered.</p></div>
+    <form id="warpForm" class="dlgbody">
+      <div class="field"><label for="warpName">Warp ID / name *</label><input id="warpName" required placeholder="e.g. WARP-001"></div>
+      <div class="two">
+        <div class="field"><label for="warpOrderDate">Order date *</label><input id="warpOrderDate" type="date" required></div>
+        <div class="field"><label for="warpWidth">Width type *</label><select id="warpWidth"><option value="single">Single width</option><option value="triple">Triple width</option></select></div>
+      </div>
+      <div class="field"><label>Warp length in *</label>
+        <div class="seg seg-sm" role="radiogroup">
+          <label><input type="radio" name="warpUnit" value="meters" checked><span>Meters</span></label>
+          <label><input type="radio" name="warpUnit" value="sarees"><span>Sarees</span></label>
+        </div>
+      </div>
+      <div class="field"><label for="warpQty" id="warpQtyLabel">Total warp meters *</label><input id="warpQty" required type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="e.g. 1200"><div class="hint" id="warpQtyHint"></div></div>
+      <div class="two">
+        <div class="field"><label for="warpBody">Body colour * <span class="lbl-hint">pick or type</span></label><div class="colorpair"><input type="color" id="warpBodyHex" value="#cccccc" aria-label="Body colour shade"><input id="warpBody" required placeholder="Peacock blue"></div></div>
+        <div class="field"><label for="warpBorder">Border colour * <span class="lbl-hint">pick or type</span></label><div class="colorpair"><input type="color" id="warpBorderHex" value="#cccccc" aria-label="Border colour shade"><input id="warpBorder" required placeholder="Maroon"></div></div>
+      </div>
+      <div class="notice" id="warpNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit">Add warp</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="askDialog" aria-labelledby="askTitle">
+    <div class="dlghead"><h2 id="askTitle"></h2><p id="askText"></p></div>
+    <form id="askForm" class="dlgbody">
+      <div class="field" id="askPickField"><label for="askPick" id="askPickLabel">Loom *</label><select id="askPick"></select></div>
+      <div class="field" id="askInputField"><label for="askInput" id="askInputLabel"></label><input id="askInput"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="askOk">OK</button></div>
+    </form>
+  </dialog>
+
+  <section id="view-looms" hidden>
+    <div class="boardhead">
+      <div><h2>Production</h2><p class="sub">Looms, their running warps and sarees dispatched. Use <b>Dispatch</b> to record sarees taken off a loom and sent to the godown. <span id="loomCount">0 looms</span></p></div>
+      <div class="headbtns"><button class="btn btn-inline ghostbtn" type="button" data-open-loom>+ Add loom</button><button class="btn btn-inline" type="button" data-open-delivery>Dispatch</button></div>
+    </div>
+    <div class="notice" id="loomListNotice"></div>
+    <div class="panel empty" id="loomEmpty" hidden>No looms yet. Use + Add loom.</div>
+    <div class="loomgroup" data-group="single"><div class="colhead"><div><strong>Single width looms</strong><span data-sub></span></div><b data-count>0</b></div><div class="loomgrid"></div></div>
+    <div class="loomgroup" data-group="triple"><div class="colhead"><div><strong>Triple width looms</strong><span data-sub></span></div><b data-count>0</b></div><div class="loomgrid"></div></div>
+  </section>
+
+  <dialog id="loomDialog" aria-labelledby="loomDialogTitle">
+    <div class="dlghead"><h2 id="loomDialogTitle">Add loom</h2><p>Give the loom a number and choose its width.</p></div>
+    <form id="loomForm" class="dlgbody">
+      <div class="field"><label for="loomName">Loom number *</label><input id="loomName" required placeholder="e.g. Loom 01"></div>
+      <div class="field"><label>Loom type *</label>
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="loomWidth" value="single" checked><span>Single width<small>1 saree per 6.3 m</small></span></label>
+          <label><input type="radio" name="loomWidth" value="triple"><span>Triple width<small>3 sarees per 6.3 m</small></span></label>
+        </div>
+      </div>
+      <div class="notice" id="loomNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit">Add loom</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="deliveryDialog" aria-labelledby="deliveryDialogTitle">
+    <div class="dlghead"><h2 id="deliveryDialogTitle">Dispatch</h2><p id="deliveryDialogSub">Enter the sarees taken off the loom.</p></div>
+    <form id="deliveryForm" class="dlgbody">
+      <div class="field" id="deliveryLoomField"><label for="deliveryLoom">Loom *</label><select id="deliveryLoom"></select></div>
+      <div class="field"><label for="deliverySarees">Number of sarees *</label><input id="deliverySarees" required type="number" min="1" step="1" inputmode="numeric" placeholder="e.g. 30"></div>
+      <div class="field"><label for="deliveryLr">LR number (optional)</label><input id="deliveryLr" placeholder="Lorry receipt number"></div>
+      <div id="deliveryPreview" class="notice show ok"></div>
+      <div class="notice" id="deliveryNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit">Save dispatch</button></div>
+    </form>
+  </dialog>
+
+  <section id="view-process" hidden>
+    <div class="boardhead">
+      <div><h2>Process</h2><p class="sub">Sarees dispatched from looms reach the godown, are checked and sent to process (greese and damaged ones go straight to the Stock page) → folding. <b>Add to stock</b> moves them into the Stock page as stock, greese (mai), lot or damage.</p></div>
+    </div>
+    <section class="stats">
+      <div class="stat s-sent"><small>Sarees dispatched (from looms)</small><strong id="stSent">0</strong></div>
+      <div class="stat s-del"><small>Sarees delivered (at godown)</small><strong id="stDelivered">0</strong></div>
+      <div class="stat s-proc"><small>In process</small><strong id="stProcess">0</strong></div>
+      <div class="stat s-fold"><small>In folding</small><strong id="stFolding">0</strong></div>
+    </section>
+    <div class="notice" id="processNotice"></div>
+    <h3 class="sectiontitle">Production by warp</h3>
+    <div class="stockgrid" id="stockGrid"></div>
+  </section>
+
+  <section id="view-stock" hidden>
+    <div class="boardhead">
+      <div><h2>Stock</h2><p class="sub">Sarees from all warps after checking and <b>Add to stock</b> on the Process page. Only stock is delivered to parties.</p></div>
+      <div class="headbtns"><button class="btn btn-inline" type="button" data-open-client>+ Add party</button></div>
+    </div>
+    <div class="notice" id="stockNotice"></div>
+    <div class="buckets" id="stockBuckets"></div>
+    <section class="panel homepanel"><div class="sectionhead"><h2>Cleaning</h2><span id="cleaningCount"></span></div><div id="cleaningTable" class="tablewrap"></div></section>
+    <section class="panel homepanel"><div class="sectionhead"><h2>Parties</h2><button class="smallbtn" type="button" data-open-client>+ Add party</button></div><div id="clientList"></div></section>
+  </section>
+
+  <section id="view-log" hidden>
+    <div class="boardhead">
+      <div><h2>Log</h2><p class="sub">Every activity in this factory, newest first. <span id="logCount"></span></p></div>
+    </div>
+    <div class="logbar">
+      <select id="logType" aria-label="Activity type"><option value="">All activity</option><option value="warp">Warps</option><option value="loom">Looms</option><option value="dispatch">Dispatches (from looms)</option><option value="delivery">Deliveries (to parties)</option><option value="process">Process</option><option value="stock">Stock</option><option value="party">Parties</option></select>
+      <input id="logSearch" type="search" placeholder="Search (warp, loom, party, LR…)" aria-label="Search the log">
+    </div>
+    <section class="panel"><div id="logTable" class="tablewrap"></div><div class="logmore" id="logMore"></div></section>
+  </section>
+
+  <dialog id="sortDialog" aria-labelledby="sortDialogTitle">
+    <div class="dlghead"><h2 id="sortDialogTitle">Add to stock</h2><p id="sortDialogSub"></p></div>
+    <form id="sortForm" class="dlgbody">
+      <div class="sortgrid" id="sortFields"></div>
+      <p class="hint" id="sortLeft"></p>
+      <div class="notice" id="sortNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="sortOk">Add to stock</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="actDialog" aria-labelledby="actTitle">
+    <div class="dlghead"><h2 id="actTitle"></h2><p id="actSub"></p></div>
+    <form id="actForm" class="dlgbody">
+      <div class="field" id="actPartyField"><label for="actParty">Party *</label><div class="colorpair"><select id="actParty"></select><button class="smallbtn" type="button" data-open-client id="actNewParty">+ New</button></div></div>
+      <div class="field"><label for="actQty" id="actQtyLabel">Number of sarees *</label><input id="actQty" required type="number" step="1" inputmode="numeric"></div>
+      <div class="field" id="actBatchField"><label for="actBatch">Cleaning batch *</label><select id="actBatch"></select></div>
+      <div class="field" id="actLrField"><label for="actLr">LR number (optional)</label><input id="actLr" placeholder="Lorry receipt number"></div>
+      <div class="field" id="actNoteField"><label for="actNote" id="actNoteLabel">Reason</label><input id="actNote"></div>
+      <p class="hint" id="actHint"></p>
+      <div class="notice" id="actNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="actOk">OK</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="clientDialog" aria-labelledby="clientDialogTitle">
+    <div class="dlghead"><h2 id="clientDialogTitle">Add party</h2><p>The party you deliver sarees to.</p></div>
+    <form id="clientForm" class="dlgbody">
+      <div class="field"><label for="clientName">Party name *</label><input id="clientName" required placeholder="e.g. Sri Lakshmi Silks"></div>
+      <div class="field"><label for="clientAddress">Address</label><textarea id="clientAddress" rows="3" placeholder="Street, town, district, PIN"></textarea></div>
+      <div class="notice" id="clientNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit">Add party</button></div>
+    </form>
+  </dialog>
+
+  <section id="view-settings" hidden>
+    <div class="boardhead">
+      <div><h2>Settings</h2><p class="sub">Factories, users, backups and the app. Only admins can see this page.</p></div>
+    </div>
+    <div class="notice" id="settingsNotice"></div>
+    <section class="panel homepanel">
+      <div class="sectionhead"><h2>Factories</h2><div class="actions"><span id="setFactoryCount"></span><button class="btn btn-inline" type="button" id="addFactoryBtn">+ Add factory</button></div></div>
+      <div id="setFactoryTable" class="tablewrap"></div>
+    </section>
+    <section class="panel homepanel">
+      <div class="sectionhead"><h2>Users</h2><div class="actions"><span id="setUserCount"></span><button class="btn btn-inline" type="button" id="addUserBtn">+ Add user</button></div></div>
+      <p class="sub">Admins can open every factory and use Settings. Users only see the factories assigned to them and cannot discard warps or remove looms.</p>
+      <div id="setUserTable" class="tablewrap"></div>
+    </section>
+    <section class="panel homepanel">
+      <div class="sectionhead"><h2>Backups</h2><div class="actions"><span id="adminBackupCount"></span><button class="btn btn-inline" type="button" id="adminBackupNow">Back up now</button></div></div>
+      <p class="sub" id="adminBackupWhere"></p>
+      <div id="adminBackupTable" class="tablewrap"></div>
+    </section>
+    <section class="panel homepanel">
+      <div class="sectionhead"><h2>Logs</h2><div class="actions"><button class="btn btn-inline ghostbtn" type="button" id="adminLogsExport">Download all logs</button><button class="btn btn-inline" type="button" id="adminLogsArchive">Back up old logs now</button></div></div>
+      <p class="sub" id="adminLogsWhere"></p>
+      <div id="adminLogsFactories" class="tablewrap"></div>
+      <h3 class="sectiontitle" style="margin-top:14px">Log backups</h3>
+      <div id="adminLogsTable" class="tablewrap"></div>
+    </section>
+    <div class="homegrid">
+      <section class="panel">
+        <h2>Backup location</h2><p class="sub">Use another disk, a USB drive, or a Google Drive / OneDrive folder for off-PC copies.</p>
+        <form id="adminLocationForm">
+          <div class="field"><label for="adminDir">Backup folder (full path) *</label><input id="adminDir" required placeholder="D:\LoomBackups"></div>
+          <div class="field"><label for="adminKeep">Days of daily backups to keep *</label><input id="adminKeep" type="number" min="1" max="3650" step="1" required></div>
+          <label class="check"><input type="checkbox" id="adminCopy" checked> Copy existing backups to the new folder</label>
+          <button class="btn" type="submit">Save location</button>
+        </form>
+      </section>
+      <section class="panel">
+        <h2>App</h2>
+        <div id="adminVersion" class="appver"></div>
+        <p class="sub">Running since: <strong id="adminStarted"></strong></p>
+        <button class="btn btn-inline" type="button" id="adminRestart">Restart app</button>
+        <p class="hint" id="adminRestartHint"></p>
+      </section>
+    </div>
+    <section class="panel homepanel" style="margin-top:16px">
+      <div class="sectionhead"><h2>App status</h2></div>
+      <div id="adminStatus" class="tablewrap"></div>
+    </section>
+    <section class="panel homepanel">
+      <div class="sectionhead"><h2>Upgrade</h2><div class="actions"><button class="btn btn-inline ghostbtn" type="button" id="adminCheckUpdate">Check for updates</button><button class="btn btn-inline" type="button" id="adminUpgrade" disabled>Upgrade now</button></div></div>
+      <p class="sub" id="adminUpgradeWhere"></p>
+      <div class="notice" id="upgradeNotice"></div>
+      <form id="tokenForm" class="tokenrow">
+        <div class="field"><label for="adminToken">GitHub access token <span class="lbl-hint" id="adminTokenState"></span></label><input id="adminToken" type="password" autocomplete="off" placeholder="github_pat_…"></div>
+        <button class="btn btn-inline" type="submit">Save token</button><button class="btn btn-inline ghostbtn" type="button" id="adminTokenClear">Remove</button>
+      </form>
+      <p class="hint">Needed because the repository is private. Create a fine-grained token on GitHub (Settings → Developer settings → Personal access tokens) with read-only <b>Contents</b> access to this repository only. It is stored on this computer in the data folder and is never shown again.</p>
+    </section>
+  </section>
+
+  <dialog id="factoryDialog" aria-labelledby="factoryDialogTitle">
+    <div class="dlghead"><h2 id="factoryDialogTitle">Add factory</h2><p>Each factory has its own warps, looms, deliveries, stock and parties.</p></div>
+    <form id="factoryForm" class="dlgbody">
+      <div class="field"><label for="facName">Factory name *</label><input id="facName" required placeholder="e.g. Salem Unit"></div>
+      <div class="field"><label for="facLocation">Location *</label><input id="facLocation" required placeholder="Town, district"></div>
+      <div class="field"><label for="facOwner">Owner name *</label><input id="facOwner" required></div>
+      <div class="two">
+        <div class="field"><label for="facPhone">Owner phone</label><input id="facPhone" type="tel" inputmode="tel"></div>
+        <div class="field"><label for="facEmail">Owner email</label><input id="facEmail" type="email"></div>
+      </div>
+      <div class="notice" id="factoryNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="factorySubmit">Add factory</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="userDialog" aria-labelledby="userDialogTitle">
+    <div class="dlghead"><h2 id="userDialogTitle">Add user</h2><p id="userDialogSub">Users sign in with this username and password.</p></div>
+    <form id="userForm" class="dlgbody">
+      <div class="field"><label for="usrName">Full name</label><input id="usrName" placeholder="e.g. Ravi Kumar"></div>
+      <div class="two">
+        <div class="field"><label for="usrUsername">Username *</label><input id="usrUsername" required autocapitalize="none" autocomplete="off"></div>
+        <div class="field"><label for="usrPassword" id="usrPasswordLabel">Password *</label><input id="usrPassword" type="password" autocomplete="new-password"></div>
+      </div>
+      <div class="field"><label>Role *</label>
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="usrRole" value="user" checked><span>User<small>Assigned factories only</small></span></label>
+          <label><input type="radio" name="usrRole" value="admin"><span>Admin<small>All factories + Settings</small></span></label>
+        </div>
+      </div>
+      <div class="field" id="usrFactoriesField"><label>Factories this user can open</label><div class="checklist" id="usrFactories"></div></div>
+      <div class="notice" id="userNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="userSubmit">Add user</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="passwordDialog" aria-labelledby="passwordDialogTitle">
+    <div class="dlghead"><h2 id="passwordDialogTitle">Change password</h2><p>Your other signed-in devices will be signed out.</p></div>
+    <form id="passwordForm" class="dlgbody">
+      <div class="field"><label for="pwCurrent">Current password *</label><input id="pwCurrent" type="password" required autocomplete="current-password"></div>
+      <div class="two">
+        <div class="field"><label for="pwNew">New password *</label><input id="pwNew" type="password" required minlength="4" autocomplete="new-password"></div>
+        <div class="field"><label for="pwNew2">Repeat *</label><input id="pwNew2" type="password" required minlength="4" autocomplete="new-password"></div>
+      </div>
+      <div class="notice" id="passwordNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit">Change password</button></div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <footer>Standard saree length: 6.3 m · Triple-width output: 3 sarees per 6.3 m woven length<span id="footerBackup" hidden> · <a href="#" id="footerBackupLink">Download backup</a></span></footer>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+let db = { warps: [], looms: [], deliveries: [] };
+const fmt = n => Number(n || 0).toLocaleString("en-IN",{maximumFractionDigits:2});
+const plural = (n, word) => `${fmt(n)} ${word}${n===1?"":"s"}`;
+const widthLabel = w => w === "triple" ? "Triple width" : "Single width";
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+// Every request carries the session token and the selected factory. A 401 shows the sign-in screen.
+async function api(url, options={}) {
+  const headers={"Content-Type":"application/json",...(session.token?{Authorization:`Bearer ${session.token}`}:{}),...(currentFactoryId?{"X-Factory":currentFactoryId}:{})};
+  const r = await fetch(url, {...options, headers});
+  const data = await r.json().catch(()=>({}));
+  if (r.status===401 && !url.startsWith("/api/auth/login")) { signOut(session.user?"Your session ended. Please sign in again.":""); }
+  if (!r.ok) { const err=new Error(data.error || "Request failed"); err.data=data; throw err; }
+  return data;
+}
+function notice(id, message, ok=false) {
+  const el=$(id); el.textContent=message; el.className="notice show "+(ok?"ok":"err");
+}
+function hideNotice(id){$(id).className="notice";}
+function badge(status) {
+  const green=["Running","Ready","In Use"].includes(status);
+  const gray=["Available","Completed","Warp Completed","Discarded","Idle"].includes(status);
+  return `<span class="pill ${green?"green":gray?"gray":status==="Stopped"?"red":""}">${esc(status)}</span>`;
+}
+const SAREE_M=6.3;
+const todayISO=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)};
+function fmtDate(v) {
+  if(!v) return "—";
+  const d=/^\d{4}-\d{2}-\d{2}$/.test(v)?new Date(...v.split("-").map((n,i)=>i===1?n-1:+n)):new Date(v);
+  return d.toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"});
+}
+// Completed/Running are derived from the balance and loom link rather than the stored
+// status string, so older records whose status was never updated still show correctly.
+// Stored lifecycle: Ordered -> Ready -> In Use -> Completed.
+function warpState(w) {
+  const loom=db.looms.find(l=>l.id===w.assignedLoomId);
+  const ordered=fmtDate(w.orderDate||w.createdAt);
+  if(w.status==="Discarded") return {key:"discarded",pill:"gray",label:"Discarded",text:`Discarded ${fmtDate(w.discardedAt)}${w.discardReason?` · ${w.discardReason}`:""}`,short:""};
+  if(warpSpent(w)) return {key:"completed",pill:"gray",label:"Done",text:`Completed · ordered ${ordered}`,short:""};
+  if(loom) return {key:"running",pill:"green",label:"Running",text:`Running on ${loom.name}${loom.stoppedAt?" · loom stopped":""}`,sub:`${w.startedAt?`Since ${fmtDate(w.startedAt)} · `:""}Ordered ${ordered}`,short:`→ ${loom.name}`};
+  if(w.status==="Ordered") return {key:"ordered",pill:"",label:"Ordered",text:`Ordered on ${ordered}`,short:ordered};
+  return {key:"ready",pill:"amber",label:"Ready",text:w.readyDate?`Ready since ${fmtDate(w.readyDate)}`:"Ready for loom",sub:`Ordered ${ordered}`,short:w.readyDate?`Since ${fmtDate(w.readyDate)}`:""};
+}
+// Mirrors server isSpent(): under one saree length left means the warp is used up.
+const warpSpent=w=>w.status==="Completed"||w.remainingMeters<SAREE_M-1e-9;
+// Bars turn red once less than this share of the warp is left.
+const LOW_SHARE=0.2;
+const warpLow=w=>!warpSpent(w)&&w.originalMeters>0&&w.remainingMeters/w.originalMeters<LOW_SHARE;
+function warpSarees(w) {
+  const perLength=w.widthType==="triple"?3:1;
+  const usedM=Math.max(0,w.originalMeters-w.remainingMeters);
+  return {usedM, usedSarees:Math.round(usedM/SAREE_M*perLength), leftSarees:Math.floor((w.remainingMeters+1e-9)/SAREE_M)*perLength};
+}
+// Saree colour names that browsers don't know; anything else is tried as a CSS colour name.
+const SAREE_COLOURS={"peacock blue":"#0f6e8c","peacock green":"#0f766e","rani pink":"#d6246e","rani":"#d6246e","mustard":"#d4a017","mango yellow":"#f4b400","turmeric":"#e6a817","turmeric yellow":"#e6a817","lemon yellow":"#f2e05a","bottle green":"#0b5d1e","parrot green":"#5cb85c","mint green":"#98d7c2","leaf green":"#4c9a2a","mehendi green":"#6b7f2a","sky blue":"#7cc6ec","royal blue":"#2350a6","navy blue":"#1f2f5a","ink blue":"#1c2a5a","off white":"#f5f0e1","cream":"#f3e9d2","ivory":"#f6f1e3","gold":"#d4af37","golden":"#d4af37","zari":"#d4af37","silver":"#c0c0c0","copper":"#b87333","kumkum red":"#b3001b","arakku":"#8b1a1a","wine":"#722f37","onion pink":"#e7a1a8","baby pink":"#f6c6d0","peach":"#f6b38e","rust":"#b7410e","brick red":"#a33a2a","coffee":"#6f4e37","sandal":"#d8b98a","grey":"#9e9e9e","elaichi green":"#8db255","lavender":"#b39ddb","violet":"#7b1fa2","magenta":"#c2185b","maroon":"#7a0019"};
+const colourCtx=document.createElement("canvas").getContext("2d");
+function cssColour(name) {
+  colourCtx.fillStyle="#000001"; colourCtx.fillStyle=name.replace(/\s+/g,"");
+  return colourCtx.fillStyle!=="#000001"?colourCtx.fillStyle:null;
+}
+// Hex for a colour name: exact saree name, CSS name, a known name inside it ("light peacock blue"), then single words.
+function colourOf(name, hex) {
+  if(hex) return hex;
+  const key=String(name||"").toLowerCase().trim().replace(/\s+/g," ");
+  if(!key) return null;
+  if(SAREE_COLOURS[key]) return SAREE_COLOURS[key];
+  const css=cssColour(key); if(css) return css;
+  const inner=Object.keys(SAREE_COLOURS).sort((a,b)=>b.length-a.length).find(k=>key.includes(k));
+  if(inner) return SAREE_COLOURS[inner];
+  for(const word of key.split(" ").reverse()){ const c=SAREE_COLOURS[word]||cssColour(word); if(c) return c; }
+  return null;
+}
+// Names offered when a shade is picked: the saree names above plus common colours.
+const PICK_NAMES=Object.entries({...Object.fromEntries(Object.entries(SAREE_COLOURS).filter(([k])=>!["rani","golden","zari","turmeric","elaichi green"].includes(k))),
+  "red":"#d32f2f","dark red":"#8b0000","green":"#2e7d32","dark green":"#1b5e20","light green":"#9ccc65","sea green":"#2e8b57","blue":"#1565c0","light blue":"#90caf9","navy blue":"#1f2f5a","yellow":"#fbc02d","orange":"#f57c00","pink":"#e91e63","light pink":"#f8bbd0","purple":"#6a1b9a","black":"#111111","white":"#ffffff","grey":"#9e9e9e","dark grey":"#4b4b4b","brown":"#6d4c41","beige":"#d9c7a7","teal":"#00897b","olive":"#6b7a2a","turquoise":"#30c5c5","indigo":"#3f2a8c","mint":"#bfe8d3","coral":"#ff7f6a","lime":"#c6e03a"});
+function nearestColourName(hex) {
+  const rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)), [r,g,b]=rgb(hex);
+  // "Redmean" weighting: cheap, and closer to how people perceive colour than plain RGB distance.
+  const dist=([r2,g2,b2])=>{ const rm=(r+r2)/2; return (2+rm/256)*(r-r2)**2+4*(g-g2)**2+(2+(255-rm)/256)*(b-b2)**2; };
+  const [name]=PICK_NAMES.reduce((best,cur)=>dist(rgb(cur[1]))<dist(rgb(best[1]))?cur:best);
+  return name.charAt(0).toUpperCase()+name.slice(1);
+}
+function swatch(w) {
+  const b=colourOf(w.bodyColor,w.bodyHex), r=colourOf(w.borderColor,w.borderHex);
+  return `<div class="saree${b&&r?"":" unknown"}" style="--body:${b||"#d9d6e4"};--border:${r||"#b9b5c9"}" title="Body: ${esc(w.bodyColor)} · Border: ${esc(w.borderColor)}"></div>`;
+}
+function renderStats() {
+  $("statLooms").textContent=db.looms.length;
+  $("statRunning").textContent=db.looms.filter(l=>l.warpId&&!l.stoppedAt).length;
+  $("statMeters").textContent=fmt(db.warps.filter(w=>!warpSpent(w)&&w.status!=="Discarded").reduce((s,w)=>s+w.remainingMeters,0));
+  $("statSarees").textContent=fmt(db.deliveries.reduce((s,d)=>s+d.sarees,0));
+}
+function renderWarpOptions() {
+  const old=$("deliveryLoom").value;
+  $("deliveryLoom").innerHTML=db.looms.filter(l=>l.warpId&&!l.stoppedAt).map(l=>{const w=db.warps.find(x=>x.id===l.warpId);return `<option value="${esc(l.id)}">${esc(l.name)} · ${esc(w?w.name:"")}</option>`}).join("");
+  if([...$("deliveryLoom").options].some(o=>o.value===old)) $("deliveryLoom").value=old;
+}
+let flashIds=new Set();
+const TRASH_ICON='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg>';
+function loomCard(l, sareesByLoom) {
+  const w=db.warps.find(x=>x.id===l.warpId), delivered=sareesByLoom[l.id]||0, stopped=!!l.stoppedAt;
+  const last=db.deliveries.find(d=>d.loomId===l.id), flash=flashIds.has(l.id)?" flash":"";
+  const pill=stopped?'<span class="pill red">Stopped</span>':w?'<span class="pill green">Running</span>':'<span class="pill gray">Idle</span>';
+  const tools=stopped?(!isAdmin()?"":`<button class="iconbtn" data-remove title="Remove loom" aria-label="Remove ${esc(l.name)}">${TRASH_ICON}</button>`):`<button class="iconbtn stop" data-stop title="Stop loom" aria-label="Stop ${esc(l.name)}">⏸</button>`;
+  const head=`<div class="lhead"><div><h4>${esc(l.name)}</h4><div class="meta">${widthLabel(l.widthType)}</div></div><div class="lhead-r">${pill}${tools}<span class="grip" title="Drag to rearrange" aria-hidden="true">⠿</span></div></div>`;
+  const total=`<div class="lbig"><b>${fmt(delivered)}</b><span>${delivered===1?"saree":"sarees"} dispatched${last?` · last ${fmtDate(last.createdAt)}`:""}</span></div>`;
+  const stopNote=stopped?`<div class="wstate">Stopped since ${fmtDate(l.stoppedAt)}<small>${esc(l.stopReason||"No reason given")}</small></div>`:"";
+  const action=stopped?`<button class="actbtn" data-resume>Resume loom →</button>`
+    :w?`<button class="actbtn" data-deliver="${esc(l.id)}">Dispatch →</button>`
+    :`<button class="actbtn" data-assign="${esc(l.id)}">Assign warp →</button>`;
+  const cls=`wcard lcard${stopped?" stopped":w?"":" idle"}${flash}`;
+  if(!w) return `<div class="${cls}" data-loom="${esc(l.id)}">${head}${total}${stopNote}
+    ${stopped?"":`<div class="wstate">No warp running${l.status==="Warp Completed"?"<small>Last warp completed</small>":""}</div>`}
+    <div class="cardact">${action}</div></div>`;
+  const q=warpSarees(w);
+  return `<div class="${cls}" data-loom="${esc(l.id)}">${head}${total}${stopNote}
+    <div class="wstate">${esc(w.name)}<small>${esc(w.bodyColor)} / ${esc(w.borderColor)}${w.startedAt?` · since ${fmtDate(w.startedAt)}`:""}</small></div>
+    ${swatch(w)}
+    ${bar(w.remainingMeters,w.originalMeters)}
+    <div class="mini">
+      <div>Woven<b>${fmt(q.usedM)} m</b><i>${plural(q.usedSarees,"saree")}</i></div>
+      <div${warpLow(w)?' class="lowtxt"':""}>Left<b>${fmt(w.remainingMeters)} m</b><i>${plural(q.leftSarees,"saree")}</i></div>
+    </div>
+    <div class="cardact">${action}</div></div>`;
+}
+// Manual tile order (set by dragging) wins; tiles never arranged (order unset) keep their
+// default order and sit above arranged ones, so new tiles show up first.
+const byOrder=list=>list.slice().sort((a,b)=>(a.order??-1)-(b.order??-1));
+function renderLooms() {
+  $("loomCount").textContent=`${db.looms.length} loom${db.looms.length===1?"":"s"}`;
+  $("loomEmpty").hidden=db.looms.length>0;
+  const sareesByLoom={};
+  db.deliveries.forEach(d=>sareesByLoom[d.loomId]=(sareesByLoom[d.loomId]||0)+d.sarees);
+  ["single","triple"].forEach(g=>{
+    // Default order: running, stopped, idle (stable, so newest first within each).
+    const rank=l=>l.stoppedAt?1:l.warpId?0:2;
+    const list=byOrder(db.looms.filter(l=>l.widthType===g).sort((a,b)=>rank(a)-rank(b)));
+    const running=list.filter(l=>rank(l)===0).length, stopped=list.filter(l=>rank(l)===1).length;
+    const el=document.querySelector(`.loomgroup[data-group=${g}]`);
+    // A section only appears when the factory has looms of that width.
+    el.hidden=!list.length;
+    el.querySelector("[data-count]").textContent=list.length;
+    el.querySelector("[data-sub]").textContent=`${running} running${stopped?` · ${stopped} stopped`:""} · ${list.length-running-stopped} idle`;
+    el.querySelector(".loomgrid").innerHTML=list.map(l=>loomCard(l,sareesByLoom)).join("");
+  });
+}
+function bar(remaining, original) {
+  const pct=original>0?Math.max(0,Math.min(100,remaining/original*100)):0;
+  const low=remaining>=SAREE_M-1e-9&&pct<LOW_SHARE*100;
+  return `<div class="bar${low?" low":""}"><i style="width:${pct.toFixed(1)}%"></i></div>`;
+}
+function warpCell(w) {
+  return `<div class="warpcell">${swatch(w).replace('class="saree','class="saree mini')}<div><strong>${esc(w.name)}</strong><small>${esc(w.bodyColor)} / ${esc(w.borderColor)}</small></div></div>`;
+}
+const deliveredFromWarp=id=>db.deliveries.filter(d=>d.warpId===id).reduce((s,d)=>s+d.sarees,0);
+function renderHome() {
+  $("homeAsOf").textContent=`${currentFactory()?.name||""} · As of ${new Date().toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})}`;
+  $("homeLoomCount").textContent=plural(db.looms.length,"loom");
+  const sareesByLoom={};
+  db.deliveries.forEach(d=>sareesByLoom[d.loomId]=(sareesByLoom[d.loomId]||0)+d.sarees);
+  const rank=l=>l.stoppedAt?1:l.warpId?0:2;
+  $("homeLoomTables").innerHTML=db.looms.length?["single","triple"].map(g=>{
+    const list=db.looms.filter(l=>l.widthType===g).sort((a,b)=>rank(a)-rank(b));
+    if(!list.length) return "";
+    return `<div class="widthhead ${g}">${widthLabel(g)} looms <span>· ${plural(list.length,"loom")}</span></div>
+    <div class="tablewrap"><table><thead><tr><th>Loom</th><th>Warp running</th><th>Warp balance</th><th>Saree balance</th><th>Sarees dispatched</th><th>Status</th></tr></thead><tbody>${list.map(l=>{
+      const w=db.warps.find(x=>x.id===l.warpId), q=w&&warpSarees(w);
+      return `<tr><td><strong>${esc(l.name)}</strong></td><td>${w?warpCell(w):"—"}</td><td>${w?`${fmt(w.remainingMeters)} / ${fmt(w.originalMeters)} m${bar(w.remainingMeters,w.originalMeters)}`:"—"}</td><td>${w?`<strong>${plural(q.leftSarees,"saree")}</strong>`:"—"}</td><td><strong>${fmt(sareesByLoom[l.id]||0)}</strong></td><td>${badge(l.stoppedAt?"Stopped":w?"Running":"Idle")}</td></tr>`;
+    }).join("")}</tbody></table></div>`;
+  }).join(""):'<div class="empty">No looms yet. <a href="#warps">Add a loom</a></div>';
+
+  const states=db.warps.map(warpState);
+  const count=k=>states.filter(x=>x.key===k).length;
+  $("warpOrdered").textContent=count("ordered"); $("warpReady").textContent=count("ready");
+  $("warpRunning").textContent=count("running"); $("warpDone").textContent=count("completed");
+  // Active warps only; completed/discarded ones are counted in the chips.
+  const order={running:0,ready:1,ordered:2};
+  const active=db.warps.map(w=>({w,st:warpState(w)})).filter(x=>x.st.key in order);
+  $("homeWarpCount").textContent=plural(active.length,"active warp");
+  $("homeWarpTables").innerHTML=active.length?["single","triple"].map(g=>{
+    const list=active.filter(x=>x.w.widthType===g).sort((a,b)=>order[a.st.key]-order[b.st.key]);
+    if(!list.length) return "";
+    return `<div class="widthhead ${g}">${widthLabel(g)} warps <span>· ${plural(list.length,"warp")}</span></div>
+    <div class="tablewrap"><table><thead><tr><th>Warp</th><th>Status</th><th>Warp balance</th><th>Saree balance</th><th>Sarees dispatched</th></tr></thead><tbody>${list.map(({w,st})=>{
+      const q=warpSarees(w);
+      return `<tr><td>${warpCell(w)}</td><td><span class="pill ${st.pill}">${st.label}</span>${st.short?`<br><span style="color:var(--muted)">${esc(st.short)}</span>`:""}</td><td>${fmt(w.remainingMeters)} / ${fmt(w.originalMeters)} m${bar(w.remainingMeters,w.originalMeters)}</td><td><strong>${plural(q.leftSarees,"saree")}</strong></td><td><strong>${fmt(deliveredFromWarp(w.id))}</strong></td></tr>`;
+    }).join("")}</tbody></table></div>`;
+  }).join(""):'<div class="empty">No active warps. <a href="#warps">Add a warp</a></div>';
+
+  // Stock: pooled totals, plus warps that still have sarees on the way (not yet added to stock).
+  const stockRows=db.warps.map(w=>({w,st:stockOf(w.id)})).filter(r=>onTheWay(r.st)>0)
+    .sort((a,b)=>onTheWay(b.st)-onTheWay(a.st));
+  const sumSt=sumStock();
+  [["hsSent","sent"],["hsDelivered","delivered"],["hsProcess","process"],["hsFolding","folding"],["hsStock","stock"],["hsMai","mai"],["hsLot","lot"],["hsDamage","damage"]].forEach(([el,k])=>$(el).textContent=fmt(sumSt(k)));
+  const c=(n,col)=>`<strong style="color:${col}">${fmt(n)}</strong>`;
+  $("homeStockTable").innerHTML=stockRows.length?`<table><thead><tr><th>Warp</th><th>Dispatched</th><th>At godown</th><th>In process</th><th>In folding</th></tr></thead><tbody>${stockRows.map(({w,st})=>`<tr><td>${warpCell(w)}</td><td>${c(st.sent,"#6d28d9")}</td><td>${c(st.delivered,"#4f46e5")}</td><td>${c(st.process,"#ea580c")}</td><td>${c(st.folding,"#be185d")}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">No sarees on the way. Warps appear here after dispatches from looms, until all their sarees are added to stock.</div>';
+}
+// ---- Dashboard export: phone-width JPG download and WhatsApp share ----
+function dashboardText() {
+  const stamp=new Date().toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
+  const running=db.looms.filter(l=>l.warpId&&!l.stoppedAt).length, stopped=db.looms.filter(l=>l.stoppedAt).length;
+  const today=new Date().toDateString(), todayN=db.deliveries.filter(d=>new Date(d.createdAt).toDateString()===today).reduce((s,d)=>s+d.sarees,0);
+  const f=currentFactory();
+  const sumSt=sumStock();
+  const lines=[`*My Thari — ${f?f.name:"Dashboard"}*`,f?.location?`${f.location} · ${stamp}`:stamp,"",
+    `Looms: ${db.looms.length} · Running ${running} · Stopped ${stopped} · Idle ${db.looms.length-running-stopped}`,
+    `Sarees dispatched: ${fmt(db.deliveries.reduce((s,d)=>s+d.sarees,0))} (today ${fmt(todayN)})`,
+    `On the way: dispatched ${fmt(sumSt("sent"))} · at godown ${fmt(sumSt("delivered"))} · in process ${fmt(sumSt("process"))} · in folding ${fmt(sumSt("folding"))}`,
+    `Stock in hand: stock ${fmt(sumSt("stock"))} · mai ${fmt(sumSt("mai")+sumSt("cleaning"))} · lot ${fmt(sumSt("lot"))} · damage ${fmt(sumSt("damage"))}`];
+  ["single","triple"].forEach(g=>{
+    const list=db.looms.filter(l=>l.widthType===g); if(!list.length) return;
+    lines.push("",`*${widthLabel(g)} looms*`);
+    list.forEach(l=>{
+      const w=db.warps.find(x=>x.id===l.warpId);
+      lines.push(`• ${l.name}${l.stoppedAt?" (stopped)":""} — `+(w?`${w.name} (${w.bodyColor}/${w.borderColor}): ${fmt(w.remainingMeters)} m · ${plural(warpSarees(w).leftSarees,"saree")} left`:"no warp"));
+    });
+  });
+  const active=db.warps.filter(w=>["ordered","ready"].includes(warpState(w).key));
+  if(active.length){ lines.push("","*Warps waiting*"); active.forEach(w=>lines.push(`• ${w.name} (${w.bodyColor}/${w.borderColor}) — ${warpState(w).label} · ${fmt(w.remainingMeters)} m · ${widthLabel(w.widthType)}`)); }
+  return lines.join("\n");
+}
+function loadExporter() {
+  if(window.html2canvas) return Promise.resolve();
+  return new Promise((ok,fail)=>{ const sc=document.createElement("script"); sc.src="/vendor/html2canvas/html2canvas.min.js"; sc.onload=ok; sc.onerror=()=>fail(new Error("Could not load the image exporter.")); document.head.appendChild(sc); });
+}
+// The dashboard image is its own phone-width layout (480 CSS px, saved at 1080 px wide):
+// stacked rows instead of wide tables, so it reads without zooming when shared on WhatsApp.
+function reportHtml() {
+  const f=currentFactory(), stamp=new Date().toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
+  const running=db.looms.filter(l=>l.warpId&&!l.stoppedAt).length;
+  const today=new Date().toDateString(), todayN=db.deliveries.filter(d=>new Date(d.createdAt).toDateString()===today).reduce((s,d)=>s+d.sarees,0);
+  const meters=db.warps.filter(w=>!warpSpent(w)&&w.status!=="Discarded").reduce((s,w)=>s+w.remainingMeters,0);
+  const sareesByLoom={}; db.deliveries.forEach(d=>sareesByLoom[d.loomId]=(sareesByLoom[d.loomId]||0)+d.sarees);
+  const mbar=w=>{ const pct=w.originalMeters>0?Math.max(0,Math.min(100,w.remainingMeters/w.originalMeters*100)):0; return `<div class="mr-bar${warpLow(w)?" low":""}"><i style="width:${pct.toFixed(1)}%"></i></div>`; };
+  const warpLine=w=>`<div class="mr-warp">${swatch(w).replace('class="saree','class="saree mini')}<span><b>${esc(w.name)}</b> · ${esc(w.bodyColor)} / ${esc(w.borderColor)}</span></div>`;
+  const statCard=(label,n,note="")=>`<div class="mr-stat"><small>${label}</small><b>${fmt(n)}</b>${note?`<span>${note}</span>`:""}</div>`;
+  const rank=l=>l.stoppedAt?1:l.warpId?0:2;
+  const looms=["single","triple"].map(g=>{
+    const list=db.looms.filter(l=>l.widthType===g).sort((a,b)=>rank(a)-rank(b)); if(!list.length) return "";
+    return `<div class="mr-sub">${widthLabel(g)} · ${plural(list.length,"loom")}</div>`+list.map(l=>{
+      const w=db.warps.find(x=>x.id===l.warpId);
+      return `<div class="mr-row"><div class="mr-top"><strong>${esc(l.name)}</strong>${badge(l.stoppedAt?"Stopped":w?"Running":"Idle")}</div>
+        ${w?`${warpLine(w)}<div class="mr-meta"><b>${fmt(w.remainingMeters)}</b> / ${fmt(w.originalMeters)} m · <b>${plural(warpSarees(w).leftSarees,"saree")}</b> left · ${fmt(sareesByLoom[l.id]||0)} dispatched</div>${mbar(w)}`:`<div class="mr-meta">No warp · ${fmt(sareesByLoom[l.id]||0)} delivered</div>`}</div>`;
+    }).join("");
+  }).join("")||'<div class="mr-meta">No looms yet.</div>';
+  const waiting=db.warps.map(w=>({w,st:warpState(w)})).filter(x=>x.st.key==="ready"||x.st.key==="ordered");
+  const warps=waiting.map(({w,st})=>`<div class="mr-row"><div class="mr-top"><span>${warpLine(w)}</span><span class="pill ${st.pill}">${st.label}</span></div><div class="mr-meta">${widthLabel(w.widthType)} · <b>${fmt(w.remainingMeters)} m</b> · ${plural(warpSarees(w).leftSarees,"saree")}</div></div>`).join("");
+  const sumSt=sumStock();
+  const chip=(label,n)=>`<div class="mr-chip"><b>${fmt(n)}</b>${label}</div>`;
+  const stockRows=db.warps.map(w=>({w,st:stockOf(w.id)})).filter(r=>onTheWay(r.st)>0).sort((a,b)=>onTheWay(b.st)-onTheWay(a.st));
+  const stockList=stockRows.map(({w,st})=>{
+    const parts=[["Dispatched",st.sent],["Godown",st.delivered],["Process",st.process],["Folding",st.folding]].filter(([,n])=>n);
+    return `<div class="mr-row">${warpLine(w)}<div class="mr-meta">${parts.map(([k,n])=>`${k} <b>${fmt(n)}</b>`).join(" · ")}</div></div>`;
+  }).join("");
+  return `<div class="mr-head"><span class="logocard"><img src="img/thari-logo-640.png" alt=""></span><div><h1>${esc(f?f.name:"My Thari")}</h1><p>${f?.location?`${esc(f.location)} · `:""}${esc(stamp)}</p></div></div>
+    <div class="mr-stats">${statCard("Looms",db.looms.length,`${running} running`)}${statCard("Active warp meters",meters)}${statCard("Sarees dispatched",db.deliveries.reduce((s,d)=>s+d.sarees,0),`today ${fmt(todayN)}`)}${statCard("In stock",sumSt("stock"))}</div>
+    <div class="mr-sec"><h2>Looms <span>${plural(db.looms.length,"loom")}</span></h2>${looms}</div>
+    ${waiting.length?`<div class="mr-sec"><h2>Warps waiting <span>${plural(waiting.length,"warp")}</span></h2>${warps}</div>`:""}
+    <div class="mr-sec"><h2>Stock</h2>
+      <div class="mr-sub">On the way</div><div class="mr-chips">${chip("Dispatched",sumSt("sent"))}${chip("Godown",sumSt("delivered"))}${chip("Process",sumSt("process"))}${chip("Folding",sumSt("folding"))}</div>
+      <div class="mr-sub">In hand</div><div class="mr-chips">${chip("Stock",sumSt("stock"))}${chip("Mai",sumSt("mai")+sumSt("cleaning"))}${chip("Lot",sumSt("lot"))}${chip("Damage",sumSt("damage"))}</div>
+      ${stockList?`<div class="mr-sub">On the way by warp</div>${stockList}`:""}</div>
+    <div class="mr-foot">My Thari · Track all my loom production</div>`;
+}
+async function dashboardBlob() {
+  await loadExporter();
+  const box=document.createElement("div"); box.className="mreport"; box.innerHTML=reportHtml();
+  document.body.appendChild(box);
+  try{
+    await Promise.all([...box.querySelectorAll("img")].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r;})));
+    const canvas=await html2canvas(box,{scale:1080/480,backgroundColor:"#f6f4fd",logging:false});
+    return await new Promise(r=>canvas.toBlob(r,"image/jpeg",0.9));
+  } finally { box.remove(); }
+}
+const dashboardFile=()=>`my-thari-${(currentFactory()?.name||"dashboard").replace(/[^A-Za-z0-9]+/g,"-").toLowerCase()}-${todayISO()}.jpg`;
+function saveBlob(blob,name) {
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+async function busy(btn,label,fn) {
+  const old=btn.textContent; btn.disabled=true; btn.textContent=label;
+  try{ await fn(); } catch(err){ toast(err.message||"Something went wrong."); } finally { btn.disabled=false; btn.textContent=old; }
+}
+$("dlDashboard").addEventListener("click",e=>busy(e.currentTarget,"Preparing…",async()=>{
+  renderHome(); saveBlob(await dashboardBlob(),dashboardFile()); toast("Dashboard image downloaded.");
+}));
+$("waDashboard").addEventListener("click",e=>{
+  renderHome();
+  const text=dashboardText();
+  // Sharing an image needs the Web Share API, which browsers only allow on HTTPS (e.g. the Render URL).
+  let canFiles=false;
+  try{ canFiles=window.isSecureContext&&!!navigator.canShare&&navigator.canShare({files:[new File([""],"t.jpg",{type:"image/jpeg"})]}); }catch{}
+  if(!canFiles){
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,"_blank","noopener");
+    busy(e.currentTarget,"Preparing…",async()=>{ saveBlob(await dashboardBlob(),dashboardFile()); toast("Summary opened in WhatsApp. The dashboard image was downloaded — attach it in the chat."); });
+    return;
+  }
+  busy(e.currentTarget,"Preparing…",async()=>{
+    const file=new File([await dashboardBlob()],dashboardFile(),{type:"image/jpeg"});
+    try{ await navigator.share({files:[file],text}); }
+    catch(err){ if(err.name!=="AbortError"){ saveBlob(file,file.name); toast("Couldn't open sharing, so the image was downloaded instead."); } }
+  });
+});
+async function refresh() {
+  if(!currentFactoryId||!session.user) return;
+  db=await api("/api/data");
+  renderStats();renderWarpOptions();renderHome();renderLooms();renderWarps();renderProcess();renderStock();renderLog();updatePreview();
+  if(flashIds.size) setTimeout(()=>flashIds=new Set(),1600);
+}
+const views=["home","warps","looms","process","stock","log","settings"];
+function route() {
+  let v=views.includes(location.hash.slice(1))?location.hash.slice(1):"home";
+  if(v==="settings"&&!isAdmin()) v="home";
+  // Without a factory only Settings (for admins) makes sense; everything else shows a hint.
+  const noFactory=!currentFactoryId&&v!=="settings";
+  $("noFactory").hidden=!noFactory||!session.user;
+  $("noFactory").innerHTML=isAdmin()?'No factory yet. <a href="#settings">Create one in Settings</a> to start.':"You have not been given access to a factory yet. Ask your admin to assign one.";
+  document.querySelector("nav.tabs").hidden=!currentFactoryId;
+  views.forEach(x=>$("view-"+x).hidden=noFactory||x!==v);
+  if(v==="settings") loadSettings();
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.getAttribute("href")==="#"+v));
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",route);
+$("warpOrderDate").value=todayISO();
+const STAGE_EMPTY={ordered:'No warps on order.<div class="cardact"><button class="actbtn" type="button" data-open-warp>+ Add warp</button></div>',ready:"Drag ordered warps here once received.",running:"Drag a ready warp here to start it on a loom."};
+function warpCard(w) {
+  const st=warpState(w), q=warpSarees(w), done=st.key==="completed";
+  const loom=db.looms.find(l=>l.id===w.assignedLoomId);
+  const act=st.key==="ordered"?`<button class="actbtn" data-act="ready">Mark ready →</button>`
+    :st.key==="ready"?`<button class="actbtn" data-act="running">Start on loom →</button>`
+    :"";
+  return `<div class="wcard${flashIds.has(w.id)?" flash":""}" data-warp="${esc(w.id)}"${done?' style="cursor:default"':""}>
+    ${done?"":`<div class="cardtools">${st.key==="running"||!isAdmin()?"":`<button class="iconbtn" data-discard title="Discard warp" aria-label="Discard ${esc(w.name)}">✕</button>`}<span class="grip" title="Drag to move" aria-hidden="true">⠿</span></div>`}
+    <h4>${esc(w.name)}</h4>
+    <div class="meta">${widthLabel(w.widthType)} · ${esc(w.bodyColor)} / ${esc(w.borderColor)} · ${fmt(w.originalMeters)} m</div>
+    ${swatch(w)}
+    <div class="wstate">${esc(st.text)}${st.sub?`<small>${esc(st.sub)}</small>`:""}</div>
+    ${bar(w.remainingMeters,w.originalMeters)}
+    <div class="mini">
+      <div>Woven<b>${fmt(q.usedM)} m</b><i>${fmt(q.usedSarees)} saree${q.usedSarees===1?"":"s"}</i></div>
+      <div${warpLow(w)?' class="lowtxt"':""}>Left<b>${fmt(w.remainingMeters)} m</b><i>${fmt(q.leftSarees)} saree${q.leftSarees===1?"":"s"}</i></div>
+    </div>
+    ${act?`<div class="cardact">${act}</div>`:""}
+  </div>`;
+}
+function renderWarps() {
+  // Completed warps are not shown on the board; they remain on Home and in delivery history.
+  const by={ordered:[],ready:[],running:[],completed:[],discarded:[]};
+  byOrder(db.warps).forEach(w=>by[warpState(w).key].push(w));
+  const active=by.ordered.length+by.ready.length+by.running.length;
+  $("warpCount").textContent=`${active} active warp${active===1?"":"s"}${by.completed.length?` · ${by.completed.length} completed`:""}`;
+  document.querySelectorAll("#warpBoard .col").forEach(col=>{
+    const list=by[col.dataset.stage];
+    col.querySelector("[data-count]").textContent=list.length;
+    col.querySelector("[data-meters]").textContent=`${fmt(list.reduce((s,w)=>s+w.remainingMeters,0))} m`;
+    col.querySelector(".cards").innerHTML=list.length?list.map(warpCard).join(""):`<div class="colempty">${STAGE_EMPTY[col.dataset.stage]}</div>`;
+  });
+}
+// Mirrors the server's /api/warps/:id/move rules so blocked drops can be explained up front.
+function moveBlock(w, from, to) {
+  if(from==="completed") return "Completed warps can't be moved.";
+  if(to==="ordered"&&from==="running") return "Take the warp off its loom first (drag it to Ready), then back to Ordered.";
+  if(to==="ordered"&&w.remainingMeters<w.originalMeters) return "This warp has already been woven, so it can't go back to Ordered.";
+  return null;
+}
+let askResolve=null;
+// Generic prompt. Resolves to: the picked option, the typed input, true for a plain confirm, or null if cancelled.
+function ask({title,text,options,ok,label="Loom",input,danger=false}) {
+  $("askPickLabel").textContent=label+" *"; $("askTitle").textContent=title; $("askText").textContent=text; $("askOk").textContent=ok;
+  $("askOk").classList.toggle("danger",danger);
+  $("askPickField").hidden=!options;
+  $("askInputField").hidden=!input;
+  // A hidden required input would block submitting a plain confirm, so clear it when unused.
+  if(!input) $("askInput").required=false;
+  if(input){
+    const i=$("askInput"); $("askInputLabel").textContent=input.label;
+    Object.assign(i,{type:input.type||"text",placeholder:input.placeholder||"",required:!!input.required,value:input.value??""});
+    i.min=input.min??""; i.max=input.max??""; i.step=input.type==="number"?"1":"";
+    setTimeout(()=>i.focus(),0);
+  }
+  if(options) $("askPick").innerHTML=options.map(([v,l])=>`<option value="${esc(v)}">${esc(l)}</option>`).join("");
+  $("askDialog").showModal();
+  return new Promise(r=>askResolve=r);
+}
+$("askForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const r=askResolve, v=!$("askInputField").hidden?$("askInput").value.trim():$("askPickField").hidden?true:$("askPick").value;
+  askResolve=null; $("askDialog").close(); r&&r(v);
+});
+$("askDialog").addEventListener("close",()=>{ if(askResolve){const r=askResolve;askResolve=null;r(null)} });
+document.querySelectorAll("dialog [data-close]").forEach(b=>b.addEventListener("click",()=>b.closest("dialog").close()));
+async function moveWarp(w, to) {
+  const from=warpState(w).key; if(from===to) return;
+  hideNotice("warpListNotice");
+  const blocked=moveBlock(w,from,to); if(blocked) return notice("warpListNotice",blocked);
+  const body={to,date:todayISO()}, loom=db.looms.find(l=>l.id===w.assignedLoomId);
+  let msg;
+  if(to==="running") {
+    const free=db.looms.filter(l=>!l.warpId&&!l.stoppedAt&&l.widthType===w.widthType);
+    if(!free.length) return notice("warpListNotice",`No free ${widthLabel(w.widthType).toLowerCase()} loom for ${w.name}. Add a loom first.`);
+    const loomId=await ask({title:`Start ${w.name} on a loom`,text:`Free ${widthLabel(w.widthType).toLowerCase()} looms are listed.`,options:free.map(l=>[l.id,l.plan?`${l.name} · ${l.plan}`:l.name]),ok:"Start on loom"});
+    if(!loomId) return;
+    body.loomId=loomId; msg=`${w.name} is now running on ${free.find(l=>l.id===loomId).name}.`;
+  } else if(to==="ready"&&from==="running") {
+    if(!await ask({title:`Take ${w.name} off ${loom?loom.name:"its loom"}?`,text:"The loom becomes available again. Woven meters and dispatch history are kept.",ok:"Take off loom"})) return;
+    msg=`${w.name} taken off ${loom?loom.name:"its loom"} and moved to Ready.`;
+  } else msg=to==="ready"?`${w.name} marked ready.`:`${w.name} moved back to Ordered.`;
+  try{
+    await api(`/api/warps/${encodeURIComponent(w.id)}/move`,{method:"POST",body:JSON.stringify(body)});
+    notice("warpListNotice",msg,true); await refresh();
+  }catch(err){notice("warpListNotice",err.message)}
+}
+// Pointer-based drag (HTML5 drag-and-drop does not work on touch screens).
+// Mouse drags from anywhere on the card; touch drags only from the grip so the page can still scroll.
+let drag=null;
+function endDrag(drop) {
+  if(!drag) return;
+  const d=drag; drag=null; cancelAnimationFrame(d.raf);
+  if(d.ghost) d.ghost.remove();
+  d.card.classList.remove("dragging");
+  document.querySelectorAll("#warpBoard .col").forEach(c=>c.classList.remove("over","blocked"));
+  if(drop&&d.started&&d.over) return moveWarp(d.w,d.over.dataset.stage);
+  if(drop&&d.started&&d.reordered) saveOrder("warps",d.card.parentElement);
+}
+// Live reorder while dragging: move the dragged tile to where the pointer is among its siblings.
+// Columns stack tiles vertically; loom sections are grids, so compare by row, then by x.
+function placeAmong(container, card, x, y, grid) {
+  const others=[...container.children].filter(c=>c!==card&&c.matches(".wcard"));
+  const next=others.find(c=>{
+    const r=c.getBoundingClientRect();
+    return grid?(y<r.top||(y<=r.bottom&&x<r.left+r.width/2)):y<r.top+r.height/2;
+  });
+  if(next?next.previousElementSibling===card:container.lastElementChild===card) return false;
+  container.insertBefore(card,next||null);
+  return true;
+}
+async function saveOrder(kind, container) {
+  const ids=[...container.querySelectorAll(kind==="warps"?".wcard[data-warp]":".wcard[data-loom]")].map(c=>c.dataset.warp||c.dataset.loom);
+  try{ await api("/api/order",{method:"POST",body:JSON.stringify({kind,ids})}); await refresh(); }
+  catch(err){ toast(err.message); await refresh(); }
+}
+$("warpBoard").addEventListener("pointerdown",e=>{
+  const card=e.target.closest(".wcard");
+  if(!card||e.button>0||e.target.closest("button,a,select")) return;
+  if(e.pointerType!=="mouse"&&!e.target.closest(".grip")) return;
+  const w=db.warps.find(x=>x.id===card.dataset.warp);
+  if(!w||warpState(w).key==="completed") return;
+  e.preventDefault();
+  try{card.setPointerCapture(e.pointerId)}catch{}
+  drag={card,w,from:warpState(w).key,x:e.clientX,y:e.clientY,started:false,over:null,vy:0,raf:0};
+});
+$("warpBoard").addEventListener("pointermove",e=>{
+  if(!drag) return;
+  if(!drag.started) {
+    if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<6) return;
+    const r=drag.card.getBoundingClientRect(), cs=getComputedStyle(drag.card), g=drag.card.cloneNode(true);
+    ["--c1","--c2","--t"].forEach(v=>g.style.setProperty(v,cs.getPropertyValue(v)));
+    g.classList.add("ghost"); g.style.width=r.width+"px";
+    document.body.appendChild(g);
+    Object.assign(drag,{started:true,ghost:g,ox:drag.x-r.left,oy:drag.y-r.top});
+    drag.card.classList.add("dragging");
+    document.querySelectorAll("#warpBoard .col").forEach(c=>{ if(c.dataset.stage!==drag.from&&moveBlock(drag.w,drag.from,c.dataset.stage)) c.classList.add("blocked"); });
+    const tick=()=>{ if(!drag) return; if(drag.vy) window.scrollBy(0,drag.vy); drag.raf=requestAnimationFrame(tick); };
+    drag.raf=requestAnimationFrame(tick);
+  }
+  drag.ghost.style.left=(e.clientX-drag.ox)+"px"; drag.ghost.style.top=(e.clientY-drag.oy)+"px";
+  drag.vy=e.clientY<70?-12:e.clientY>innerHeight-70?12:0;
+  const col=document.elementFromPoint(e.clientX,e.clientY)?.closest("#warpBoard .col")||null;
+  const target=col&&col.dataset.stage!==drag.from?col:null;
+  document.querySelectorAll("#warpBoard .col").forEach(c=>c.classList.toggle("over",c===target));
+  drag.over=target;
+  // Same column: rearrange instead of changing stage.
+  if(col&&col.dataset.stage===drag.from&&placeAmong(drag.card.parentElement,drag.card,e.clientX,e.clientY,false)) drag.reordered=true;
+});
+$("warpBoard").addEventListener("pointerup",()=>endDrag(true));
+$("warpBoard").addEventListener("pointercancel",()=>endDrag(false));
+let loomDrag=null;
+$("view-looms").addEventListener("pointerdown",e=>{
+  const card=e.target.closest(".lcard");
+  if(!card||e.button>0||e.target.closest("button,a,select")) return;
+  if(e.pointerType!=="mouse"&&!e.target.closest(".grip")) return;
+  e.preventDefault();
+  try{card.setPointerCapture(e.pointerId)}catch{}
+  loomDrag={card,x:e.clientX,y:e.clientY,started:false,moved:false,vy:0,raf:0};
+});
+$("view-looms").addEventListener("pointermove",e=>{
+  const d=loomDrag; if(!d) return;
+  if(!d.started){
+    if(Math.hypot(e.clientX-d.x,e.clientY-d.y)<6) return;
+    const r=d.card.getBoundingClientRect(), cs=getComputedStyle(d.card), g=d.card.cloneNode(true);
+    ["--c1","--c2","--t"].forEach(v=>g.style.setProperty(v,cs.getPropertyValue(v)));
+    g.classList.add("ghost"); g.style.width=r.width+"px"; document.body.appendChild(g);
+    Object.assign(d,{started:true,ghost:g,ox:d.x-r.left,oy:d.y-r.top}); d.card.classList.add("dragging");
+    const tick=()=>{ if(loomDrag!==d) return; if(d.vy) window.scrollBy(0,d.vy); d.raf=requestAnimationFrame(tick); };
+    d.raf=requestAnimationFrame(tick);
+  }
+  d.ghost.style.left=(e.clientX-d.ox)+"px"; d.ghost.style.top=(e.clientY-d.oy)+"px";
+  d.vy=e.clientY<70?-12:e.clientY>innerHeight-70?12:0;
+  // Only within the loom's own width section.
+  if(placeAmong(d.card.parentElement,d.card,e.clientX,e.clientY,true)) d.moved=true;
+});
+function endLoomDrag(drop) {
+  const d=loomDrag; if(!d) return; loomDrag=null; cancelAnimationFrame(d.raf);
+  if(d.ghost) d.ghost.remove(); d.card.classList.remove("dragging");
+  if(drop&&d.moved) saveOrder("looms",d.card.parentElement); else if(d.moved) refresh();
+}
+$("view-looms").addEventListener("pointerup",()=>endLoomDrag(true));
+$("view-looms").addEventListener("pointercancel",()=>endLoomDrag(false));
+$("warpBoard").addEventListener("click",e=>{
+  if(e.target.closest("[data-open-warp]")) return openWarpForm();
+  const card=e.target.closest(".wcard"); if(!card) return;
+  if(e.target.closest("[data-discard]")) return discardWarp(db.warps.find(x=>x.id===card.dataset.warp));
+  const w=db.warps.find(x=>x.id===card.dataset.warp);
+  const btn=e.target.closest("button[data-act]");
+  if(btn) moveWarp(w,btn.dataset.act);
+});
+function openWarpForm() { hideNotice("warpNotice"); $("warpDialog").showModal(); $("warpName").focus(); }
+$("openWarpForm").addEventListener("click",openWarpForm);
+async function discardWarp(w) {
+  const reason=await ask({title:`Discard ${w.name}?`,text:"It is removed from the board. This cannot be undone.",input:{label:"Reason (optional)",placeholder:"e.g. damaged, wrong colour"},ok:"Discard warp",danger:true});
+  if(reason===null) return;
+  try{
+    await api(`/api/warps/${encodeURIComponent(w.id)}/discard`,{method:"POST",body:JSON.stringify({reason})});
+    toast(`${w.name} discarded.`); await refresh();
+  }catch(err){notice("warpListNotice",err.message)}
+}
+// Colour pickers follow the typed colour name until the user picks a shade by hand.
+// Colour name and picker stay in sync both ways: typing a known name sets the picker, and
+// picking a shade fills in the nearest colour name unless the user typed their own name.
+[["warpBody","warpBodyHex"],["warpBorder","warpBorderHex"]].forEach(([nameId,hexId])=>{
+  $(nameId).addEventListener("input",()=>{
+    delete $(nameId).dataset.auto;
+    const c=colourOf($(nameId).value);
+    if(c){ $(hexId).value=c; $(hexId).dataset.set="1"; }
+  });
+  $(hexId).addEventListener("input",()=>{
+    $(hexId).dataset.set="1";
+    if(!$(nameId).value.trim()||$(nameId).dataset.auto){ $(nameId).value=nearestColourName($(hexId).value); $(nameId).dataset.auto="1"; }
+  });
+});
+const pickedHex=id=>$(id).dataset.set?$(id).value:null;
+// Warp length can be entered in meters or sarees. One saree length is 6.3 m; on a triple-width
+// warp each 6.3 m gives 3 sarees, so the conversion depends on the width.
+const warpUnit=()=>$("warpForm").querySelector("input[name=warpUnit]:checked").value;
+function warpLength() {
+  const perLength=$("warpWidth").value==="triple"?3:1, raw=$("warpQty").value, q=Number(raw);
+  if(raw===""||!Number.isFinite(q)||q<=0) return {meters:null};
+  if(warpUnit()==="sarees"){
+    if(!Number.isInteger(q)) return {meters:null,error:"Enter a whole number of sarees."};
+    if(q%perLength) return {meters:null,error:`Triple-width warps make sarees in sets of 3. Try ${Math.floor(q/3)*3||3} or ${Math.ceil(q/3)*3}.`};
+    return {meters:Number((q/perLength*SAREE_M).toFixed(2)),sarees:q};
+  }
+  return {meters:q,sarees:Math.floor((q+1e-9)/SAREE_M)*perLength};
+}
+function updateWarpLength() {
+  const sarees=warpUnit()==="sarees", triple=$("warpWidth").value==="triple";
+  $("warpQtyLabel").textContent=sarees?"Number of sarees *":"Total warp meters *";
+  Object.assign($("warpQty"),sarees?{step:triple?"3":"1",min:triple?"3":"1",placeholder:triple?"e.g. 300":"e.g. 190"}:{step:"0.01",min:"6.3",placeholder:"e.g. 1200"});
+  const r=warpLength(), rule=triple?"triple width: 3 sarees per 6.3 m":"single width: 1 saree = 6.3 m";
+  $("warpQtyHint").textContent=r.error||(r.meters==null?`1 saree = 6.3 m (${rule}).`:sarees?`= ${fmt(r.meters)} m of warp (${rule}).`:`= ${plural(r.sarees,"saree")} (${rule}).`);
+  $("warpQtyHint").style.color=r.error?"var(--red)":"";
+}
+$("warpForm").addEventListener("change",e=>{ if(e.target.name==="warpUnit"){ $("warpQty").value=""; updateWarpLength(); } if(e.target.id==="warpWidth") updateWarpLength(); });
+$("warpQty").addEventListener("input",updateWarpLength);
+updateWarpLength();
+$("warpForm").addEventListener("submit",async e=>{
+  e.preventDefault();hideNotice("warpNotice");
+  const len=warpLength();
+  if(len.error||len.meters==null) return notice("warpNotice",len.error||"Enter the warp length.");
+  if(len.meters<SAREE_M) return notice("warpNotice","A warp must be at least 6.3 m (one saree length).");
+  try{
+    await api("/api/warps",{method:"POST",body:JSON.stringify({name:$("warpName").value,widthType:$("warpWidth").value,meters:warpLength().meters,orderDate:$("warpOrderDate").value,bodyColor:$("warpBody").value,bodyHex:pickedHex("warpBodyHex"),borderHex:pickedHex("warpBorderHex"),borderColor:$("warpBorder").value})});
+    const name=$("warpName").value.trim();
+    e.target.reset();$("warpOrderDate").value=todayISO();$("warpDialog").close(); updateWarpLength();
+    ["warpBody","warpBorder"].forEach(id=>delete $(id).dataset.auto);
+    ["warpBodyHex","warpBorderHex"].forEach(id=>{$(id).value="#cccccc";delete $(id).dataset.set;});
+    notice("warpListNotice",`${name} added to Ordered.`,true);await refresh();
+  }catch(err){notice("warpNotice",err.message)}
+});
+let toastTimer=0;
+function toast(msg) {
+  const t=$("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),3500);
+}
+document.querySelectorAll("[data-open-loom]").forEach(b=>b.addEventListener("click",()=>{
+  hideNotice("loomNotice"); $("loomDialog").showModal(); $("loomName").focus();
+}));
+$("loomForm").addEventListener("submit",async e=>{
+  e.preventDefault();hideNotice("loomNotice");
+  const name=$("loomName").value.trim(), widthType=e.target.querySelector("input[name=loomWidth]:checked").value;
+  try{
+    await api("/api/looms",{method:"POST",body:JSON.stringify({name,widthType})});
+    e.target.reset();$("loomDialog").close();
+    toast(`${name} added (${widthLabel(widthType).toLowerCase()}).`);await refresh();
+  }catch(err){notice("loomNotice",err.message)}
+});
+$("view-looms").addEventListener("click",async e=>{
+  const del=e.target.closest("button[data-deliver]");
+  if(del) return openDelivery(del.dataset.deliver);
+  const card=e.target.closest(".lcard"), lm=card&&db.looms.find(x=>x.id===card.dataset.loom);
+  if(lm&&e.target.closest("[data-stop]")) {
+    const reason=await ask({title:`Stop ${lm.name}?`,text:"Deliveries and warp assignment pause until you resume it. Any running warp stays on the loom.",input:{label:"Reason (optional)",placeholder:"e.g. motor repair, yarn break"},ok:"Stop loom",danger:true});
+    if(reason===null) return;
+    try{ await api(`/api/looms/${encodeURIComponent(lm.id)}/stop`,{method:"POST",body:JSON.stringify({reason})}); flashIds=new Set([lm.id]); toast(`${lm.name} stopped.`); await refresh(); }
+    catch(err){notice("loomListNotice",err.message)}
+    return;
+  }
+  if(lm&&e.target.closest("[data-remove]")) {
+    const w=db.warps.find(x=>x.id===lm.warpId);
+    const ok=await ask({title:`Remove ${lm.name}?`,text:`${w?`${w.name} goes back to Ready. `:""}Its dispatch history is kept. This cannot be undone.`,ok:"Remove loom",danger:true});
+    if(!ok) return;
+    try{ await api(`/api/looms/${encodeURIComponent(lm.id)}`,{method:"DELETE"}); if(w) flashIds=new Set([w.id]); toast(`${lm.name} removed.${w?` ${w.name} is back in Ready.`:""}`); await refresh(); }
+    catch(err){notice("loomListNotice",err.message)}
+    return;
+  }
+  if(lm&&e.target.closest("[data-resume]")) {
+    try{ await api(`/api/looms/${encodeURIComponent(lm.id)}/resume`,{method:"POST",body:"{}"}); flashIds=new Set([lm.id]); toast(`${lm.name} resumed.`); await refresh(); }
+    catch(err){notice("loomListNotice",err.message)}
+    return;
+  }
+  const as=e.target.closest("button[data-assign]"); if(!as) return;
+  hideNotice("loomListNotice");
+  const l=db.looms.find(x=>x.id===as.dataset.assign);
+  const ready=db.warps.filter(w=>warpState(w).key==="ready"&&w.widthType===l.widthType);
+  if(!ready.length) return notice("loomListNotice",`No ready ${widthLabel(l.widthType).toLowerCase()} warp for ${l.name}. Mark a warp ready on the Warp board first.`);
+  const warpId=await ask({title:`Assign a warp to ${l.name}`,text:`Ready ${widthLabel(l.widthType).toLowerCase()} warps are listed.`,options:ready.map(w=>[w.id,`${w.name} · ${w.bodyColor} / ${w.borderColor} · ${fmt(w.remainingMeters)} m`]),ok:"Assign warp",label:"Warp"});
+  if(!warpId) return;
+  try{
+    await api(`/api/warps/${encodeURIComponent(warpId)}/move`,{method:"POST",body:JSON.stringify({to:"running",loomId:l.id,date:todayISO()})});
+    flashIds=new Set([warpId,l.id]); toast(`${db.warps.find(w=>w.id===warpId).name} is now running on ${l.name}.`); await refresh();
+  }catch(err){notice("loomListNotice",err.message)}
+});
+// Opens the delivery popup; with a loomId it is locked to that loom, otherwise a loom picker is shown.
+function openDelivery(loomId) {
+  if(!loomId&&!db.looms.some(l=>l.warpId)) return toast("No loom is running a warp yet.");
+  const loom=loomId&&db.looms.find(l=>l.id===loomId), w=loom&&db.warps.find(x=>x.id===loom.warpId);
+  $("deliveryLoomField").hidden=!!loom;
+  if(loom) $("deliveryLoom").value=loom.id;
+  $("deliveryDialogTitle").textContent=loom?`Dispatch · ${loom.name}`:"Dispatch";
+  $("deliveryDialogSub").textContent=w?`${w.name} · ${fmt(w.remainingMeters)} m left (${plural(warpSarees(w).leftSarees,"saree")})`:"Choose the loom and enter the sarees taken off it.";
+  $("deliverySarees").value=""; $("deliveryLr").value=""; hideNotice("deliveryNotice"); updatePreview();
+  $("deliveryDialog").showModal(); $("deliverySarees").focus();
+}
+document.querySelectorAll("[data-open-delivery]").forEach(b=>b.addEventListener("click",()=>openDelivery()));
+function updatePreview(){
+  const loom=db.looms.find(l=>l.id===$("deliveryLoom").value), q=Number($("deliverySarees").value||0), box=$("deliveryPreview");
+  const show=(text,ok)=>{box.textContent=text;box.className="notice show "+(ok?"ok":"err")};
+  const w=loom&&db.warps.find(x=>x.id===loom.warpId);
+  if(!w) return show("Choose a loom that is running a warp.",false);
+  const perLength=loom.widthType==="triple"?3:1;
+  if(!Number.isInteger(q)||q<=0) return show(perLength===3?"Triple width: enter a multiple of 3 (one saree from each width per 6.3 m).":"Single width: each saree uses 6.3 m of warp.",true);
+  if(q%perLength!==0) return show(`Triple-width quantities must be a multiple of 3. Try ${Math.floor(q/3)*3||3} or ${Math.ceil(q/3)*3}.`,false);
+  const used=q*SAREE_M/perLength, left=w.remainingMeters-used;
+  if(left<-1e-9) return show(`Not enough warp: ${fmt(w.remainingMeters)} m left, ${fmt(used)} m needed (max ${fmt(warpSarees(w).leftSarees)} sarees).`,false);
+  show(`Uses ${fmt(used)} m of ${w.name}. Left after: ${fmt(Math.max(0,left))} m (${plural(Math.floor((left+1e-9)/SAREE_M)*perLength,"saree")})${left<SAREE_M-1e-9?` · under ${SAREE_M} m, so the warp will be completed and the loom freed`:""}.`,true);
+}
+$("deliveryLoom").addEventListener("change",updatePreview);
+$("deliverySarees").addEventListener("input",updatePreview);
+$("deliveryForm").addEventListener("submit",async e=>{
+  e.preventDefault();hideNotice("deliveryNotice");
+  try{
+    const r=await api("/api/deliveries",{method:"POST",body:JSON.stringify({loomId:$("deliveryLoom").value,sarees:$("deliverySarees").value,lrNumber:$("deliveryLr").value})});
+    $("deliveryDialog").close(); flashIds=new Set([r.warp.id,r.loom.id]);
+    toast(`${plural(r.delivery.sarees,"saree")} dispatched from ${r.delivery.loomName}. ${r.warp.status==="Completed"?`${r.warp.name} is complete (${fmt(r.warp.remainingMeters)} m offcut) — ${r.loom.name} is free for a new warp.`:`${fmt(r.warp.remainingMeters)} m left on ${r.warp.name}.`}`);
+    await refresh();
+  }catch(err){notice("deliveryNotice",err.message)}
+});
+// ---- Stock: a ledger of buckets (mirrors server stockFor) ----
+// Per warp (Process page): sent -> delivered (godown) -> process -> folding -> Add to stock.
+// Pooled (Stock page, all warps together): stock, mai (-> cleaning -> stock), lot, damage (-> returned to owner),
+// stock <-> dispatched (party). Pooled moves carry no warp.
+const STOCK_BUCKETS=["sent","delivered","process","folding","stock","mai","cleaning","lot","damage","dispatched","returned"];
+// warpId given: that warp's buckets; none: every warp together.
+function stockOf(warpId) {
+  const st=Object.fromEntries(STOCK_BUCKETS.map(b=>[b,0])), mine=x=>!warpId||x.warpId===warpId;
+  st.sent=st.total=db.deliveries.filter(mine).reduce((s,d)=>s+d.sarees,0);
+  (db.stockMoves||[]).forEach(m=>{ if(!mine(m)) return; if(m.from) st[m.from]-=m.qty; st[m.to]+=m.qty; });
+  return st;
+}
+const onTheWay=st=>st.sent+st.delivered+st.process+st.folding;
+const sumStock=()=>{ const all=stockOf(); return k=>all[k]; };
+// Sarees a party still holds: dispatched to them minus their returns.
+const partyHolds=clientId=>(db.stockMoves||[]).filter(m=>m.clientId===clientId)
+  .reduce((s,m)=>s+(m.to==="dispatched"?m.qty:m.from==="dispatched"?-m.qty:0),0);
+const ownerName=()=>currentFactory()?.ownerName||"the loom owner";
+// Mirrors server cleaningBatches(): each send for cleaning is a batch, newest first.
+function cleaningBatches() {
+  const batches=[], loose=[];
+  [...(db.stockMoves||[])].reverse().forEach(m=>{
+    if(m.from==="mai"&&m.to==="cleaning") batches.push({id:m.id,sentAt:m.createdAt,qty:m.qty,note:m.note||"",by:m.by||"",back:0,lastBack:null});
+    else if(m.from==="cleaning"&&m.to==="stock"){ const b=m.batchId&&batches.find(x=>x.id===m.batchId); if(b){b.back+=m.qty;b.lastBack=m.createdAt;} else loose.push(m.qty); }
+  });
+  loose.forEach(q=>{ for(const b of batches){ const t=Math.min(q,b.qty-b.back); b.back+=t; q-=t; if(!q) break; } });
+  return batches.map(b=>({...b,pending:b.qty-b.back})).reverse();
+}
+// Warps that have ever had sarees delivered.
+const stockWarps=()=>db.warps.filter(w=>db.deliveries.some(d=>d.warpId===w.id));
+const STOCK_STEP={
+  "sent>delivered":{title:"Receive at godown",verb:"received at the godown",what:"dispatched from looms"},
+  "process>folding":{title:"Send to folding",verb:"sent to folding",what:"back from process"}};
+const BUCKET_LABEL={stock:"Stock",mai:"Greese (mai)",lot:"Lot",damage:"Damage"};
+const stage=(cls,label,n,body="")=>`<div class="stage ${cls}"><small>${label}</small><b>${fmt(n)}</b>${body}</div>`;
+const mv=(key,n,label)=>`<button type="button" data-move="${key}"${n>0?"":" disabled"}>${label}</button>`;
+const act=(key,n,label,ghost=false,bucket="")=>`<button type="button"${ghost?' class="ghost"':""} data-act="${key}"${bucket?` data-bucket="${bucket}"`:""}${n>0?"":" disabled"}>${label}</button>`;
+function renderProcess() {
+  const rows=stockWarps().map(w=>({w,st:stockOf(w.id)}));
+  const tot=k=>rows.reduce((s,r)=>s+r.st[k],0);
+  [["stSent","sent"],["stDelivered","delivered"],["stProcess","process"],["stFolding","folding"]].forEach(([el,k])=>$(el).textContent=fmt(tot(k)));
+  // Warps with sarees on the way first.
+  rows.sort((a,b)=>(onTheWay(b.st)>0)-(onTheWay(a.st)>0));
+  $("stockGrid").innerHTML=rows.length?rows.map(({w,st})=>{
+    const added=st.stock+st.mai+st.lot+st.damage+st.cleaning+st.dispatched+st.returned;
+    return `<div class="wcard scard${flashIds.has(w.id)?" flash":""}" data-warp="${esc(w.id)}">
+      <div class="lhead"><div><h4>${esc(w.name)}</h4><div class="meta">${widthLabel(w.widthType)} · ${esc(w.bodyColor)} / ${esc(w.borderColor)} · ${plural(st.total,"saree")} woven</div></div></div>
+      ${swatch(w)}
+      <div class="stages">
+        ${stage("sent","Sarees dispatched",st.sent,mv("sent>delivered",st.sent,"Receive at godown →"))}
+        ${stage("del","Delivered (godown)",st.delivered,`<button type="button" data-sort="delivered"${st.delivered?"":" disabled"}>Send to process →</button>`)}
+        ${stage("proc","In process",st.process,mv("process>folding",st.process,"Send to folding →"))}
+        ${stage("fold","In folding",st.folding,`<button type="button" data-sort="folding"${st.folding?"":" disabled"}>Add to stock →</button>`)}
+      </div>
+      <div class="instock">${added?`<b>${fmt(added)}</b> added to stock so far`:"Nothing added to stock yet."}</div>
+    </div>`;
+  }).join(""):'<div class="colempty">No sarees yet. They appear here once a dispatch is recorded on the Production page.</div>';
+}
+function renderStock() {
+  const T=sumStock(), parties=db.clients||[];
+  $("stockBuckets").innerHTML=`
+    <div class="stage stk bucket"><small>Stock</small><b>${fmt(T("stock"))}</b>
+      ${act("dispatch",T("stock"),"Delivery to party →")}<div class="acts">${act("damage",T("stock"),"Damage return",true)}${act("adjust",1,"Adjust",true,"stock")}</div></div>
+    <div class="stage mai bucket"><small>Greese (mai)</small><b>${fmt(T("mai"))}</b><span class="bnote">${T("cleaning")?`${fmt(T("cleaning"))} at cleaning`:"None at cleaning"}</span>
+      ${act("clean",T("mai"),"Send for cleaning →")}<div class="acts">${act("cleaned",T("cleaning"),"Back from cleaning",true)}${act("adjust",1,"Adjust",true,"mai")}</div></div>
+    <div class="stage lot bucket"><small>Lot</small><b>${fmt(T("lot"))}</b><span class="bnote">Kept like damage, not sent out.</span>
+      <div class="acts">${act("adjust",1,"Adjust",true,"lot")}</div></div>
+    <div class="stage dmg bucket"><small>Damage</small><b>${fmt(T("damage"))}</b><span class="bnote">${T("returned")?`${fmt(T("returned"))} returned to ${esc(ownerName())}`:`Goes back to ${esc(ownerName())}`}</span>
+      ${act("owner",T("damage"),"Return to loom owner →")}<div class="acts">${act("adjust",1,"Adjust",true,"damage")}</div></div>
+    <div class="stage dsp bucket"><small>With parties</small><b>${fmt(T("dispatched"))}</b><span class="bnote">Delivered, not returned</span>
+      ${act("back",T("dispatched"),"← Party return",true)}</div>`;
+  // Cleaning register: batches still out first, then the last 10 that came back.
+  const batches=cleaningBatches(), out=batches.filter(b=>b.pending>0), done=batches.filter(b=>!b.pending).slice(0,10);
+  $("cleaningCount").textContent=out.length?`${plural(out.length,"batch").replace(/hs$/,"hes")} at cleaning`:"Nothing at cleaning";
+  $("cleaningTable").innerHTML=batches.length?`<table><thead><tr><th>Sent on</th><th>Sent to / note</th><th>Sent</th><th>Back</th><th>At cleaning</th><th>Status</th><th></th></tr></thead><tbody>${[...out,...done].map(b=>`<tr><td>${fmtDate(b.sentAt)}</td><td>${esc(b.note||"—")}</td><td>${fmt(b.qty)}</td><td>${fmt(b.back)}</td><td><strong>${fmt(b.pending)}</strong></td><td>${b.pending?(b.back?'<span class="pill amber">Partly back</span>':'<span class="pill">At cleaning</span>'):`<span class="pill green">Back${b.lastBack?` ${fmtDate(b.lastBack)}`:""}</span>`}</td><td class="rowacts">${b.pending?`<button class="smallbtn" type="button" data-batch="${esc(b.id)}">Back from cleaning</button>`:""}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">No sarees sent for cleaning yet. Use Send for cleaning on Greese (mai).</div>';
+  const dispatches=(db.stockMoves||[]).filter(m=>m.to==="dispatched");
+  $("clientList").innerHTML=parties.length?parties.map(c=>{
+    const mine=dispatches.filter(m=>m.clientId===c.id);
+    return `<div class="clientrow"><div><strong>${esc(c.name)}</strong><div class="meta">${esc(c.address||"No address")}</div></div><div class="num"><b>${fmt(partyHolds(c.id))}</b><span>sarees${mine.length?` · last ${fmtDate(mine[0].createdAt)}`:""}</span></div></div>`;
+  }).join(""):'<div class="empty">No parties yet. Add a party to deliver sarees to.</div>';
+}
+async function stockPost(url,body,msg,flash) {
+  await api(url,{method:"POST",body:JSON.stringify(body)});
+  flashIds=new Set(flash?[flash]:[]); toast(msg); await refresh();
+}
+// Process page: production steps and Add to stock, per warp.
+$("stockGrid").addEventListener("click",async e=>{
+  const card=e.target.closest(".scard"); if(!card) return;
+  const btn=e.target.closest("button"); if(!btn||btn.disabled) return;
+  const w=db.warps.find(x=>x.id===card.dataset.warp), st=stockOf(w.id);
+  hideNotice("processNotice");
+  if(btn.dataset.sort) return openSort(w,btn.dataset.sort);
+  const key=btn.dataset.move, step=STOCK_STEP[key]; if(!step) return;
+  const [from,to]=key.split(">"), avail=st[from];
+  const qty=await ask({title:`${step.title} · ${w.name}`,text:`${plural(avail,"saree")} ${step.what}.`,input:{type:"number",label:"Number of sarees",min:1,max:avail,value:avail,required:true},ok:step.title});
+  if(qty===null) return;
+  try{ await stockPost("/api/stock/move",{warpId:w.id,from,to,qty:Number(qty)},`${plural(Number(qty),"saree")} of ${w.name} ${step.verb}.`,w.id); }
+  catch(err){notice("processNotice",err.message)}
+});
+// Splitting one warp's sarees: checking at the godown (before process) or Add to stock (after folding).
+// Greese and damage found at either step go straight to the Stock page.
+const SORT_MODE={
+  delivered:{title:"Send to process",ok:"Send to process",what:"at the godown",sub:"Check them: good ones go to process; greese (mai) and damaged ones go to the Stock page.",fields:{process:"Process",mai:"Greese (mai)",damage:"Damage"}},
+  folding:{title:"Add to stock",ok:"Add to stock",what:"in folding",sub:"Split them into stock, greese (mai), lot and damage.",fields:{stock:"Stock",mai:"Greese (mai)",lot:"Lot",damage:"Damage"}}};
+let sortWarp=null, sortFrom=null;
+const sortInputs=()=>[...$("sortFields").querySelectorAll("input")];
+function sortLeft() {
+  const avail=stockOf(sortWarp.id)[sortFrom], used=sortInputs().reduce((s,i)=>s+(Number(i.value)||0),0), what=SORT_MODE[sortFrom].what;
+  $("sortLeft").textContent=used>avail?`That is ${fmt(used-avail)} more than the ${fmt(avail)} ${what}.`:`${fmt(avail-used)} of ${fmt(avail)} left ${what}.`;
+}
+function openSort(w,from) {
+  sortWarp=w; sortFrom=from; const m=SORT_MODE[from], avail=stockOf(w.id)[from];
+  $("sortDialogTitle").textContent=`${m.title} · ${w.name}`;
+  $("sortDialogSub").textContent=`${plural(avail,"saree")} ${m.what}. ${m.sub}`;
+  $("sortOk").textContent=m.ok;
+  $("sortFields").innerHTML=Object.entries(m.fields).map(([k,label],i)=>`<div class="field"><label for="sort-${k}">${label}</label><input id="sort-${k}" data-k="${k}" type="number" min="0" max="${avail}" step="1" inputmode="numeric" placeholder="0"${i?"":` value="${avail}"`}></div>`).join("");
+  hideNotice("sortNotice"); sortLeft();
+  $("sortDialog").showModal(); sortInputs()[0].select();
+}
+$("sortFields").addEventListener("input",sortLeft);
+$("sortForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("sortNotice");
+  const m=SORT_MODE[sortFrom], counts=Object.fromEntries(sortInputs().map(i=>[i.dataset.k,Number(i.value)||0]));
+  const parts=Object.entries(counts).filter(([,n])=>n).map(([k,n])=>`${fmt(n)} ${m.fields[k].toLowerCase()}`);
+  const msg=sortFrom==="delivered"?`${sortWarp.name} checked: ${parts.join(", ")}.`:`${sortWarp.name}: ${parts.join(", ")} added to stock.`;
+  try{ await stockPost("/api/stock/sort",{warpId:sortWarp.id,from:sortFrom,...counts},msg,sortWarp.id); $("sortDialog").close(); }
+  catch(err){notice("sortNotice",err.message)}
+});
+// Stock page actions share one form (party when needed, then the number of sarees).
+const ACTS={
+  dispatch:{title:"Delivery to party",from:"stock",to:"dispatched",party:true,lr:true,ok:"Save delivery",sub:"Only stock can be delivered to a party.",done:(q,p)=>`${plural(q,"saree")} delivered to ${p.name}.`},
+  damage:{title:"Damage return",from:"stock",to:"damage",note:"e.g. Torn, colour run",ok:"Move to damage",sub:"Damaged sarees found in stock are taken out of stock.",done:q=>`${plural(q,"saree")} moved from stock to damage.`},
+  clean:{title:"Send for cleaning",from:"mai",to:"cleaning",note:"e.g. Sri Ram cleaners",noteLabel:"Sent to (cleaner) / note",ok:"Send for cleaning",sub:"Greese (mai) sarees go out for cleaning. Each send is kept as a batch until it comes back.",done:q=>`${plural(q,"saree")} sent for cleaning.`},
+  cleaned:{title:"Back from cleaning",from:"cleaning",to:"stock",batch:true,ok:"Add to stock",sub:"Pick the batch that came back. Cleaned sarees are added to stock.",done:q=>`${plural(q,"saree")} back from cleaning and added to stock.`}, 
+  owner:{title:"Return to loom owner",from:"damage",to:"returned",note:"e.g. Weaving fault",ok:"Return to owner",sub:()=>`Damaged sarees go back to ${ownerName()} (loom owner).`,done:q=>`${plural(q,"saree")} returned to ${ownerName()}.`},
+  back:{title:"Party return",from:"dispatched",to:"stock",party:true,note:"e.g. Unsold",ok:"Add to stock",sub:"Sarees a party sends back are added to stock.",done:(q,p)=>`${plural(q,"saree")} returned by ${p.name} and added to stock.`},
+  adjust:{adjust:true,note:"e.g. Physical count",ok:"Save count",done:(q,p,b)=>`${BUCKET_LABEL[b]} set to ${fmt(q)}.`}};
+let actCfg=null, actKey=null, actBucket=null;
+const actParty=()=>(db.clients||[]).find(c=>c.id===$("actParty").value)||null;
+// Sarees this action can use (adjust: the current count).
+function actAvail() {
+  if(actCfg.adjust) return sumStock()(actBucket);
+  if(actCfg.batch) return cleaningBatches().find(b=>b.id===$("actBatch").value)?.pending||0;
+  if(actCfg.from==="dispatched") return actParty()?partyHolds(actParty().id):0;
+  return sumStock()(actCfg.from);
+}
+function fillActParties(selectId) {
+  const all=db.clients||[];
+  const list=actKey==="back"?all.filter(c=>partyHolds(c.id)>0):all;
+  $("actParty").innerHTML=list.length?list.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}${actKey==="back"?` (${plural(partyHolds(c.id),"saree")})`:""}</option>`).join(""):'<option value="">Add a party first</option>';
+  if(selectId) $("actParty").value=selectId;
+  syncActQty();
+}
+function syncActQty() {
+  const n=actAvail(), q=$("actQty");
+  if(actCfg.adjust) Object.assign(q,{min:0,max:"",value:n}); else Object.assign(q,{min:1,max:n,value:""});
+  actHint();
+}
+function actHint() {
+  const n=actAvail(), v=$("actQty").value;
+  if(actCfg.adjust){ const d=v===""?0:Number(v)-n; $("actHint").textContent=`The app counts ${plural(n,"saree")}.${d?` This ${d>0?"adds":"removes"} ${plural(Math.abs(d),"saree")}.`:""}`; }
+  else $("actHint").textContent=`${plural(n,"saree")} available.`;
+}
+function openAct(key,bucket,batchId) {
+  actKey=key; actCfg=ACTS[key]; actBucket=bucket||null;
+  $("actBatchField").hidden=!actCfg.batch; $("actBatch").required=!!actCfg.batch;
+  if(actCfg.batch){
+    const open=cleaningBatches().filter(b=>b.pending>0).reverse();
+    $("actBatch").innerHTML=open.map(b=>`<option value="${esc(b.id)}">Sent ${fmtDate(b.sentAt)}${b.note?` · ${esc(b.note)}`:""} · ${fmt(b.pending)} of ${fmt(b.qty)} at cleaning</option>`).join("");
+    if(batchId) $("actBatch").value=batchId;
+  }
+  $("actTitle").textContent=actCfg.adjust?`Adjust ${BUCKET_LABEL[bucket].toLowerCase()}`:actCfg.title;
+  $("actSub").textContent=actCfg.adjust?"Enter the correct count. The difference is recorded in the log.":typeof actCfg.sub==="function"?actCfg.sub():actCfg.sub;
+  $("actPartyField").hidden=!actCfg.party; $("actParty").required=!!actCfg.party; $("actNewParty").hidden=key!=="dispatch";
+  $("actLrField").hidden=!actCfg.lr; $("actLr").value="";
+  $("actNoteField").hidden=!actCfg.note; $("actNote").value=""; $("actNote").placeholder=actCfg.note||""; $("actNoteLabel").textContent=actCfg.noteLabel||"Reason";
+  $("actQtyLabel").textContent=actCfg.adjust?"Correct count *":"Number of sarees *";
+  $("actOk").textContent=actCfg.ok; $("actOk").classList.toggle("danger",key==="damage");
+  hideNotice("actNotice");
+  if(actCfg.party) fillActParties(); else syncActQty();
+  $("actDialog").showModal(); $("actQty").focus();
+}
+$("cleaningTable").addEventListener("click",e=>{
+  const btn=e.target.closest("button[data-batch]"); if(btn) openAct("cleaned",null,btn.dataset.batch);
+});
+$("stockBuckets").addEventListener("click",e=>{
+  const btn=e.target.closest("button[data-act]"); if(!btn||btn.disabled) return;
+  hideNotice("stockNotice"); openAct(btn.dataset.act,btn.dataset.bucket);
+});
+$("actParty").addEventListener("change",syncActQty);
+$("actBatch").addEventListener("change",syncActQty);
+$("actQty").addEventListener("input",actHint);
+$("actForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("actNotice");
+  const p=actParty(), q=Number($("actQty").value);
+  if(actCfg.party&&!p) return notice("actNotice",actKey==="dispatch"?"Add a party first using + New.":"Select the party.");
+  const body=actCfg.adjust?{bucket:actBucket,count:q,note:$("actNote").value}
+    :{from:actCfg.from,to:actCfg.to,qty:q,note:$("actNote").value,...(p&&actCfg.party?{clientId:p.id}:{}),...(actCfg.lr?{lrNumber:$("actLr").value}:{}),...(actCfg.batch?{batchId:$("actBatch").value}:{})};
+  try{ await stockPost(actCfg.adjust?"/api/stock/adjust":"/api/stock/move",body,actCfg.done(q,p,actBucket)); $("actDialog").close(); }
+  catch(err){notice("actNotice",err.message)}
+});
+// ---- Log: every activity, newest first (stored server-side in db.activity) ----
+const LOG_TYPE={warp:["Warp","violet"],loom:["Loom","blue"],dispatch:["Dispatch","green"],delivery:["Delivery","red"],process:["Process",""],stock:["Stock","teal"],party:["Party","amber"]};
+let logLimit=200;
+function renderLog() {
+  const type=$("logType").value, q=$("logSearch").value.trim().toLowerCase();
+  const all=db.activity||[], list=all.filter(a=>(!type||a.type===type)&&(!q||`${a.text} ${a.by}`.toLowerCase().includes(q)));
+  $("logCount").textContent=plural(all.length,"entry").replace(/ys$/,"ies");
+  const when=v=>new Date(v).toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
+  $("logTable").innerHTML=list.length?`<table><thead><tr><th>Date</th><th>Type</th><th>Activity</th><th>By</th></tr></thead><tbody>${list.slice(0,logLimit).map(a=>{
+    const [label,pill]=LOG_TYPE[a.type]||[a.type,"gray"];
+    return `<tr><td>${when(a.at)}</td><td><span class="pill ${pill}">${esc(label)}</span></td><td class="logtext">${esc(a.text)}</td><td>${esc(a.by||"—")}</td></tr>`;
+  }).join("")}</tbody></table>`:`<div class="empty">${all.length?"No activity matches.":"No activity yet."}</div>`;
+  $("logMore").innerHTML=list.length>logLimit?`<button class="smallbtn" type="button" id="logMoreBtn">Show more (${fmt(list.length-logLimit)} older)</button>`:"";
+}
+$("logType").addEventListener("change",()=>{logLimit=200;renderLog();});
+$("logSearch").addEventListener("input",()=>{logLimit=200;renderLog();});
+$("logMore").addEventListener("click",e=>{ if(e.target.closest("#logMoreBtn")){ logLimit+=200; renderLog(); } });
+document.querySelectorAll("[data-open-client]").forEach(b=>b.addEventListener("click",()=>{
+  $("clientForm").reset(); hideNotice("clientNotice"); $("clientDialog").showModal(); $("clientName").focus();
+}));
+$("clientForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("clientNotice");
+  try{
+    const c=await api("/api/clients",{method:"POST",body:JSON.stringify({name:$("clientName").value,address:$("clientAddress").value})});
+    $("clientDialog").close(); toast(`${c.name} added as a party.`); await refresh();
+    // Opened from the dispatch form: select the new party there.
+    if($("actDialog").open&&actKey==="dispatch") fillActParties(c.id);
+  }catch(err){notice("clientNotice",err.message)}
+});
+// ---- Session: sign-in, factory selection, user menu ----
+// The token and last-used factory are per-device conveniences kept in localStorage.
+const store_={get:k=>{try{return localStorage.getItem(k)}catch{return null}},set:(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch{}}};
+let session={token:store_.get("loom.token"),user:null,factories:[]};
+let currentFactoryId=null;
+const isAdmin=()=>session.user?.role==="admin";
+const currentFactory=()=>session.factories.find(f=>f.id===currentFactoryId)||null;
+function showLogin(message) {
+  document.body.classList.add("signed-out"); $("loginScreen").hidden=false;
+  document.querySelectorAll("dialog[open]").forEach(d=>d.close());
+  if(message) notice("loginNotice",message); else hideNotice("loginNotice");
+  setTimeout(()=>($("loginUser").value?$("loginPass"):$("loginUser")).focus(),0);
+}
+function signOut(message) {
+  session={token:null,user:null,factories:[]}; currentFactoryId=null; store_.set("loom.token",null);
+  db={warps:[],looms:[],deliveries:[],clients:[],stockMoves:[]};
+  $("userMenu").hidden=true; showLogin(message);
+}
+function applySession({user,factories}) {
+  session.user=user; session.factories=factories;
+  document.body.classList.remove("signed-out"); $("loginScreen").hidden=true;
+  // Keep the factory in use if still allowed, else the last one used on this device, else the first.
+  const saved=store_.get(`loom.factory.${user.id}`);
+  const pick=[currentFactoryId,saved,factories[0]?.id].find(id=>id&&factories.some(f=>f.id===id));
+  currentFactoryId=pick||null;
+  if(pick) store_.set(`loom.factory.${user.id}`,pick);
+  $("userBtnName").textContent=user.name||user.username;
+  $("menuName").textContent=user.name?`${user.name} (${user.username})`:user.username;
+  $("menuRole").textContent=user.role==="admin"?"Admin · all factories":`User · ${plural(factories.length,"factory").replace(/ys$/,"ies")}`;
+  $("menuSettings").hidden=!isAdmin(); $("footerBackup").hidden=!isAdmin();
+  $("pwWarn").hidden=!user.defaultPassword;
+  renderFactorySelect();
+}
+function renderFactorySelect() {
+  const sel=$("factorySelect"), f=currentFactory();
+  sel.innerHTML=session.factories.length?session.factories.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join(""):'<option value="">No factory</option>';
+  sel.value=currentFactoryId||""; sel.disabled=session.factories.length<2;
+  $("factoryLoc").textContent=f?.location||"";
+}
+async function reloadSession() { applySession(await api("/api/auth/me")); }
+$("factorySelect").addEventListener("change",async e=>{
+  currentFactoryId=e.target.value; store_.set(`loom.factory.${session.user.id}`,currentFactoryId);
+  renderFactorySelect(); route(); await refresh(); toast(`Switched to ${currentFactory().name}.`);
+});
+$("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("loginNotice");
+  try{
+    const d=await api("/api/auth/login",{method:"POST",body:JSON.stringify({username:$("loginUser").value,password:$("loginPass").value})});
+    session.token=d.token; store_.set("loom.token",d.token); $("loginPass").value="";
+    applySession(d); route(); await refresh();
+  }catch(err){ notice("loginNotice",err.message); }
+});
+$("userBtn").addEventListener("click",e=>{ e.stopPropagation(); const m=$("userMenu"); m.hidden=!m.hidden; $("userBtn").setAttribute("aria-expanded",String(!m.hidden)); });
+document.addEventListener("click",e=>{ if(!e.target.closest(".usermenu")) $("userMenu").hidden=true; });
+document.addEventListener("click",e=>{
+  const item=e.target.closest("[data-menu]"); if(!item) return;
+  $("userMenu").hidden=true;
+  if(item.dataset.menu==="settings") location.hash="#settings";
+  if(item.dataset.menu==="signout"){ signOut(); toast("Signed out."); }
+  if(item.dataset.menu==="password"){ $("passwordForm").reset(); hideNotice("passwordNotice"); $("passwordDialog").showModal(); $("pwCurrent").focus(); }
+});
+$("passwordForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("passwordNotice");
+  if($("pwNew").value!==$("pwNew2").value) return notice("passwordNotice","The new passwords do not match.");
+  try{
+    const d=await api("/api/auth/password",{method:"POST",body:JSON.stringify({currentPassword:$("pwCurrent").value,newPassword:$("pwNew").value})});
+    session.token=d.token; store_.set("loom.token",d.token); $("passwordDialog").close();
+    await reloadSession(); toast("Password changed.");
+  }catch(err){ notice("passwordNotice",err.message); }
+});
+// Fetch with the session token, for downloads that need the raw response.
+async function authFetch(url) {
+  const r=await fetch(url,{headers:{Authorization:`Bearer ${session.token||""}`}});
+  if(r.status===401){ signOut("Your session ended. Please sign in again."); throw new Error("Please sign in again."); }
+  if(!r.ok){ const d=await r.json().catch(()=>({})); throw new Error(d.error||"Request failed"); }
+  return r;
+}
+$("footerBackupLink").addEventListener("click",async e=>{
+  e.preventDefault();
+  try{ saveBlob(await (await authFetch("/api/admin/export")).blob(),`my-thari-backup-${todayISO()}.json`); toast("Full backup downloaded (all factories)."); }
+  catch(err){ toast(err.message); }
+});
+
+// ---- Settings (admin): factories, users, backups, backup location, restart ----
+let settingsInfo=null;
+const KIND_LABEL={daily:["Daily","green"],manual:["Manual",""],"before-reset":["Before reset","amber"],"before-restore":["Before restore","amber"],"before-delete-factory":["Before factory delete","amber"],"before-reset-factory":["Before factory reset","amber"],"before-upgrade":["Before upgrade","amber"],other:["Other","gray"]};
+const fmtSize=b=>b<1024?`${b} B`:b<1048576?`${(b/1024).toFixed(1)} KB`:`${(b/1048576).toFixed(1)} MB`;
+const whenFull=v=>new Date(v).toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
+async function loadSettings() {
+  if(!isAdmin()) return;
+  try{ settingsInfo=await api("/api/admin/info"); }catch(err){ return notice("settingsNotice",err.message); }
+  const i=settingsInfo, facName=id=>i.factories.find(f=>f.id===id)?.name;
+  $("setFactoryCount").textContent=plural(i.factories.length,"factory").replace(/ys$/,"ies");
+  $("setFactoryTable").innerHTML=i.factories.length?`<table><thead><tr><th>Factory</th><th>Owner</th><th>Users</th><th></th></tr></thead><tbody>${i.factories.map(f=>{
+    const users=i.users.filter(u=>u.role!=="admin"&&u.factoryIds.includes(f.id)).map(u=>u.name||u.username);
+    return `<tr data-id="${esc(f.id)}"><td><strong>${esc(f.name)}</strong><br><span style="color:var(--muted)">${esc(f.location)}</span></td><td>${esc(f.ownerName)}${f.ownerPhone?`<br><span style="color:var(--muted)">${esc(f.ownerPhone)}</span>`:""}${f.ownerEmail?`<br><span style="color:var(--muted)">${esc(f.ownerEmail)}</span>`:""}</td><td>${users.length?esc(users.join(", ")):'<span style="color:var(--muted)">Admins only</span>'}</td><td class="rowacts"><button class="smallbtn" data-fac="edit">Edit</button><button class="smallbtn danger" data-fac="reset">Reset</button><button class="smallbtn danger" data-fac="delete">Delete</button></td></tr>`;
+  }).join("")}</tbody></table>`:'<div class="empty">No factories yet. Add the first one.</div>';
+  $("setUserCount").textContent=plural(i.users.length,"user");
+  $("setUserTable").innerHTML=`<table><thead><tr><th>User</th><th>Role</th><th>Factories</th><th></th></tr></thead><tbody>${i.users.map(u=>{
+    const facs=u.role==="admin"?"All factories":(u.factoryIds.map(facName).filter(Boolean).join(", ")||'<span style="color:var(--muted)">None</span>');
+    return `<tr data-id="${esc(u.id)}"><td><strong>${esc(u.username)}</strong>${u.name?`<br><span style="color:var(--muted)">${esc(u.name)}</span>`:""}${u.id===session.user.id?' <span class="pill gray">You</span>':""}</td><td><span class="pill ${u.role==="admin"?"":"green"}">${u.role==="admin"?"Admin":"User"}</span></td><td>${u.role==="admin"?facs:facs.startsWith("<")?facs:esc(facs)}</td><td class="rowacts"><button class="smallbtn" data-usr="edit">Edit</button>${u.id===session.user.id?"":'<button class="smallbtn danger" data-usr="delete">Delete</button>'}</td></tr>`;
+  }).join("")}</tbody></table>`;
+  $("adminBackupWhere").textContent=`${i.backupDir} · daily backups kept for ${plural(i.keepDays,"day")}${i.backupDirSource==="settings"?"":i.backupDirSource==="environment"?" (from settings.bat / environment)":" (default folder)"} · each backup covers every factory`;
+  $("adminBackupCount").textContent=plural(i.backups.length,"file");
+  $("adminBackupTable").innerHTML=i.backups.length?`<table><thead><tr><th>Backup</th><th>Saved</th><th>Size</th><th></th></tr></thead><tbody>${i.backups.map(b=>{
+    const [label,cls]=KIND_LABEL[b.kind]||KIND_LABEL.other;
+    return `<tr data-name="${esc(b.name)}"><td><strong>${esc(b.name)}</strong><br><span class="pill ${cls}">${label}</span></td><td>${whenFull(b.modified)}</td><td>${fmtSize(b.size)}</td><td class="rowacts"><button class="smallbtn" data-bk="download">Download</button><button class="smallbtn" data-bk="restore">Restore</button><button class="smallbtn danger" data-bk="delete">Delete</button></td></tr>`;
+  }).join("")}</tbody></table>`:'<div class="empty">No backups yet. Use Back up now.</div>';
+  const L=i.logs;
+  $("adminLogsWhere").textContent=`The Log page keeps the last ${L.keepDays} days. Older entries are saved to a CSV file (opens in Excel) in ${L.dir} and removed from the app. This also runs automatically every hour.`;
+  $("adminLogsFactories").innerHTML=L.factories.length?`<table><thead><tr><th>Factory</th><th>Log entries</th><th>Older than ${L.keepDays} days</th></tr></thead><tbody>${L.factories.map(f=>`<tr><td><strong>${esc(f.name)}</strong></td><td>${fmt(f.total)}</td><td>${fmt(f.old)}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">No factories yet.</div>';
+  $("adminLogsTable").innerHTML=L.archives.length?`<table><thead><tr><th>File</th><th>Saved</th><th>Size</th><th></th></tr></thead><tbody>${L.archives.map(a=>`<tr data-name="${esc(a.name)}"><td><strong>${esc(a.name)}</strong></td><td>${whenFull(a.modified)}</td><td>${fmtSize(a.size)}</td><td class="rowacts"><button class="smallbtn" data-log="download">Download</button></td></tr>`).join("")}</tbody></table>`:'<div class="empty">No log backups yet. They are created once log entries are older than 30 days.</div>';
+  $("adminDir").value=i.backupDir; $("adminKeep").value=i.keepDays;
+  $("adminStarted").textContent=whenFull(i.startedAt);
+  const a=i.app, st=i.status, short=c=>c?c.slice(0,7):"";
+  // Shown as v1.0 for 1.0.0; package.json keeps the full x.y.z that npm requires.
+  $("adminVersion").innerHTML=`<b>Version v${esc(String(a.version).replace(/\.0$/,""))}</b>${a.commit?` · build <code>${esc(short(a.commit))}</code>`:""}<div class="meta">${a.mode==="git"?"Git copy":"Windows package"}${a.date?` · ${esc(whenFull(a.date))}`:""}${a.message?` · ${esc(a.message)}`:""}</div>`;
+  const size=x=>`${fmtSize(x.bytes)} · ${plural(x.files,"file")}`;
+  const up=st.uptimeSec, upText=up>=86400?`${Math.floor(up/86400)} d ${Math.floor(up%86400/3600)} h`:up>=3600?`${Math.floor(up/3600)} h ${Math.floor(up%3600/60)} min`:`${Math.floor(up/60)} min`;
+  $("adminStatus").innerHTML=`<table><tbody>${[
+    ["Status",'<span class="pill green">Running</span>'],["Uptime",upText],
+    ["Data",`${size(st.data)}<br><span style="color:var(--muted)">${esc(st.dataDir)}</span>`],["Factory data",size(st.factoriesData)],
+    ["Logs in the app",plural(st.activeLogEntries,"entry").replace(/ys$/,"ies")],["Log backups",size(st.logArchives)],
+    ["Backups",`${size(st.backups)}<br><span style="color:var(--muted)">${esc(st.backupDir)}</span>`],
+    ["Memory",`${fmt(st.memoryMB)} MB`],["Node.js",esc(st.node)],["System",esc(st.platform)]
+  ].map(([k,v])=>`<tr><th style="width:180px">${k}</th><td style="white-space:normal">${v}</td></tr>`).join("")}</tbody></table>`;
+  $("adminUpgradeWhere").textContent=`Installs the latest version from GitHub (${a.repo||"repository not set"}, branch ${a.branch}). A full data backup is taken first${a.mode==="git"?"":" and the current app files are copied to the backup folder"}; then the app restarts. Your data and settings are not changed.`;
+  $("adminTokenState").textContent=st.hasToken?"(a token is saved)":"(not set)";
+  $("adminTokenClear").hidden=!st.hasToken;
+  $("adminRestart").disabled=!i.canRestart;
+  $("adminRestartHint").textContent=i.canRestart?"Stops and starts the app server. Open pages reconnect automatically.":"Not available: the app was started directly with node server.js. Use npm start or the Windows launcher.";
+}
+// Factories
+let editingFactory=null;
+function openFactoryDialog(f) {
+  editingFactory=f||null; $("factoryForm").reset(); hideNotice("factoryNotice");
+  $("factoryDialogTitle").textContent=f?`Edit ${f.name}`:"Add factory"; $("factorySubmit").textContent=f?"Save changes":"Add factory";
+  if(f){ $("facName").value=f.name; $("facLocation").value=f.location; $("facOwner").value=f.ownerName; $("facPhone").value=f.ownerPhone||""; $("facEmail").value=f.ownerEmail||""; }
+  $("factoryDialog").showModal(); $("facName").focus();
+}
+$("addFactoryBtn").addEventListener("click",()=>openFactoryDialog());
+$("factoryForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("factoryNotice");
+  const body=JSON.stringify({name:$("facName").value,location:$("facLocation").value,ownerName:$("facOwner").value,ownerPhone:$("facPhone").value,ownerEmail:$("facEmail").value});
+  try{
+    const f=await api(editingFactory?`/api/admin/factories/${encodeURIComponent(editingFactory.id)}`:"/api/admin/factories",{method:editingFactory?"PUT":"POST",body});
+    $("factoryDialog").close(); toast(editingFactory?`${f.name} updated.`:`${f.name} created.`);
+    if(!editingFactory&&!currentFactoryId) currentFactoryId=f.id;
+    await reloadSession(); await loadSettings(); route(); await refresh();
+  }catch(err){ notice("factoryNotice",err.message); }
+});
+$("setFactoryTable").addEventListener("click",async e=>{
+  const btn=e.target.closest("[data-fac]"); if(!btn) return;
+  const f=settingsInfo.factories.find(x=>x.id===btn.closest("tr").dataset.id);
+  if(btn.dataset.fac==="edit") return openFactoryDialog(f);
+  if(btn.dataset.fac==="reset"){
+    const typed=await ask({title:`Reset ${f.name}?`,text:"All of this factory's warps, looms, deliveries, stock and parties are wiped. The factory and its users stay. A full backup is saved first, so it can be restored from Backups.",input:{label:`Type ${f.name} to confirm`,required:true},ok:"Reset factory",danger:true});
+    if(typed===null) return;
+    try{
+      const d=await api(`/api/admin/factories/${encodeURIComponent(f.id)}/reset`,{method:"POST",body:JSON.stringify({confirmName:typed})});
+      toast(`${f.name} reset. Backup saved as ${d.savedAs}.`); await loadSettings(); await refresh();
+    }catch(err){ notice("settingsNotice",err.message); }
+    return;
+  }
+  const typed=await ask({title:`Delete ${f.name}?`,text:"All of this factory's warps, looms, deliveries, stock and parties are removed, and users lose access to it. A full backup is saved first.",input:{label:`Type ${f.name} to confirm`,required:true},ok:"Delete factory",danger:true});
+  if(typed===null) return;
+  try{
+    const d=await api(`/api/admin/factories/${encodeURIComponent(f.id)}`,{method:"DELETE",body:JSON.stringify({confirmName:typed})});
+    toast(`${f.name} deleted. Backup saved as ${d.savedAs}.`);
+    if(currentFactoryId===f.id) currentFactoryId=null;
+    await reloadSession(); await loadSettings(); route(); await refresh();
+  }catch(err){ notice("settingsNotice",err.message); }
+});
+// Users
+let editingUser=null;
+function syncUserRole() {
+  const admin=$("userForm").querySelector("input[name=usrRole]:checked").value==="admin";
+  $("usrFactoriesField").hidden=admin;
+}
+function openUserDialog(u) {
+  editingUser=u||null; $("userForm").reset(); hideNotice("userNotice");
+  $("userDialogTitle").textContent=u?`Edit ${u.username}`:"Add user"; $("userSubmit").textContent=u?"Save changes":"Add user";
+  $("userDialogSub").textContent=u?"Changing the role or factories signs this user out so the new access applies.":"Users sign in with this username and password.";
+  $("usrPasswordLabel").textContent=u?"New password (optional)":"Password *"; $("usrPassword").required=!u;
+  $("usrFactories").innerHTML=settingsInfo.factories.length?settingsInfo.factories.map(f=>`<label><input type="checkbox" value="${esc(f.id)}"${u?.factoryIds.includes(f.id)?" checked":""}> ${esc(f.name)} <span style="color:var(--muted)">· ${esc(f.location)}</span></label>`).join(""):'<span style="color:var(--muted)">No factories yet.</span>';
+  if(u){ $("usrName").value=u.name; $("usrUsername").value=u.username; $("userForm").querySelector(`input[name=usrRole][value=${u.role}]`).checked=true; }
+  syncUserRole(); $("userDialog").showModal(); (u?$("usrName"):$("usrName")).focus();
+}
+$("userForm").addEventListener("change",e=>{ if(e.target.name==="usrRole") syncUserRole(); });
+$("addUserBtn").addEventListener("click",()=>openUserDialog());
+$("userForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("userNotice");
+  const body=JSON.stringify({name:$("usrName").value,username:$("usrUsername").value,password:$("usrPassword").value,
+    role:$("userForm").querySelector("input[name=usrRole]:checked").value,
+    factoryIds:[...$("usrFactories").querySelectorAll("input:checked")].map(i=>i.value)});
+  try{
+    const u=await api(editingUser?`/api/admin/users/${encodeURIComponent(editingUser.id)}`:"/api/admin/users",{method:editingUser?"PUT":"POST",body});
+    $("userDialog").close(); toast(editingUser?`${u.username} updated.`:`${u.username} added.`);
+    if(u.id===session.user.id) await reloadSession();
+    await loadSettings();
+  }catch(err){ notice("userNotice",err.message); }
+});
+$("setUserTable").addEventListener("click",async e=>{
+  const btn=e.target.closest("[data-usr]"); if(!btn) return;
+  const u=settingsInfo.users.find(x=>x.id===btn.closest("tr").dataset.id);
+  if(btn.dataset.usr==="edit") return openUserDialog(u);
+  if(!await ask({title:`Delete ${u.username}?`,text:"They can no longer sign in. Their past work in the factories is kept.",ok:"Delete user",danger:true})) return;
+  try{ await api(`/api/admin/users/${encodeURIComponent(u.id)}`,{method:"DELETE"}); toast(`${u.username} deleted.`); await loadSettings(); }
+  catch(err){ notice("settingsNotice",err.message); }
+});
+// Log backups
+$("adminLogsArchive").addEventListener("click",e=>busy(e.currentTarget,"Saving…",async()=>{
+  const d=await api("/api/admin/logs/archive",{method:"POST"});
+  toast(d.count?`${plural(d.count,"log entry").replace(/ys$/,"ies")} saved to ${d.name} and removed from the Log page.`:`No log entries are older than ${settingsInfo.logs.keepDays} days.`);
+  await loadSettings(); await refresh();
+}));
+$("adminLogsExport").addEventListener("click",e=>busy(e.currentTarget,"Preparing…",async()=>{
+  saveBlob(await (await authFetch("/api/admin/logs-export")).blob(),`my-thari-logs-${todayISO()}.csv`);
+}));
+$("adminLogsTable").addEventListener("click",async e=>{
+  const btn=e.target.closest("[data-log]"); if(!btn) return;
+  const name=btn.closest("tr").dataset.name;
+  try{ saveBlob(await (await authFetch(`/api/admin/logs/${encodeURIComponent(name)}`)).blob(),name); }
+  catch(err){ notice("settingsNotice",err.message); }
+});
+// Backups
+$("adminBackupNow").addEventListener("click",e=>busy(e.currentTarget,"Backing up…",async()=>{
+  const d=await api("/api/admin/backup-now",{method:"POST"}); toast(`Backup saved: ${d.name}`); await loadSettings();
+}));
+$("adminBackupTable").addEventListener("click",async e=>{
+  const btn=e.target.closest("[data-bk]"); if(!btn) return;
+  const name=btn.closest("tr").dataset.name, act=btn.dataset.bk, url=`/api/admin/backups/${encodeURIComponent(name)}`;
+  try{
+    if(act==="download"){ saveBlob(await (await authFetch(url)).blob(),name); return; }
+    if(act==="delete"){
+      if(!await ask({title:`Delete ${name}?`,text:"This backup file is removed permanently.",ok:"Delete backup",danger:true})) return;
+      await api(url,{method:"DELETE"}); toast(`${name} deleted.`); await loadSettings(); return;
+    }
+    if(!await ask({title:`Restore ${name}?`,text:"Factories and their data go back to how they were in this backup; factories added since then are removed from the list. User accounts and passwords stay as they are. Everything is backed up first, so this can be undone.",ok:"Restore backup",danger:true})) return;
+    let d;
+    try{ d=await api(`${url}/restore`,{method:"POST",body:"{}"}); }
+    catch(err){
+      // Backups from the single-factory version need a target factory.
+      if(!err.data?.needsFactory) throw err;
+      const factoryId=await ask({title:`Restore ${name} into…`,text:"This backup holds one factory's data (from the older version). Its data replaces the data of the factory you pick.",options:settingsInfo.factories.map(f=>[f.id,f.name]),label:"Factory",ok:"Restore into factory",danger:true});
+      if(!factoryId) return;
+      d=await api(`${url}/restore`,{method:"POST",body:JSON.stringify({factoryId})});
+    }
+    toast(`Restored ${name}. Previous state saved as ${d.savedCurrentAs}.`);
+    await reloadSession(); await loadSettings(); route(); await refresh();
+  }catch(err){ notice("settingsNotice",err.message); }
+});
+$("adminLocationForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("settingsNotice");
+  try{
+    const d=await api("/api/admin/settings",{method:"POST",body:JSON.stringify({backupDir:$("adminDir").value,keepDays:Number($("adminKeep").value),copyExisting:$("adminCopy").checked})});
+    toast(`Backups now go to ${d.backupDir}${d.copied?` (${plural(d.copied,"file")} copied)`:""}.`); await loadSettings();
+  }catch(err){ notice("settingsNotice",err.message); }
+});
+// Waits until a new server instance (different start time) answers.
+async function waitForRestart(before) {
+  for(let i=0;i<120;i++){
+    await new Promise(r=>setTimeout(r,500));
+    try{ const r=await fetch("/api/admin/info",{headers:{Authorization:`Bearer ${session.token}`}}); if(r.ok&&(await r.json()).startedAt!==before) return true; }catch{}
+  }
+  return false;
+}
+// Upgrade
+$("adminCheckUpdate").addEventListener("click",e=>busy(e.currentTarget,"Checking…",async()=>{
+  hideNotice("upgradeNotice"); $("adminUpgrade").disabled=true;
+  try{
+    const r=await api("/api/admin/upgrade/check",{method:"POST"}), l=r.latest;
+    if(r.upToDate) return notice("upgradeNotice",`You have the latest version (${l.commit.slice(0,7)} · ${whenFull(l.date)}).`,true);
+    notice("upgradeNotice",`Update available${r.behind?`: ${plural(r.behind,"change")}`:""}. Latest ${l.commit.slice(0,7)} · ${whenFull(l.date)} · ${l.message}`,true);
+    $("adminUpgrade").disabled=false;
+  }catch(err){ notice("upgradeNotice",err.message); }
+}));
+$("adminUpgrade").addEventListener("click",async e=>{
+  const btn=e.currentTarget, before=settingsInfo&&settingsInfo.startedAt;
+  if(!await ask({title:"Upgrade My Thari?",text:"A full backup of all factories is saved first. The latest version is installed from GitHub and the app restarts, which takes a few seconds. Anyone using the app will see it reload.",ok:"Back up and upgrade"})) return;
+  busy(btn,"Upgrading…",async()=>{
+    hideNotice("upgradeNotice");
+    let r;
+    try{ r=await api("/api/admin/upgrade",{method:"POST"}); }catch(err){ notice("upgradeNotice",err.message); return; }
+    const steps=(r.steps||[]).map(x=>`<li>${esc(x)}</li>`).join("");
+    if(r.upToDate){ $("upgradeNotice").innerHTML="You already have the latest version."; $("upgradeNotice").className="notice show ok"; return; }
+    $("upgradeNotice").innerHTML=`Upgrade installed.<ul class="upsteps">${steps}</ul>${r.restarting?"Restarting…":"Restart the app (npm start or the Windows launcher) to finish."}`; $("upgradeNotice").className="notice show ok";
+    if(!r.restarting) return;
+    await waitForRestart(before);
+    location.reload();
+  });
+});
+$("tokenForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  try{ await api("/api/admin/upgrade/token",{method:"POST",body:JSON.stringify({token:$("adminToken").value})}); $("adminToken").value=""; toast("GitHub token saved."); await loadSettings(); }
+  catch(err){ notice("upgradeNotice",err.message); }
+});
+$("adminTokenClear").addEventListener("click",async()=>{
+  if(!await ask({title:"Remove the GitHub token?",text:"Upgrades of the Windows package need it while the repository is private.",ok:"Remove token",danger:true})) return;
+  try{ await api("/api/admin/upgrade/token",{method:"POST",body:JSON.stringify({token:""})}); toast("GitHub token removed."); await loadSettings(); }
+  catch(err){ notice("upgradeNotice",err.message); }
+});
+$("adminRestart").addEventListener("click",async e=>{
+  // Capture before awaiting: the browser clears e.currentTarget once the click handler yields.
+  const btn=e.currentTarget, before=settingsInfo&&settingsInfo.startedAt;
+  if(!await ask({title:"Restart the app?",text:"The app server stops and starts again. It takes a few seconds.",ok:"Restart app"})) return;
+  busy(btn,"Restarting…",async()=>{
+    await api("/api/admin/restart",{method:"POST"});
+    await waitForRestart(before);
+    toast("App restarted."); await refresh(); await loadSettings();
+  });
+});
+async function boot() {
+  if(!session.token) return showLogin();
+  try{ await reloadSession(); }catch{ return; } // api() already showed the sign-in screen on 401
+  route(); await refresh();
+}
+boot().catch(err=>toast("Could not load app data: "+err.message));
+</script>
+</body>
+</html>

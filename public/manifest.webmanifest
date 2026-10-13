@@ -1,0 +1,12 @@
+{
+  "name": "My Thari – Track all my loom production",
+  "short_name": "My Thari",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f4fd",
+  "theme_color": "#5532e0",
+  "icons": [
+    { "src": "img/thari-icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "img/thari-icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
