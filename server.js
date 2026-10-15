@@ -10,7 +10,8 @@ const { backupNow, safeArchiveLogs } = require("./backup");
 const store = require("./store");
 const { requireAuth, requireAdmin, factoryScope, authRouter } = require("./auth");
 
-app.use(express.json());
+// Larger than the default 100kb so a design image (resized in the browser) fits in one request.
+app.use(express.json({ limit: "2mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 // Served locally (not from a CDN) so dashboard image export also works on an offline LAN.
 app.use("/vendor/html2canvas", express.static(path.join(__dirname, "node_modules", "html2canvas", "dist")));
@@ -40,7 +41,7 @@ function isSpent(warp) {
 // Brings older data files up to the current shape. Returns true if anything changed.
 function migrateDb(db) {
   let changed = false;
-  for (const key of ["clients", "stockMoves"]) {
+  for (const key of ["clients", "stockMoves", "staff", "designs", "wagePayouts", "wageDeductions", "bobbins"]) {
     if (!Array.isArray(db[key])) { db[key] = []; changed = true; }
   }
   if (!Array.isArray(db.activity)) { db.activity = seedActivity(db); db.activityVersion = 2; changed = true; }
@@ -53,6 +54,8 @@ function migrateDb(db) {
     db.activityVersion = 2;
     changed = true;
   }
+  // Looms that already had a bobbin before the "needs bobbin" setting existed need one.
+  for (const l of db.looms) if (l.needsBobbin === undefined && l.bobbinId) { l.needsBobbin = true; changed = true; }
   // Older deliveries only recorded the warp name; stock is tracked by warp id.
   for (const d of db.deliveries) {
     if (d.warpId) continue;
@@ -84,16 +87,21 @@ function migrateDb(db) {
   return changed;
 }
 const isClosed = warp => warp.status === "Completed" || warp.status === "Discarded";
+// Bobbins follow the same rule; a spent bobbin just leaves its loom (the warp keeps running).
 function settleSpentWarps(db) {
   let changed = false;
-  for (const warp of db.warps) {
-    if (isClosed(warp) || !isSpent(warp)) continue;
-    const loom = db.looms.find(l => l.id === warp.assignedLoomId);
-    if (loom) { loom.warpId = null; loom.status = "Warp Completed"; }
-    warp.assignedLoomId = null;
-    warp.status = "Completed";
-    warp.completedAt = new Date().toISOString();
-    changed = true;
+  for (const kind of ["warps", "bobbins"]) {
+    for (const item of db[kind] || []) {
+      if (isClosed(item) || !isSpent(item)) continue;
+      const loom = db.looms.find(l => l.id === item.assignedLoomId);
+      // The loom stops (see loomState) until a new one is put on; warpEnded/bobbinEnded say why.
+      if (loom && kind === "warps") { loom.warpId = null; loom.status = "Warp Completed"; loom.warpEnded = { name: item.name, at: new Date().toISOString() }; }
+      if (loom && kind === "bobbins") { loom.bobbinId = null; loom.bobbinEnded = { name: item.name, at: new Date().toISOString() }; }
+      item.assignedLoomId = null;
+      item.status = "Completed";
+      item.completedAt = new Date().toISOString();
+      changed = true;
+    }
   }
   return changed;
 }
@@ -164,20 +172,37 @@ function positiveNumber(value) {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
-// Returns [httpStatus, message] if the warp cannot be put on the loom, else null.
-function assignError(loom, warp) {
-  if (loom.stoppedAt) return [409, "This loom is stopped. Resume it before assigning a warp."];
-  if (warp.status === "Discarded") return [409, "This warp has been discarded."];
-  if (loom.warpId) return [409, "This loom already has a warp assigned. Finish or remove its current warp first."];
-  if (warp.widthType !== loom.widthType) return [400, "Warp width type must match the loom width type."];
-  if (warp.assignedLoomId) return [409, "This warp is already assigned to another active loom."];
-  if (warp.status === "Completed" || isSpent(warp)) return [400, `This warp is completed (less than ${SAREE_M} m left).`];
-  if (warp.status === "Ordered") return [400, "This warp is still on order. Mark it ready before assigning it to a loom."];
+// Warps and bobbins share one board lifecycle (Ordered -> Ready -> In Use -> Completed, or Discarded).
+// A loom holds at most one warp (loom.warpId) and, optionally, one bobbin (loom.bobbinId).
+const BOARD = {
+  warps: { slot: "warpId", noun: "warp", Noun: "Warp" },
+  bobbins: { slot: "bobbinId", noun: "bobbin", Noun: "Bobbin" }
+};
+// A loom runs only when it is not stopped by hand, has a warp and, if it needs one (loom.needsBobbin),
+// a bobbin. Anything else is "stopped" with a reason. Mirrored on the page by loomState().
+function loomState(db, loom) {
+  if (loom.stoppedAt) return { running: false, manual: true, reason: loom.stopReason || "Stopped by hand" };
+  if (!loom.warpId) return { running: false, reason: loom.warpEnded ? `Warp ${loom.warpEnded.name} finished` : "No warp" };
+  if (loom.needsBobbin && !loom.bobbinId) return { running: false, reason: loom.bobbinEnded ? `Bobbin ${loom.bobbinEnded.name} finished` : "No bobbin" };
+  return { running: true, reason: "" };
+}
+// Returns [httpStatus, message] if the warp/bobbin cannot be put on the loom, else null.
+function assignError(loom, warp, kind = "warps") {
+  const { slot, noun, Noun } = BOARD[kind];
+  if (loom.stoppedAt) return [409, `This loom is stopped. Resume it before assigning a ${noun}.`];
+  if (kind === "bobbins" && !loom.needsBobbin) return [400, `${loom.name} runs on warp only. Edit the loom to use a bobbin.`];
+  if (warp.status === "Discarded") return [409, `This ${noun} has been discarded.`];
+  if (loom[slot]) return [409, `This loom already has a ${noun} assigned. Finish or remove its current ${noun} first.`];
+  if (warp.widthType !== loom.widthType) return [400, `${Noun} width type must match the loom width type.`];
+  if (warp.assignedLoomId) return [409, `This ${noun} is already assigned to another active loom.`];
+  if (warp.status === "Completed" || isSpent(warp)) return [400, `This ${noun} is completed (less than ${SAREE_M} m left).`];
+  if (warp.status === "Ordered") return [400, `This ${noun} is still on order. Mark it ready before assigning it to a loom.`];
   return null;
 }
-function assignWarp(loom, warp) {
-  loom.warpId = warp.id;
-  loom.status = "Running";
+function assignWarp(loom, warp, kind = "warps") {
+  loom[BOARD[kind].slot] = warp.id;
+  delete loom[kind === "warps" ? "warpEnded" : "bobbinEnded"];
+  if (kind === "warps") loom.status = "Running";
   warp.assignedLoomId = loom.id;
   warp.status = "In Use";
   warp.startedAt = new Date().toISOString();
@@ -187,8 +212,21 @@ app.get("/api/health", (_req, res) => res.json({ status: "ok", app: "My Thari" }
 app.use("/api/auth", authRouter());
 app.use("/api/admin", requireAuth, requireAdmin, require("./admin")());
 // Everything below works on one factory's data and needs a signed-in user with access to it.
-app.use(["/api/data", "/api/warps", "/api/looms", "/api/deliveries", "/api/clients", "/api/stock", "/api/order"], requireAuth, factoryScope);
-app.get("/api/data", (req, res) => res.json(readDb(req.factoryId)));
+app.use(["/api/data", "/api/warps", "/api/bobbins", "/api/looms", "/api/deliveries", "/api/clients", "/api/stock", "/api/order", "/api/staff", "/api/designs", "/api/wages"], requireAuth, factoryScope);
+// Each factory turns the Stock module (process, stock, parties) and the Wages module (staff, designs,
+// wages) on or off in Settings (factory.modules, missing = on). Production (warps, looms, dispatch) is always on.
+const modulesOf = f => ({ stock: f?.modules?.stock !== false, wages: f?.modules?.wages !== false });
+const needModule = (name, label) => (req, res, next) => modulesOf(req.factory)[name] ? next()
+  : res.status(403).json({ error: `${label} is turned off for this factory. An admin can turn it on in Settings.` });
+app.use(["/api/stock", "/api/clients"], needModule("stock", "Stock"));
+app.use(["/api/staff", "/api/designs", "/api/wages", "/api/looms/:id/setup"], needModule("wages", "Wages"));
+// Design images and staff photos are left out (only hasImage); the page loads each one from
+// /api/designs/:id/image or /api/staff/:id/image.
+const noImage = ({ image, ...rest }) => ({ ...rest, hasImage: !!image });
+app.get("/api/data", (req, res) => {
+  const db = readDb(req.factoryId);
+  res.json({ ...db, designs: db.designs.map(noImage), staff: db.staff.map(noImage) });
+});
 
 app.post("/api/warps", (req, res) => {
   const body = req.body || {};
@@ -217,6 +255,27 @@ app.post("/api/warps", (req, res) => {
   logEvent(db, req, "warp", `Warp ${name} added · ${widthType} width · ${meters} m · ${bodyColor} / ${borderColor}`);
   writeDb(req.factoryId, db);
   res.status(201).json(warp);
+});
+
+// A bobbin (weft) is measured like a warp: meters, or sarees at 6.3 m each (3 per 6.3 m on triple width).
+app.post("/api/bobbins", (req, res) => {
+  const body = req.body || {};
+  const name = cleanText(body.name), widthType = body.widthType, meters = positiveNumber(body.meters), color = cleanText(body.color);
+  const orderDate = body.orderDate ? isoDate(body.orderDate) : new Date().toISOString().slice(0, 10);
+  const colorHex = typeof body.colorHex === "string" && /^#[0-9a-f]{6}$/i.test(body.colorHex) ? body.colorHex.toLowerCase() : null;
+  if (!name || !["single", "triple"].includes(widthType) || !meters || !color) {
+    return res.status(400).json({ error: "Enter bobbin name/ID, width type, meters and colour." });
+  }
+  if (!orderDate) return res.status(400).json({ error: "Enter a valid bobbin order date." });
+  if (meters < SAREE_M) return res.status(400).json({ error: `A bobbin must be at least ${SAREE_M} m (one saree length).` });
+  const db = readDb(req.factoryId);
+  if (db.bobbins.some(b => b.name.toLowerCase() === name.toLowerCase())) return res.status(409).json({ error: "A bobbin with this ID/name already exists." });
+  const bobbin = { id: id("BOB"), name, widthType, originalMeters: meters, remainingMeters: meters, color, colorHex, orderDate,
+    status: "Ordered", assignedLoomId: null, createdAt: new Date().toISOString() };
+  db.bobbins.unshift(bobbin);
+  logEvent(db, req, "bobbin", `Bobbin ${name} added · ${widthType} width · ${meters} m · ${color}`);
+  writeDb(req.factoryId, db);
+  res.status(201).json(bobbin);
 });
 
 app.post("/api/looms", (req, res) => {
@@ -250,7 +309,7 @@ app.post("/api/looms", (req, res) => {
   }
   const loom = {
     id: id("LOOM"), name, widthType, plan, bodyColor, borderColor,
-    plannedMeters, wovenMeters: 0, warpId: warp ? warp.id : null,
+    plannedMeters, wovenMeters: 0, warpId: warp ? warp.id : null, needsBobbin: body.needsBobbin === true,
     status: warp ? "Running" : "Available", createdAt: new Date().toISOString()
   };
   if (warp) {
@@ -259,7 +318,7 @@ app.post("/api/looms", (req, res) => {
     warp.startedAt = loom.createdAt;
   }
   db.looms.unshift(loom);
-  logEvent(db, req, "loom", `Loom ${name} added · ${widthType} width${warp ? ` · running ${warp.name}` : ""}`);
+  logEvent(db, req, "loom", `Loom ${name} added · ${widthType} width · ${loom.needsBobbin ? "warp + bobbin" : "warp only"}${warp ? ` · running ${warp.name}` : ""}`);
   writeDb(req.factoryId, db);
   res.status(201).json(loom);
 });
@@ -290,68 +349,81 @@ app.post("/api/deliveries", (req, res) => {
   if (metersToReduce > warp.remainingMeters + 1e-9) {
     return res.status(400).json({ error: `Not enough warp meters. Available: ${warp.remainingMeters.toFixed(2)} m; required: ${metersToReduce.toFixed(2)} m.` });
   }
+  const bobbin = loom.bobbinId ? db.bobbins.find(b => b.id === loom.bobbinId) : null;
+  if (loom.needsBobbin && !bobbin) return res.status(409).json({ error: `${loom.name} needs a bobbin to run. Put a bobbin on it first.` });
+  if (bobbin && metersToReduce > bobbin.remainingMeters + 1e-9) {
+    return res.status(400).json({ error: `Not enough bobbin on ${loom.name}. ${bobbin.name} has ${bobbin.remainingMeters.toFixed(2)} m; required: ${metersToReduce.toFixed(2)} m.` });
+  }
+  if (bobbin) bobbin.remainingMeters = Math.max(0, Number((bobbin.remainingMeters - metersToReduce).toFixed(2)));
   warp.remainingMeters = Math.max(0, Number((warp.remainingMeters - metersToReduce).toFixed(2)));
   loom.wovenMeters = Number((loom.wovenMeters + metersToReduce).toFixed(2));
   settleSpentWarps(db);
   const delivery = {
     id: id("DEL"), loomId: loom.id, loomName: loom.name, warpId: warp.id, warpName: warp.name,
     widthType: loom.widthType, sarees: quantity, metersReduced: Number(metersToReduce.toFixed(2)),
-    remainingMeters: warp.remainingMeters, note, lrNumber, createdAt: new Date().toISOString()
+    remainingMeters: warp.remainingMeters, note, lrNumber, createdAt: new Date().toISOString(),
+    ...(bobbin ? { bobbinId: bobbin.id, bobbinName: bobbin.name, bobbinRemaining: bobbin.remainingMeters } : {}),
+    ...(modulesOf(req.factory).wages ? wageFor(db, loom, quantity) : {})
   };
   db.deliveries.unshift(delivery);
-  logEvent(db, req, "dispatch", `${sarees(quantity)} dispatched from ${loom.name} (${warp.name}) · ${delivery.metersReduced} m used, ${warp.remainingMeters} m left${lrNumber ? ` · LR ${lrNumber}` : ""}${warp.status === "Completed" ? ` · ${warp.name} completed, ${loom.name} free` : ""}`);
+  const wageText = delivery.wage != null ? ` · wage ${money(delivery.wage)} to ${delivery.staffName} (${delivery.designNo})` : "";
+  logEvent(db, req, "dispatch", `${sarees(quantity)} dispatched from ${loom.name} (${warp.name}) · ${delivery.metersReduced} m used, ${warp.remainingMeters} m left${lrNumber ? ` · LR ${lrNumber}` : ""}${bobbin ? ` · bobbin ${bobbin.name} ${bobbin.remainingMeters} m left` : ""}${wageText}${warp.status === "Completed" ? ` · ${warp.name} completed, ${loom.name} free` : ""}${bobbin && bobbin.status === "Completed" ? ` · bobbin ${bobbin.name} completed` : ""}${loomState(db, loom).running ? "" : ` · ${loom.name} stopped: ${loomState(db, loom).reason}`}`);
   writeDb(req.factoryId, db);
-  res.status(201).json({ delivery, loom, warp });
+  res.status(201).json({ delivery, loom, warp, bobbin });
 });
 
-// Moves a warp between board stages: ordered <-> ready <-> running. "Done" is reached
-// only through deliveries using up the warp, so it is never a valid target here.
-app.post("/api/warps/:id/move", (req, res) => {
-  const body = req.body || {};
-  const db = readDb(req.factoryId);
-  const warp = db.warps.find(w => w.id === req.params.id);
-  if (!warp) return res.status(404).json({ error: "Warp not found." });
-  if (warp.status === "Discarded") return res.status(409).json({ error: "Discarded warps cannot be moved." });
-  if (warp.status === "Completed" || isSpent(warp)) return res.status(409).json({ error: "Completed warps cannot be moved." });
-  const date = body.date ? isoDate(body.date) : new Date().toISOString().slice(0, 10);
-  if (!date) return res.status(400).json({ error: "Enter a valid date." });
-  const from = warp.assignedLoomId ? "running" : warp.status === "Ordered" ? "ordered" : "ready";
-  const to = body.to;
-  if (from === to) return res.json({ warp });
-  const offLoom = db.looms.find(l => l.id === warp.assignedLoomId);
+// Moves a warp or bobbin between board stages: ordered <-> ready <-> running. "Done" is reached
+// only through deliveries using it up, so it is never a valid target here.
+function moveRoute(kind) {
+  const { slot, noun, Noun } = BOARD[kind];
+  return (req, res) => {
+    const body = req.body || {};
+    const db = readDb(req.factoryId);
+    const warp = db[kind].find(w => w.id === req.params.id);
+    if (!warp) return res.status(404).json({ error: `${Noun} not found.` });
+    if (warp.status === "Discarded") return res.status(409).json({ error: `Discarded ${noun}s cannot be moved.` });
+    if (warp.status === "Completed" || isSpent(warp)) return res.status(409).json({ error: `Completed ${noun}s cannot be moved.` });
+    const date = body.date ? isoDate(body.date) : new Date().toISOString().slice(0, 10);
+    if (!date) return res.status(400).json({ error: "Enter a valid date." });
+    const from = warp.assignedLoomId ? "running" : warp.status === "Ordered" ? "ordered" : "ready";
+    const to = body.to;
+    if (from === to) return res.json({ [noun]: warp });
+    const offLoom = db.looms.find(l => l.id === warp.assignedLoomId);
 
-  if (to === "ordered") {
-    if (from !== "ready") return res.status(409).json({ error: "Take the warp off its loom before moving it back to ordered." });
-    if (warp.remainingMeters < warp.originalMeters) return res.status(409).json({ error: "This warp has already been woven and cannot go back to ordered." });
-    warp.status = "Ordered";
-    delete warp.readyDate;
-  } else if (to === "ready") {
-    if (from === "running") {
-      const loom = db.looms.find(l => l.id === warp.assignedLoomId);
-      if (loom) { loom.warpId = null; loom.status = "Available"; }
-      warp.assignedLoomId = null;
-      delete warp.startedAt;
+    if (to === "ordered") {
+      if (from !== "ready") return res.status(409).json({ error: `Take the ${noun} off its loom before moving it back to ordered.` });
+      if (warp.remainingMeters < warp.originalMeters) return res.status(409).json({ error: `This ${noun} has already been woven and cannot go back to ordered.` });
+      warp.status = "Ordered";
+      delete warp.readyDate;
+    } else if (to === "ready") {
+      if (from === "running") {
+        if (offLoom) { offLoom[slot] = null; if (kind === "warps") offLoom.status = "Available"; }
+        warp.assignedLoomId = null;
+        delete warp.startedAt;
+      } else {
+        warp.readyDate = date;
+      }
+      warp.status = "Ready";
+    } else if (to === "running") {
+      const loom = db.looms.find(l => l.id === cleanText(body.loomId));
+      if (!loom) return res.status(404).json({ error: `Select a loom to run this ${noun} on.` });
+      if (from === "ordered") { warp.status = "Ready"; warp.readyDate = date; }
+      const err = assignError(loom, warp, kind);
+      if (err) return res.status(err[0]).json({ error: err[1] });
+      assignWarp(loom, warp, kind);
     } else {
-      warp.readyDate = date;
+      return res.status(400).json({ error: `${Noun}s move to Done automatically when all their meters are used.` });
     }
-    warp.status = "Ready";
-  } else if (to === "running") {
-    const loom = db.looms.find(l => l.id === cleanText(body.loomId));
-    if (!loom) return res.status(404).json({ error: "Select a loom to run this warp on." });
-    if (from === "ordered") { warp.status = "Ready"; warp.readyDate = date; }
-    const err = assignError(loom, warp);
-    if (err) return res.status(err[0]).json({ error: err[1] });
-    assignWarp(loom, warp);
-  } else {
-    return res.status(400).json({ error: "Warps move to Done automatically when all their meters are delivered." });
-  }
-  const loomNow = db.looms.find(l => l.id === warp.assignedLoomId);
-  logEvent(db, req, "warp", to === "ordered" ? `Warp ${warp.name} moved back to ordered`
-    : to === "running" ? `Warp ${warp.name} started on ${loomNow ? loomNow.name : "a loom"}`
-    : from === "running" ? `Warp ${warp.name} taken off ${offLoom ? offLoom.name : "its loom"}, back to ready` : `Warp ${warp.name} marked ready`);
-  writeDb(req.factoryId, db);
-  res.json({ warp });
-});
+    const loomNow = db.looms.find(l => l.id === warp.assignedLoomId);
+    logEvent(db, req, noun, to === "ordered" ? `${Noun} ${warp.name} moved back to ordered`
+      : to === "running" ? `${Noun} ${warp.name} started on ${loomNow ? loomNow.name : "a loom"}`
+      : from === "running" ? `${Noun} ${warp.name} taken off ${offLoom ? offLoom.name : "its loom"}, back to ready` : `${Noun} ${warp.name} marked ready`);
+    writeDb(req.factoryId, db);
+    res.json({ [noun]: warp });
+  };
+}
+app.post("/api/warps/:id/move", moveRoute("warps"));
+app.post("/api/bobbins/:id/move", moveRoute("bobbins"));
 
 app.post("/api/looms/:id/assign-warp", (req, res) => {
   const db = readDb(req.factoryId);
@@ -367,19 +439,24 @@ app.post("/api/looms/:id/assign-warp", (req, res) => {
   res.json({ loom, warp });
 });
 
-app.post("/api/warps/:id/discard", requireAdmin, (req, res) => {
-  const db = readDb(req.factoryId);
-  const warp = db.warps.find(w => w.id === req.params.id);
-  if (!warp) return res.status(404).json({ error: "Warp not found." });
-  if (isClosed(warp)) return res.status(409).json({ error: `This warp is already ${warp.status.toLowerCase()}.` });
-  if (warp.assignedLoomId) return res.status(409).json({ error: "This warp is on a loom. Take it off the loom (drag it to Ready) before discarding." });
-  warp.status = "Discarded";
-  warp.discardedAt = new Date().toISOString();
-  warp.discardReason = cleanText(req.body?.reason);
-  logEvent(db, req, "warp", `Warp ${warp.name} discarded${warp.discardReason ? ` · ${warp.discardReason}` : ""}`);
-  writeDb(req.factoryId, db);
-  res.json({ warp });
-});
+function discardRoute(kind) {
+  const { noun, Noun } = BOARD[kind];
+  return (req, res) => {
+    const db = readDb(req.factoryId);
+    const warp = db[kind].find(w => w.id === req.params.id);
+    if (!warp) return res.status(404).json({ error: `${Noun} not found.` });
+    if (isClosed(warp)) return res.status(409).json({ error: `This ${noun} is already ${warp.status.toLowerCase()}.` });
+    if (warp.assignedLoomId) return res.status(409).json({ error: `This ${noun} is on a loom. Take it off the loom (drag it to Ready) before discarding.` });
+    warp.status = "Discarded";
+    warp.discardedAt = new Date().toISOString();
+    warp.discardReason = cleanText(req.body?.reason);
+    logEvent(db, req, noun, `${Noun} ${warp.name} discarded${warp.discardReason ? ` · ${warp.discardReason}` : ""}`);
+    writeDb(req.factoryId, db);
+    res.json({ [noun]: warp });
+  };
+}
+app.post("/api/warps/:id/discard", requireAdmin, discardRoute("warps"));
+app.post("/api/bobbins/:id/discard", requireAdmin, discardRoute("bobbins"));
 
 app.post("/api/looms/:id/stop", (req, res) => {
   const db = readDb(req.factoryId);
@@ -404,22 +481,51 @@ app.post("/api/looms/:id/resume", (req, res) => {
   res.json(loom);
 });
 
-// Removing a loom is a deliberate two-step action: it must be stopped first. A warp still on
-// it goes back to Ready. Delivery records keep their loomName snapshot, so history survives.
+// Edits a loom: number, width (only while nothing is on it) and whether it needs a bobbin
+// (can't be turned off while a bobbin is on it).
+app.put("/api/looms/:id", (req, res) => {
+  const body = req.body || {};
+  const db = readDb(req.factoryId);
+  const loom = db.looms.find(l => l.id === req.params.id);
+  if (!loom) return res.status(404).json({ error: "Loom not found." });
+  const name = cleanText(body.name), widthType = body.widthType, needsBobbin = body.needsBobbin === true;
+  if (!name || !["single", "triple"].includes(widthType)) return res.status(400).json({ error: "Enter loom number and width type." });
+  if (db.looms.some(l => l !== loom && l.name.toLowerCase() === name.toLowerCase())) return res.status(409).json({ error: "A loom with this number/name already exists." });
+  if (widthType !== loom.widthType && (loom.warpId || loom.bobbinId)) return res.status(409).json({ error: "Take the warp and bobbin off this loom before changing its width." });
+  if (!needsBobbin && loom.bobbinId) return res.status(409).json({ error: "Take the bobbin off this loom before setting it to warp only." });
+  const changes = [];
+  if (name !== loom.name) changes.push(`renamed ${name}`);
+  if (widthType !== loom.widthType) changes.push(`${widthType} width`);
+  if (needsBobbin !== !!loom.needsBobbin) changes.push(needsBobbin ? "now needs a bobbin" : "now warp only");
+  const old = loom.name;
+  Object.assign(loom, { name, widthType, needsBobbin });
+  if (changes.length) logEvent(db, req, "loom", `Loom ${old} updated · ${changes.join(", ")}`);
+  writeDb(req.factoryId, db);
+  res.json(loom);
+});
+
+// Removing a loom needs it to be stopped (by hand, or because it has no warp/bobbin). A warp or
+// bobbin still on it goes back to Ready. Delivery records keep their loomName snapshot.
 app.delete("/api/looms/:id", requireAdmin, (req, res) => {
   const db = readDb(req.factoryId);
   const index = db.looms.findIndex(l => l.id === req.params.id);
   if (index < 0) return res.status(404).json({ error: "Loom not found." });
   const loom = db.looms[index];
-  if (!loom.stoppedAt) return res.status(409).json({ error: "Stop the loom before removing it." });
+  if (loomState(db, loom).running) return res.status(409).json({ error: "Stop the loom before removing it." });
   const warp = db.warps.find(w => w.id === loom.warpId);
   if (warp) {
     warp.assignedLoomId = null;
     warp.status = "Ready";
     delete warp.startedAt;
   }
+  const bobbin = db.bobbins.find(b => b.id === loom.bobbinId);
+  if (bobbin) {
+    bobbin.assignedLoomId = null;
+    bobbin.status = "Ready";
+    delete bobbin.startedAt;
+  }
   db.looms.splice(index, 1);
-  logEvent(db, req, "loom", `Loom ${loom.name} removed${warp ? ` · ${warp.name} back to ready` : ""}`);
+  logEvent(db, req, "loom", `Loom ${loom.name} removed${warp ? ` · ${warp.name} back to ready` : ""}${bobbin ? ` · bobbin ${bobbin.name} back to ready` : ""}`);
   writeDb(req.factoryId, db);
   res.json({ removed: loom.id, warp: warp || null });
 });
@@ -437,6 +543,286 @@ app.post("/api/clients", (req, res) => {
   logEvent(db, req, "party", `Party ${name} added${address ? ` · ${address.split("\n")[0]}` : ""}`);
   writeDb(req.factoryId, db);
   res.status(201).json(client);
+});
+
+// ---- Wages ----
+// Each loom has a current design (with a wage per saree) and a staff member running it; one staff
+// member can run several looms. A dispatch snapshots the staff, design and rate onto the delivery
+// record (wage = sarees x rate, every saree counted, also on triple width), so later edits to a
+// design never change wages already earned. Deliveries without payoutId are unpaid. Settling
+// records a payout with per-staff totals and marks those deliveries with its id: a new period starts.
+const money = n => `₹${Number(n).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+const round2 = n => Math.round(n * 100) / 100;
+function wageFor(db, loom, quantity) {
+  const staff = db.staff.find(s => s.id === loom.staffId);
+  const design = db.designs.find(d => d.id === loom.designId);
+  const out = {};
+  if (design) Object.assign(out, { designId: design.id, designNo: design.number, designName: design.name, rate: design.rate });
+  if (staff) Object.assign(out, { staffId: staff.id, staffName: staff.name });
+  if (staff && design) out.wage = round2(quantity * design.rate);
+  return out;
+}
+const unpaid = db => db.deliveries.filter(d => d.wage != null && !d.payoutId);
+const unpaidDeductions = db => db.wageDeductions.filter(x => !x.payoutId);
+// Per-staff totals: earnings split by design and rate, minus damage deductions. Biggest net pay first.
+//   line: { staffId, staffName, sarees, amount (earned), items, deducted, deductions, net }
+function wageLines(deliveries, deductions = []) {
+  const byStaff = new Map();
+  const lineOf = (staffId, staffName) => byStaff.get(staffId)
+    || byStaff.set(staffId, { staffId, staffName, sarees: 0, amount: 0, items: [], deducted: 0, deductions: [], net: 0 }).get(staffId);
+  for (const d of deliveries) {
+    const line = lineOf(d.staffId, d.staffName);
+    line.sarees += d.sarees;
+    line.amount = round2(line.amount + d.wage);
+    const item = line.items.find(i => i.designId === d.designId && i.rate === d.rate)
+      || line.items[line.items.push({ designId: d.designId, designNo: d.designNo, designName: d.designName || "", rate: d.rate, sarees: 0, amount: 0 }) - 1];
+    item.sarees += d.sarees;
+    item.amount = round2(item.amount + d.wage);
+  }
+  for (const x of deductions) {
+    const line = lineOf(x.staffId, x.staffName);
+    line.deducted = round2(line.deducted + x.amount);
+    for (const it of x.items) line.deductions.push({ ...it, note: x.note || "", at: x.createdAt });
+  }
+  for (const line of byStaff.values()) line.net = round2(line.amount - line.deducted);
+  return [...byStaff.values()].sort((a, b) => b.net - a.net);
+}
+// Damage deductions: sarees with minor or heavy damage, each kind with its own amount per saree.
+const DAMAGE_KINDS = { minor: "Minor damage", heavy: "Heavy damage" };
+// A design image is a JPEG/PNG/WebP data URL, resized in the browser before upload.
+const IMAGE_MAX = 1024 * 1024;
+function imageField(value) {
+  if (value === undefined) return undefined; // not sent: keep the current image
+  if (value === null || value === "") return null; // remove it
+  return typeof value === "string" && value.length <= IMAGE_MAX && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(value) ? value : false;
+}
+function rateField(value) {
+  const n = Number(value);
+  return value !== "" && value != null && Number.isFinite(n) && n > 0 ? round2(n) : null;
+}
+
+// Staff: name, optional phone and optional photo (same rules as a design image).
+app.post("/api/staff", (req, res) => {
+  const name = cleanText(req.body?.name), phone = cleanText(req.body?.phone), image = imageField(req.body?.image);
+  if (!name) return res.status(400).json({ error: "Enter the staff name." });
+  if (image === false) return res.status(400).json({ error: "The photo could not be used. Choose a JPG or PNG photo." });
+  const db = readDb(req.factoryId);
+  if (db.staff.some(s => s.name.toLowerCase() === name.toLowerCase())) return res.status(409).json({ error: "A staff member with this name already exists." });
+  const now = new Date().toISOString();
+  const staff = { id: id("STF"), name, phone, image: image || null, imageAt: image ? now : null, createdAt: now };
+  db.staff.unshift(staff);
+  logEvent(db, req, "wages", `Staff ${name} added${phone ? ` · ${phone}` : ""}`);
+  writeDb(req.factoryId, db);
+  res.status(201).json(noImage(staff));
+});
+
+app.get("/api/staff/:id/image", (req, res) => {
+  const staff = readDb(req.factoryId).staff.find(s => s.id === req.params.id);
+  if (!staff || !staff.image) return res.status(404).json({ error: "No photo for this staff member." });
+  res.json({ image: staff.image });
+});
+
+app.put("/api/staff/:id", (req, res) => {
+  const name = cleanText(req.body?.name), phone = cleanText(req.body?.phone), image = imageField(req.body?.image);
+  if (!name) return res.status(400).json({ error: "Enter the staff name." });
+  if (image === false) return res.status(400).json({ error: "The photo could not be used. Choose a JPG or PNG photo." });
+  const db = readDb(req.factoryId);
+  const staff = db.staff.find(s => s.id === req.params.id);
+  if (!staff) return res.status(404).json({ error: "Staff member not found." });
+  if (db.staff.some(s => s !== staff && s.name.toLowerCase() === name.toLowerCase())) return res.status(409).json({ error: "A staff member with this name already exists." });
+  const old = staff.name;
+  Object.assign(staff, { name, phone });
+  if (image !== undefined && image !== staff.image) Object.assign(staff, { image, imageAt: image ? new Date().toISOString() : null });
+  logEvent(db, req, "wages", `Staff ${old}${old !== name ? ` renamed to ${name}` : " updated"}${phone ? ` · ${phone}` : ""}`);
+  writeDb(req.factoryId, db);
+  res.json(noImage(staff));
+});
+
+// Unpaid wages and past payouts keep the staff name, so removing someone never loses money owed.
+app.delete("/api/staff/:id", requireAdmin, (req, res) => {
+  const db = readDb(req.factoryId);
+  const staff = db.staff.find(s => s.id === req.params.id);
+  if (!staff) return res.status(404).json({ error: "Staff member not found." });
+  const looms = db.looms.filter(l => l.staffId === staff.id);
+  if (looms.length) return res.status(409).json({ error: `${staff.name} still runs ${looms.map(l => l.name).join(", ")}. Change the staff on those looms first.` });
+  db.staff = db.staff.filter(s => s !== staff);
+  logEvent(db, req, "wages", `Staff ${staff.name} removed`);
+  writeDb(req.factoryId, db);
+  res.json({ removed: staff.id });
+});
+
+function designBody(body) {
+  const number = cleanText(body.number), name = cleanText(body.name), rate = rateField(body.rate), image = imageField(body.image);
+  if (!number) return { error: "Enter the design number." };
+  if (rate == null) return { error: "Enter the wage per saree (more than 0)." };
+  if (image === false) return { error: "The image could not be used. Choose a JPG or PNG photo." };
+  return { number, name, rate, image };
+}
+
+app.post("/api/designs", (req, res) => {
+  const v = designBody(req.body || {});
+  if (v.error) return res.status(400).json({ error: v.error });
+  const db = readDb(req.factoryId);
+  if (db.designs.some(d => d.number.toLowerCase() === v.number.toLowerCase())) return res.status(409).json({ error: "A design with this number already exists." });
+  const now = new Date().toISOString();
+  const design = { id: id("DSN"), number: v.number, name: v.name, rate: v.rate, image: v.image || null, imageAt: v.image ? now : null, createdAt: now };
+  db.designs.unshift(design);
+  logEvent(db, req, "wages", `Design ${v.number}${v.name ? ` (${v.name})` : ""} added · ${money(v.rate)} per saree`);
+  writeDb(req.factoryId, db);
+  const { image, ...rest } = design;
+  res.status(201).json({ ...rest, hasImage: !!image });
+});
+
+// A new rate applies to dispatches from now on; wages already earned keep the old rate.
+app.put("/api/designs/:id", (req, res) => {
+  const v = designBody(req.body || {});
+  if (v.error) return res.status(400).json({ error: v.error });
+  const db = readDb(req.factoryId);
+  const design = db.designs.find(d => d.id === req.params.id);
+  if (!design) return res.status(404).json({ error: "Design not found." });
+  if (db.designs.some(d => d !== design && d.number.toLowerCase() === v.number.toLowerCase())) return res.status(409).json({ error: "A design with this number already exists." });
+  const changes = [];
+  if (design.number !== v.number) changes.push(`renumbered ${v.number}`);
+  if (design.rate !== v.rate) changes.push(`wage ${money(design.rate)} → ${money(v.rate)} per saree`);
+  if (v.image !== undefined && v.image !== design.image) changes.push(v.image ? "image updated" : "image removed");
+  Object.assign(design, { number: v.number, name: v.name, rate: v.rate });
+  if (v.image !== undefined && v.image !== design.image) Object.assign(design, { image: v.image, imageAt: v.image ? new Date().toISOString() : null });
+  logEvent(db, req, "wages", `Design ${design.number} updated${changes.length ? ` · ${changes.join(", ")}` : ""}`);
+  writeDb(req.factoryId, db);
+  const { image, ...rest } = design;
+  res.json({ ...rest, hasImage: !!image });
+});
+
+app.get("/api/designs/:id/image", (req, res) => {
+  const design = readDb(req.factoryId).designs.find(d => d.id === req.params.id);
+  if (!design || !design.image) return res.status(404).json({ error: "No image for this design." });
+  res.json({ image: design.image });
+});
+
+app.delete("/api/designs/:id", requireAdmin, (req, res) => {
+  const db = readDb(req.factoryId);
+  const design = db.designs.find(d => d.id === req.params.id);
+  if (!design) return res.status(404).json({ error: "Design not found." });
+  const looms = db.looms.filter(l => l.designId === design.id);
+  if (looms.length) return res.status(409).json({ error: `Design ${design.number} is set on ${looms.map(l => l.name).join(", ")}. Change the design on those looms first.` });
+  db.designs = db.designs.filter(d => d !== design);
+  logEvent(db, req, "wages", `Design ${design.number} removed`);
+  writeDb(req.factoryId, db);
+  res.json({ removed: design.id });
+});
+
+// Sets the loom's current design and staff (either may be cleared with null / "").
+app.post("/api/looms/:id/setup", (req, res) => {
+  const db = readDb(req.factoryId);
+  const loom = db.looms.find(l => l.id === req.params.id);
+  if (!loom) return res.status(404).json({ error: "Loom not found." });
+  const designId = cleanText(req.body?.designId), staffId = cleanText(req.body?.staffId);
+  const design = designId ? db.designs.find(d => d.id === designId) : null;
+  const staff = staffId ? db.staff.find(s => s.id === staffId) : null;
+  if (designId && !design) return res.status(404).json({ error: "Design not found." });
+  if (staffId && !staff) return res.status(404).json({ error: "Staff member not found." });
+  const parts = [];
+  if ((loom.designId || null) !== (design?.id || null)) parts.push(design ? `design ${design.number} (${money(design.rate)} per saree)` : "no design");
+  if ((loom.staffId || null) !== (staff?.id || null)) parts.push(staff ? `staff ${staff.name}` : "no staff");
+  loom.designId = design ? design.id : null;
+  loom.staffId = staff ? staff.id : null;
+  if (parts.length) {
+    logEvent(db, req, "loom", `Loom ${loom.name} set to ${parts.join(" · ")}`);
+    writeDb(req.factoryId, db);
+  }
+  res.json(loom);
+});
+
+// Adds a damage deduction for one staff member in the current (unpaid) period. The amounts per saree
+// used are remembered as the factory's defaults (db.deductionRates) for the next deduction.
+app.post("/api/wages/deductions", (req, res) => {
+  const body = req.body || {};
+  const db = readDb(req.factoryId);
+  const staff = db.staff.find(s => s.id === cleanText(body.staffId));
+  if (!staff) return res.status(400).json({ error: "Select the staff member." });
+  const items = [];
+  for (const kind of Object.keys(DAMAGE_KINDS)) {
+    const raw = body[`${kind}Sarees`], n = raw === "" || raw == null ? 0 : Number(raw);
+    if (!Number.isInteger(n) || n < 0) return res.status(400).json({ error: `Enter a whole number of sarees for ${DAMAGE_KINDS[kind].toLowerCase()}.` });
+    if (!n) continue;
+    const rate = rateField(body[`${kind}Rate`]);
+    if (rate == null) return res.status(400).json({ error: `Enter the amount per saree for ${DAMAGE_KINDS[kind].toLowerCase()}.` });
+    items.push({ kind, label: DAMAGE_KINDS[kind], sarees: n, rate, amount: round2(n * rate) });
+    db.deductionRates = { ...db.deductionRates, [kind]: rate };
+  }
+  if (!items.length) return res.status(400).json({ error: "Enter the number of damaged sarees." });
+  const deduction = { id: id("DED"), staffId: staff.id, staffName: staff.name, items, amount: round2(items.reduce((s, i) => s + i.amount, 0)),
+    note: cleanText(body.note), by: actor(req), createdAt: new Date().toISOString() };
+  db.wageDeductions.unshift(deduction);
+  logEvent(db, req, "wages", `Deduction ${money(deduction.amount)} for ${staff.name} · ${items.map(i => `${i.sarees} ${i.label.toLowerCase()} × ${money(i.rate)}`).join(", ")}${deduction.note ? ` · ${deduction.note}` : ""}`);
+  writeDb(req.factoryId, db);
+  res.status(201).json(deduction);
+});
+
+// Only deductions not yet settled can be removed (to correct a mistake).
+app.delete("/api/wages/deductions/:id", (req, res) => {
+  const db = readDb(req.factoryId);
+  const x = db.wageDeductions.find(d => d.id === req.params.id);
+  if (!x) return res.status(404).json({ error: "Deduction not found." });
+  if (x.payoutId) return res.status(409).json({ error: "This deduction is already settled." });
+  db.wageDeductions = db.wageDeductions.filter(d => d !== x);
+  logEvent(db, req, "wages", `Deduction ${money(x.amount)} for ${x.staffName} removed`);
+  writeDb(req.factoryId, db);
+  res.json({ removed: x.id });
+});
+
+// Closes the wage period for every staff member, or only for staffIds: their unpaid wages and
+// deductions go into one payout record, kept as history. Other staff keep their open period.
+// Staff with only a carried balance (nothing new) are left out.
+app.post("/api/wages/settle", (req, res) => {
+  const db = readDb(req.factoryId);
+  const pick = Array.isArray(req.body?.staffIds) ? new Set(req.body.staffIds.map(String)) : null;
+  if (pick && !pick.size) return res.status(400).json({ error: "Select the staff to settle." });
+  const due = new Set([...unpaid(db).map(d => d.staffId), ...unpaidDeductions(db).filter(x => !x.carry).map(x => x.staffId)]);
+  const mine = x => due.has(x.staffId) && (!pick || pick.has(x.staffId));
+  const list = unpaid(db).filter(mine), cuts = unpaidDeductions(db).filter(mine);
+  if (!list.length && !cuts.length) return res.status(400).json({ error: pick ? "The selected staff have no unpaid wages to settle." : "There are no unpaid wages to settle." });
+  const at = new Date().toISOString();
+  // Other deductions typed in while settling ({ staffId: { amount, note } }, e.g. an advance): saved as
+  // deductions of kind "other" and settled in this payout.
+  const adj = req.body?.adjustments && typeof req.body.adjustments === "object" ? req.body.adjustments : {};
+  for (const [staffId, a] of Object.entries(adj)) {
+    const raw = a?.amount;
+    if (raw === "" || raw == null || Number(raw) === 0) continue;
+    const amount = rateField(raw);
+    if (amount == null) return res.status(400).json({ error: "Other deductions must be an amount above 0." });
+    const staff = db.staff.find(s => s.id === staffId);
+    if (!staff || !mine({ staffId })) return res.status(400).json({ error: "Other deductions can only be for staff being settled." });
+    const note = cleanText(a.note) || "Other deduction";
+    cuts.push({ id: id("DED"), staffId, staffName: staff.name, items: [{ kind: "other", label: note, sarees: 0, rate: 0, amount }],
+      amount, note: "", by: actor(req), createdAt: at });
+  }
+  const added = cuts.filter(x => x.createdAt === at && x.items[0].kind === "other");
+  db.wageDeductions.unshift(...added);
+  const earned = round2(list.reduce((s, d) => s + d.wage, 0)), deducted = round2(cuts.reduce((s, x) => s + x.amount, 0));
+  for (const x of added) logEvent(db, req, "wages", `Other deduction ${money(x.amount)} for ${x.staffName} · ${x.items[0].label}`);
+  // Deductions bigger than a staff member's earnings: pay 0 and carry the rest into the next period.
+  const lines = wageLines(list, cuts), carries = [];
+  for (const line of lines) {
+    if (line.net >= 0) continue;
+    line.carried = -line.net;
+    line.net = 0;
+    carries.push({ id: id("DED"), staffId: line.staffId, staffName: line.staffName, carry: true,
+      items: [{ kind: "carry", label: "Balance from last settlement", sarees: 0, rate: 0, amount: line.carried }],
+      amount: line.carried, note: "", by: actor(req), createdAt: at });
+  }
+  const payout = {
+    id: id("PAY"), from: [...list, ...cuts].reduce((m, d) => d.createdAt < m ? d.createdAt : m, at), to: at,
+    sarees: list.reduce((s, d) => s + d.sarees, 0), earned, deducted, carried: round2(carries.reduce((s, x) => s + x.amount, 0)),
+    total: round2(lines.reduce((s, l) => s + l.net, 0)), lines, partial: !!pick && [...due].some(id => !pick.has(id)),
+    note: cleanText(req.body?.note), by: actor(req), createdAt: at
+  };
+  for (const d of [...list, ...cuts]) d.payoutId = payout.id;
+  db.wageDeductions.unshift(...carries);
+  db.wagePayouts.unshift(payout);
+  logEvent(db, req, "wages", `Wages settled${payout.partial ? ` for ${lines.map(l => l.staffName).join(", ")}` : ""} · ${money(payout.total)} to ${payout.lines.length} staff for ${sarees(payout.sarees)}${deducted ? ` (${money(earned)} earned − ${money(deducted)} deductions)` : ""}${payout.carried ? ` · ${money(payout.carried)} carried to next period` : ""}${payout.note ? ` · ${payout.note}` : ""}`);
+  writeDb(req.factoryId, db);
+  res.status(201).json(payout);
 });
 
 // Sarees are a ledger of buckets. A loom delivery puts sarees in "sent" (on the way to the
@@ -494,7 +880,7 @@ const onlyLeft = (n, from, warp) => `Only ${sarees(n)} ${STOCK_LABEL[from]}${war
 app.post("/api/order", (req, res) => {
   const kind = req.body?.kind;
   const ids = Array.isArray(req.body?.ids) ? req.body.ids : null;
-  if (!["warps", "looms"].includes(kind) || !ids) return res.status(400).json({ error: "Invalid order." });
+  if (!["warps", "bobbins", "looms"].includes(kind) || !ids) return res.status(400).json({ error: "Invalid order." });
   const db = readDb(req.factoryId);
   ids.forEach((tid, i) => { const item = db[kind].find(x => x.id === tid); if (item) item.order = i; });
   writeDb(req.factoryId, db);

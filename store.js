@@ -1,14 +1,14 @@
 // Accounts (users + factories) and per-factory data files.
 // accounts.json: { users: [...], factories: [...] }
 //   user:    { id, username, name, role: "admin"|"user", factoryIds, salt, hash, tokenVersion, defaultPassword? }
-//   factory: { id, name, location, ownerName, ownerPhone, ownerEmail, createdAt }
+//   factory: { id, name, location, ownerName, ownerPhone, ownerEmail, modules?: { stock, wages }, createdAt }
 // Admins can open every factory; users only those in factoryIds.
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const { LEGACY_DATA_FILE, ACCOUNTS_FILE, FACTORIES_DIR, writeJsonAtomic, readSettings, writeSettings } = require("./paths");
 
-const emptyFactoryData = () => ({ warps: [], looms: [], deliveries: [], clients: [], stockMoves: [], activity: [] });
+const emptyFactoryData = () => ({ warps: [], looms: [], deliveries: [], clients: [], stockMoves: [], staff: [], designs: [], wagePayouts: [], wageDeductions: [], bobbins: [], activity: [] });
 
 function newId(prefix) {
   return `${prefix}-${Date.now().toString(36).toUpperCase()}-${crypto.randomBytes(3).toString("hex").toUpperCase()}`;

@@ -179,7 +179,74 @@ body.signed-out header,body.signed-out main{display:none}
 .mr-bar{height:6px;background:#eeebf8;border-radius:3px;margin-top:6px;overflow:hidden}.mr-bar i{display:block;height:100%;background:#6d4aff}.mr-bar.low i{background:#dc2626}
 .mr-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:4px 0 6px}.mr-chip{background:#f4f1ff;border-radius:10px;padding:6px 4px;text-align:center;font-size:11px;color:#6c6a8a}.mr-chip b{display:block;font-size:19px;color:#1c1838}
 .mr-foot{text-align:center;font-size:11px;color:#6c6a8a;padding:4px 0 2px}
+/* ---- Wages, staff, designs ---- */
+.lsetup{display:flex;align-items:center;gap:8px;margin-top:9px;padding:7px 8px;border-radius:10px;background:#f7f6fd;font-size:12px;cursor:pointer;border:0;width:100%;text-align:left;font-family:inherit;color:var(--ink)}.lsetup:hover{background:#efecfb}
+.lsetup>span:not(.dthumb){flex:1;min-width:0;line-height:1.35}.lsetup small{display:block;color:var(--muted)}.lsetup.unset{background:#fff6e9;color:#92400e}
+.dthumb{flex:none;width:38px;height:38px;border-radius:8px;object-fit:cover;background:#ece9f8;display:block}.dthumb.ph{display:grid;place-items:center;font-size:16px}
+img.dthumb[data-zoom]{cursor:zoom-in}
+.dimgedit{display:flex;align-items:center;gap:10px;margin-top:8px}.dimgedit img{width:96px;height:96px;object-fit:cover;border-radius:12px;background:#ece9f8}
+.dimgbig{display:block;width:100%;height:auto;border-radius:14px;margin-top:12px;background:#ece9f8}
+.wrow{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--line)}.wrow:last-child{border-bottom:0}.wrow>div:first-of-type{flex:1;min-width:0}.wrow .meta{color:var(--muted);font-size:12px;margin-top:2px}
+.wageitems{color:var(--muted);font-size:12px;white-space:normal;margin-top:3px}
+.seg.seg3{grid-template-columns:repeat(3,1fr)}.seg3 span{padding:10px;font-size:13px}@media(max-width:480px){.seg.seg3{grid-template-columns:1fr}}
+.designgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:18px}.designgrid .colempty{grid-column:1/-1;background:rgba(255,255,255,.6)}
+.dcard{background:#fff;border-radius:18px;border:1px solid var(--line);box-shadow:0 6px 16px -10px rgba(40,30,90,.35);overflow:hidden;display:flex;flex-direction:column}
+.dcard .dimg{aspect-ratio:4/3;background:var(--grad-soft);display:grid;place-items:center;font-size:40px;overflow:hidden}.dcard .dimg img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
+.dcard .dbody{padding:12px 14px;display:flex;flex-direction:column;gap:4px;flex:1}.dcard h4{margin:0;font-size:17px}.dcard .meta{color:var(--muted);font-size:12px}
+.dcard .drate{font-size:22px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;width:max-content}.dcard .drate small{font-size:12px;font-weight:600;color:var(--muted);-webkit-text-fill-color:var(--muted)}
+.dcard .rowacts{justify-content:flex-start;margin-top:auto;padding-top:8px}
+.neg{color:#b91c1c}
+.staffgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-bottom:18px}.staffgrid .colempty{grid-column:1/-1;background:rgba(255,255,255,.6)}
+.scardx{background:#fff;border-radius:18px;border:1px solid var(--line);box-shadow:0 6px 16px -10px rgba(40,30,90,.35);padding:14px;display:flex;flex-direction:column;gap:10px}
+.scardx .shead{display:flex;align-items:center;gap:12px}.scardx h4{margin:0;font-size:17px}.scardx .meta{color:var(--muted);font-size:12px;margin-top:2px}.scardx .meta a{color:var(--brand);font-weight:650;text-decoration:none}
+.sphoto{flex:none;width:64px;height:64px;border-radius:50%;object-fit:cover;background:var(--grad-soft);display:block}.sphoto.ph{display:grid;place-items:center;font-size:26px;font-weight:800;color:#5532e0}img.sphoto[data-zoom]{cursor:zoom-in}
+.sphoto.sm{width:34px;height:34px;font-size:15px}
+.sstats{display:grid;grid-template-columns:1fr 1fr;gap:6px}.sstats div{background:#f7f6fd;border-radius:10px;padding:7px 9px;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}.sstats b{display:block;font-size:15px;color:var(--ink);text-transform:none;letter-spacing:0}
+.scardx .rowacts{justify-content:flex-start}
+.settlelist .sadj input{width:100%;height:auto;accent-color:auto}.field .checklist.settlelist{max-height:340px}
+.settlelist .srow{padding:6px 0;border-bottom:1px solid var(--line)}.settlelist .srow:last-child{border-bottom:0}.settlelist .srow.off .sadj{display:none}.settlelist .srow.off span{opacity:.6}
+.sadj{display:flex;gap:6px;margin:6px 0 2px 25px}.sadj input{flex:1;min-width:0;padding:8px 10px!important;font-size:13px}.sadj input[data-adj-amt]{flex:0 0 140px}
+.settlelist label{justify-content:space-between}.settlelist label span{flex:1}.settlelist label b{white-space:nowrap}.settlelist small{display:block;color:var(--muted);font-weight:500}
+/* ---- Bobbins, low alerts ---- */
+.wcard.bob{--c1:#0ea5e9;--c2:#6366f1}
+.lbob{margin-top:9px;padding:8px 9px;border-radius:10px;background:#eef6ff;font-size:12px}.lbob .lbobhead{display:flex;justify-content:space-between;align-items:center;gap:8px}.lbob b{font-size:12.5px}.lbob small{color:var(--muted)}
+.lbob .bar{width:100%;margin-top:6px}.lbob .bar i{background:linear-gradient(90deg,#0ea5e9,#6366f1)}.lbob.low{background:#fff0f0}.lbob.low .lbobleft{color:#b91c1c;font-weight:700}
+.lbob .smallbtn{padding:5px 8px;font-size:11.5px}.lbobnone{margin-top:9px;display:flex;justify-content:flex-end}
+.lowalert{border-radius:14px;padding:12px 14px;margin:0 0 12px;background:#fff1f0;border:1px solid #fecaca;color:#7f1d1d;font-size:13px}.lowalert strong{display:block;margin-bottom:4px;font-size:14px}.lowalert ul{margin:0;padding-left:18px}.lowalert li{margin:2px 0}.lowalert a{color:#b91c1c;font-weight:700}
+.lowtag{display:inline-block;margin-left:6px;border-radius:999px;padding:2px 7px;font-size:10.5px;font-weight:800;background:#fde8e8;color:#b91c1c;vertical-align:middle}
+.stats.stats3{grid-template-columns:repeat(3,1fr)}@media(max-width:600px){.stats.stats3{grid-template-columns:repeat(3,1fr)}.stats.stats3 .stat strong{font-size:22px}}
+#prodTable th,#prodTable td{text-align:right}#prodTable th:first-child,#prodTable td:first-child{text-align:left}#prodTable tr.allrow td{font-weight:800;background:var(--grad-soft)}#prodTable td.zero{color:#c4c1d6}#prodTable th.tot,#prodTable td.tot{border-left:2px solid var(--line)}
+.prodchips .chip{flex:1;min-width:120px}.prodchips .chip strong{font-size:24px}.prodchips .chip span{display:block;font-size:11px;margin-top:2px}
+.lprod{display:flex;gap:6px;margin-top:6px}.lprod span{flex:1;background:#f7f6fd;border-radius:8px;padding:4px 6px;font-size:10.5px;color:var(--muted);text-align:center}.lprod b{display:block;font-size:14px;color:var(--ink)}
+#loomTable td{vertical-align:top}#loomTable tr.flashrow td{animation:rowflash 1.6s ease-out}@keyframes rowflash{0%,30%{background:#ede9fe}100%{background:transparent}}#loomTable td.why{white-space:normal;min-width:140px}
 /* ---- Dialogs ---- */
+/* ---- Wage sheet (screen + print) ---- */
+.sheetview{position:fixed;inset:0;z-index:3000;background:#e9e6f5;overflow:auto;padding:0 12px 40px}
+.sheetbar{position:sticky;top:0;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;max-width:860px;margin:0 auto;padding:12px 0;background:#e9e6f5}.sheetbar strong{font-size:16px}
+.sheetpage{max-width:860px;margin:0 auto;background:#fff;border-radius:12px;padding:28px 30px;box-shadow:0 10px 30px -12px rgba(40,30,90,.35);color:#111;font-size:13px}
+.ws-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border-bottom:3px solid #5532e0;padding-bottom:12px;margin-bottom:14px}.ws-head img{height:46px}.ws-head h1{margin:0;font-size:22px;color:#111}.ws-head p{margin:2px 0 0;color:#555}
+.ws-title{text-align:right}.ws-title h2{margin:0;font-size:20px;color:#5532e0;letter-spacing:.04em;text-transform:uppercase}.ws-title p{margin:3px 0 0;color:#444}
+.ws-totals{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 16px}.ws-totals div{border:1px solid #ddd;border-radius:10px;padding:8px 10px;color:#555;font-size:11px;text-transform:uppercase;letter-spacing:.05em}.ws-totals b{display:block;font-size:19px;color:#111;letter-spacing:0;margin-top:2px}.ws-totals .pay{border-color:#5532e0;background:#f4f1ff}.ws-totals .pay b{color:#3b1fb8}
+.sheetpage h3{font-size:14px;margin:18px 0 6px;text-transform:uppercase;letter-spacing:.06em;color:#333}
+.sheetpage table{width:100%;border-collapse:collapse;white-space:normal;font-size:12.5px}.sheetpage th,.sheetpage td{border:1px solid #d6d3e3;padding:7px 8px;text-align:left;vertical-align:top}.sheetpage th{background:#f3f1fa;color:#333;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.sheetpage td.n,.sheetpage th.n{text-align:right;white-space:nowrap}.sheetpage tr.tot td{font-weight:800;background:#f7f5ff}.sheetpage td.sign{width:110px}.sheetpage .neg{color:#b91c1c}
+.ws-slips{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ws-slip{border:1.5px dashed #9b93c9;border-radius:12px;padding:12px;break-inside:avoid;page-break-inside:avoid}
+.ws-sh{display:flex;gap:10px;align-items:center;margin-bottom:8px}.ws-sh img,.ws-sh .ph{width:44px;height:44px;border-radius:50%;object-fit:cover;flex:none;display:grid;place-items:center;background:#efeaff;color:#5532e0;font-weight:800;font-size:18px}.ws-sh strong{font-size:15px}.ws-sh small{display:block;color:#666}
+.ws-slip table{font-size:11.5px}.ws-slip th,.ws-slip td{padding:4px 6px}.ws-net{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;padding-top:6px;border-top:2px solid #5532e0;font-weight:800}.ws-net b{font-size:20px;color:#3b1fb8}
+.ws-sign{display:flex;justify-content:space-between;gap:20px;margin-top:22px;font-size:11px;color:#555}.ws-sign span{flex:1;border-top:1px solid #999;padding-top:4px;text-align:center}
+.ws-foot{margin-top:18px;color:#777;font-size:11px;text-align:center}
+@media(max-width:640px){.sheetpage{padding:16px 12px}.ws-totals{grid-template-columns:1fr 1fr}.ws-slips{grid-template-columns:1fr}.ws-head{flex-direction:column}.ws-title{text-align:left}}
+@media print{
+  @page{size:A4;margin:12mm}
+  body{background:#fff!important}
+  body.sheet-open>*:not(#sheetView){display:none!important}
+  body.sheet-open #sheetView{position:static;padding:0;background:#fff;overflow:visible}
+  .sheetbar{display:none!important}
+  .sheetpage{box-shadow:none;border-radius:0;padding:0;max-width:none}
+  .ws-totals .pay,.sheetpage th,.sheetpage tr.tot td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+dialog.widedlg{width:min(720px,calc(100vw - 32px))}
+.mlrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:11px 2px;border-bottom:1px solid var(--line)}.mlrow:last-child{border-bottom:0}.mlrow>div:first-child{flex:1;min-width:160px}.mlrow .meta{color:var(--muted);font-size:12px;margin-top:2px}
 dialog{border:0;border-radius:24px;padding:0;width:min(460px,calc(100vw - 32px));max-height:calc(100vh - 32px);box-shadow:0 40px 90px -20px rgba(30,20,80,.55);color:var(--ink);overflow:auto}
 dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 .dlghead{background:var(--grad);color:#fff;padding:20px 22px}.dlghead h2{margin:0;font-size:20px}.dlghead p{margin:5px 0 0;font-size:13px;opacity:.88}
@@ -215,12 +282,18 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
 <main>
   <div class="notice err show" id="pwWarn" hidden>You are using the default password. <button class="smallbtn" type="button" data-menu="password">Change it now</button></div>
   <section class="panel empty" id="noFactory" hidden></section>
+  <div class="lowalert" id="lowAlert" hidden></div>
   <nav class="tabs">
     <a class="tab" href="#home">Home</a>
+    <a class="tab" href="#loomlist">Looms</a>
     <a class="tab" href="#warps">Warp</a>
+    <a class="tab" href="#bobbins">Bobbin</a>
     <a class="tab" href="#looms">Production</a>
-    <a class="tab" href="#process">Process</a>
-    <a class="tab" href="#stock">Stock</a>
+    <a class="tab" href="#process" data-mod="stock">Process</a>
+    <a class="tab" href="#stock" data-mod="stock">Stock</a>
+    <a class="tab" href="#designs" data-mod="wages">Designs</a>
+    <a class="tab" href="#staff" data-mod="wages">Staff</a>
+    <a class="tab" href="#wages" data-mod="wages">Wages</a>
     <a class="tab" href="#log">Log</a>
   </nav>
 
@@ -237,6 +310,17 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
         <div class="stat"><small>Sarees dispatched</small><strong id="statSarees">0</strong></div>
       </section>
       <section class="panel homepanel">
+        <div class="sectionhead"><h2>Production</h2><span>Sarees dispatched from looms</span></div>
+        <div class="chips prodchips">
+          <div class="chip"><strong id="pdToday">0</strong>Today<span id="pdTodayNote"></span></div>
+          <div class="chip"><strong id="pd7">0</strong>Last 7 days<span id="pd7Note"></span></div>
+          <div class="chip"><strong id="pd30">0</strong>Last 30 days<span id="pd30Note"></span></div>
+          <div class="chip"><strong id="pdAll">0</strong>All time<span>sarees</span></div>
+        </div>
+        <div class="sub" style="margin:4px 2px 6px">Per day for each loom and all looms together · last 7 days, with 7 and 30 day totals</div>
+        <div id="prodTable" class="tablewrap"></div>
+      </section>
+      <section class="panel homepanel">
         <div class="sectionhead"><h2>Loom status</h2><span id="homeLoomCount">0 looms</span></div>
         <div id="homeLoomTables"></div>
       </section>
@@ -250,7 +334,7 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
         </div>
         <div id="homeWarpTables"></div>
       </section>
-      <section class="panel homepanel">
+      <section class="panel homepanel" id="homeStockPanel">
         <div class="sectionhead"><h2>Stock</h2><a class="smallbtn" href="#stock">Open stock →</a></div>
         <div class="chips">
           <div class="chip st-sent"><strong id="hsSent">0</strong>Dispatched</div>
@@ -279,6 +363,63 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
       <div class="col" data-stage="running"><div class="colhead"><div><strong>Running</strong><span data-meters></span></div><b data-count>0</b></div><div class="cards"></div></div>
     </div>
   </section>
+
+  <section id="view-loomlist" hidden>
+    <div class="boardhead">
+      <div><h2>Looms</h2><p class="sub">A loom runs when it has a warp (and a bobbin, if it needs one) and is not stopped by hand. When its warp or bobbin finishes, it stops until a new one is put on.</p></div>
+      <div class="headbtns"><button class="btn btn-inline ghostbtn" type="button" id="openManageLooms">⚙ Manage looms</button><button class="btn btn-inline" type="button" data-open-loom>+ Add loom</button></div>
+    </div>
+    <div class="notice" id="loomMgrNotice"></div>
+    <section class="stats stats3">
+      <div class="stat"><small>Looms</small><strong id="lmTotal">0</strong></div>
+      <div class="stat s-stk"><small>Running</small><strong id="lmRunning">0</strong></div>
+      <div class="stat s-dmg"><small>Stopped</small><strong id="lmStopped">0</strong></div>
+    </section>
+    <section class="panel"><div id="loomTable" class="tablewrap"></div></section>
+  </section>
+
+  <dialog id="manageLoomsDialog" class="widedlg" aria-labelledby="manageLoomsTitle">
+    <div class="dlghead"><h2 id="manageLoomsTitle">Manage looms</h2><p>Edit a loom's number, width and whether it needs a bobbin, stop or resume it, set its design and staff, or remove it.</p></div>
+    <div class="dlgbody">
+      <div class="notice" id="manageLoomsNotice"></div>
+      <div id="manageLoomsList"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-open-loom>+ Add loom</button><button class="btn" type="button" data-close>Done</button></div>
+    </div>
+  </dialog>
+
+  <section id="view-bobbins" hidden>
+    <div class="boardhead">
+      <div><h2>Bobbin board</h2><p class="sub">Bobbins are optional: put one on a loom that needs it along with its warp. Each dispatch uses the same length from both. <span id="bobbinCount">0 bobbins</span></p></div>
+      <div class="headbtns"><button class="btn btn-inline" type="button" id="openBobbinForm">+ Add bobbin</button></div>
+    </div>
+    <div class="notice" id="bobbinListNotice"></div>
+    <div class="board" id="bobbinBoard">
+      <div class="col" data-stage="ordered"><div class="colhead"><div><strong>Ordered</strong><span data-meters></span></div><b data-count>0</b></div><div class="cards"></div></div>
+      <div class="col" data-stage="ready"><div class="colhead"><div><strong>Ready</strong><span data-meters></span></div><b data-count>0</b></div><div class="cards"></div></div>
+      <div class="col" data-stage="running"><div class="colhead"><div><strong>Running</strong><span data-meters></span></div><b data-count>0</b></div><div class="cards"></div></div>
+    </div>
+  </section>
+
+  <dialog id="bobbinDialog" aria-labelledby="bobbinDialogTitle">
+    <div class="dlghead"><h2 id="bobbinDialogTitle">Add bobbin</h2><p>Record width, colour and length. New bobbins start in Ordered.</p></div>
+    <form id="bobbinForm" class="dlgbody">
+      <div class="field"><label for="bobbinName">Bobbin ID / name *</label><input id="bobbinName" required placeholder="e.g. BOB-001"></div>
+      <div class="two">
+        <div class="field"><label for="bobbinOrderDate">Order date *</label><input id="bobbinOrderDate" type="date" required></div>
+        <div class="field"><label for="bobbinWidth">Width type *</label><select id="bobbinWidth"><option value="single">Single width</option><option value="triple">Triple width</option></select></div>
+      </div>
+      <div class="field"><label>Bobbin length in *</label>
+        <div class="seg seg-sm" role="radiogroup">
+          <label><input type="radio" name="bobbinUnit" value="meters" checked><span>Meters</span></label>
+          <label><input type="radio" name="bobbinUnit" value="sarees"><span>Sarees</span></label>
+        </div>
+      </div>
+      <div class="field"><label for="bobbinQty" id="bobbinQtyLabel">Total bobbin meters *</label><input id="bobbinQty" required type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="e.g. 1200"><div class="hint" id="bobbinQtyHint"></div></div>
+      <div class="field"><label for="bobbinColor">Colour * <span class="lbl-hint">pick or type</span></label><div class="colorpair"><input type="color" id="bobbinColorHex" value="#cccccc" aria-label="Bobbin colour shade"><input id="bobbinColor" required placeholder="Gold"></div></div>
+      <div class="notice" id="bobbinNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit">Add bobbin</button></div>
+    </form>
+  </dialog>
 
   <dialog id="warpDialog" aria-labelledby="warpDialogTitle">
     <div class="dlghead"><h2 id="warpDialogTitle">Add warp</h2><p>Record width, colours and warp length. New warps start in Ordered.</p></div>
@@ -325,7 +466,7 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
   </section>
 
   <dialog id="loomDialog" aria-labelledby="loomDialogTitle">
-    <div class="dlghead"><h2 id="loomDialogTitle">Add loom</h2><p>Give the loom a number and choose its width.</p></div>
+    <div class="dlghead"><h2 id="loomDialogTitle">Add loom</h2><p id="loomDialogSub">Give the loom a number, its width and what it runs on.</p></div>
     <form id="loomForm" class="dlgbody">
       <div class="field"><label for="loomName">Loom number *</label><input id="loomName" required placeholder="e.g. Loom 01"></div>
       <div class="field"><label>Loom type *</label>
@@ -334,8 +475,14 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
           <label><input type="radio" name="loomWidth" value="triple"><span>Triple width<small>3 sarees per 6.3 m</small></span></label>
         </div>
       </div>
+      <div class="field"><label>Runs on *</label>
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="loomNeeds" value="warp" checked><span>Warp only<small>No bobbin needed</small></span></label>
+          <label><input type="radio" name="loomNeeds" value="bobbin"><span>Warp + bobbin<small>Stops when either runs out</small></span></label>
+        </div>
+      </div>
       <div class="notice" id="loomNotice"></div>
-      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit">Add loom</button></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="loomSubmit">Add loom</button></div>
     </form>
   </dialog>
 
@@ -377,12 +524,123 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
     <section class="panel homepanel"><div class="sectionhead"><h2>Parties</h2><button class="smallbtn" type="button" data-open-client>+ Add party</button></div><div id="clientList"></div></section>
   </section>
 
+  <section id="view-wages" hidden>
+    <div class="boardhead">
+      <div><h2>Wages</h2><p class="sub">Each loom runs a design (wage per saree) and is run by a staff member. Every dispatch adds sarees × wage to that staff member. Settle each week to pay and start fresh.</p></div>
+      <div class="headbtns"><button class="btn btn-inline ghostbtn" type="button" data-open-deduction>− Deduction</button><button class="btn btn-inline ghostbtn" type="button" id="wageDownload">🧾 Wage sheet</button><button class="btn btn-inline" type="button" id="wageSettle">Settle &amp; start new week</button></div>
+    </div>
+    <div class="notice" id="wageNotice"></div>
+    <section class="stats">
+      <div class="stat"><small>Net to pay</small><strong id="wgTotal">0</strong><span class="statnote" id="wgSince"></span></div>
+      <div class="stat"><small>Earned</small><strong id="wgEarned">0</strong><span class="statnote" id="wgSarees"></span></div>
+      <div class="stat s-dmg"><small>Damage deductions</small><strong id="wgDeducted">0</strong><span class="statnote" id="wgDedNote"></span></div>
+      <div class="stat"><small>Last settled</small><strong id="wgLast">—</strong><span class="statnote" id="wgLastAmt"></span></div>
+    </section>
+    <section class="panel homepanel"><div class="sectionhead"><h2>This period</h2><span id="wgPeriod"></span></div><div id="wageTable" class="tablewrap"></div><p class="hint" id="wageMissing"></p></section>
+    <section class="panel homepanel"><div class="sectionhead"><h2>Damage deductions</h2><button class="smallbtn" type="button" data-open-deduction>− Add deduction</button></div><div id="deductionList"></div></section>
+    <section class="panel homepanel"><div class="sectionhead"><h2>Past payouts</h2><span id="payoutCount"></span></div><div id="payoutTable" class="tablewrap"></div></section>
+  </section>
+
+  <section id="view-staff" hidden>
+    <div class="boardhead">
+      <div><h2>Staff</h2><p class="sub">The people who run your looms. One person can run several looms; set who runs each loom from the Looms or Production page. <span id="staffCount"></span></p></div>
+      <div class="headbtns"><button class="btn btn-inline" type="button" data-open-staff>+ Add staff</button></div>
+    </div>
+    <div class="notice" id="staffListNotice"></div>
+    <div class="logbar"><input id="staffSearch" type="search" placeholder="Search name or phone" aria-label="Search staff"></div>
+    <div class="staffgrid" id="staffList"></div>
+  </section>
+
+  <section id="view-designs" hidden>
+    <div class="boardhead">
+      <div><h2>Designs</h2><p class="sub">Each design has a wage per saree. Set the design running on each loom from the Production page. <span id="designCount"></span></p></div>
+      <div class="headbtns"><button class="btn btn-inline" type="button" data-open-design>+ Add design</button></div>
+    </div>
+    <div class="notice" id="designListNotice"></div>
+    <div class="logbar"><input id="designSearch" type="search" placeholder="Search design number or name" aria-label="Search designs"></div>
+    <div class="designgrid" id="designGrid"></div>
+  </section>
+
+  <dialog id="settleDialog" aria-labelledby="settleDialogTitle">
+    <div class="dlghead"><h2 id="settleDialogTitle">Settle wages</h2><p>Pay the selected staff and start their new week. Staff not selected keep their wages running. Add any other deduction (advance, loan…) before settling.</p></div>
+    <form id="settleForm" class="dlgbody">
+      <label class="check"><input type="checkbox" id="settleAll"> All staff</label>
+      <div class="field"><div class="checklist settlelist" id="settleStaff"></div></div>
+      <div class="field"><label for="settleNote">Note (optional)</label><input id="settleNote" placeholder="e.g. Week ending Saturday"></div>
+      <div class="notice show ok" id="settlePreview"></div>
+      <div class="notice" id="settleNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="settleOk">Settle &amp; start new week</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="deductionDialog" aria-labelledby="deductionDialogTitle">
+    <div class="dlghead"><h2 id="deductionDialogTitle">Damage deduction</h2><p>Sarees with damage are taken off this staff member's wages in the current period.</p></div>
+    <form id="deductionForm" class="dlgbody">
+      <div class="field"><label for="dedStaff">Staff *</label><select id="dedStaff" required></select></div>
+      <div class="two">
+        <div class="field"><label for="dedMinorSarees">Minor damage · sarees</label><input id="dedMinorSarees" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></div>
+        <div class="field"><label for="dedMinorRate">₹ per saree</label><input id="dedMinorRate" type="number" min="0.01" step="0.01" inputmode="decimal"></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="dedHeavySarees">Heavy damage · sarees</label><input id="dedHeavySarees" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></div>
+        <div class="field"><label for="dedHeavyRate">₹ per saree</label><input id="dedHeavyRate" type="number" min="0.01" step="0.01" inputmode="decimal"></div>
+      </div>
+      <div class="field"><label for="dedNote">Note (optional)</label><input id="dedNote" placeholder="e.g. Loom 3, D-101, weft break"></div>
+      <div class="notice show ok" id="dedPreview"></div>
+      <div class="notice" id="deductionNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn danger" type="submit">Deduct</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="staffDialog" aria-labelledby="staffDialogTitle">
+    <div class="dlghead"><h2 id="staffDialogTitle">Add staff</h2><p>A staff member runs one or more looms and is paid per saree.</p></div>
+    <form id="staffForm" class="dlgbody">
+      <div class="field"><label for="staffName">Name *</label><input id="staffName" required placeholder="e.g. Ravi"></div>
+      <div class="field"><label for="staffPhone">Phone (optional)</label><input id="staffPhone" type="tel" inputmode="tel" placeholder="e.g. 98765 43210"></div>
+      <div class="field"><label for="staffFile">Photo (optional)</label><input id="staffFile" type="file" accept="image/*">
+        <div class="dimgedit" id="staffPreviewBox" hidden><img id="staffPreview" alt="Staff photo" style="border-radius:50%"><button class="smallbtn danger" type="button" id="staffImgRemove">Remove photo</button></div></div>
+      <div class="notice" id="staffNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="staffSubmit">Add staff</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="designDialog" aria-labelledby="designDialogTitle">
+    <div class="dlghead"><h2 id="designDialogTitle">Add design</h2><p id="designDialogSub">The wage is paid per saree dispatched from a loom running this design.</p></div>
+    <form id="designForm" class="dlgbody">
+      <div class="two">
+        <div class="field"><label for="designNo">Design number *</label><input id="designNo" required placeholder="e.g. D-101"></div>
+        <div class="field"><label for="designRate">Wage per saree (₹) *</label><input id="designRate" required type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="e.g. 250"></div>
+      </div>
+      <div class="field"><label for="designName">Design name (optional)</label><input id="designName" placeholder="e.g. Mango butta"></div>
+      <div class="field"><label for="designFile">Design image (optional)</label><input id="designFile" type="file" accept="image/*">
+        <div class="dimgedit" id="designPreviewBox" hidden><img id="designPreview" alt="Design image"><button class="smallbtn danger" type="button" id="designImgRemove">Remove image</button></div></div>
+      <div class="notice" id="designNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="designSubmit">Add design</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="setupDialog" aria-labelledby="setupDialogTitle">
+    <div class="dlghead"><h2 id="setupDialogTitle">Design &amp; staff</h2><p>Wages for this loom's dispatches use this design's rate and go to this staff member.</p></div>
+    <form id="setupForm" class="dlgbody">
+      <div class="field"><label for="setupDesign">Design running</label><div class="colorpair"><select id="setupDesign"></select><button class="smallbtn" type="button" data-open-design>+ New</button></div></div>
+      <div class="field"><label for="setupStaff">Staff running this loom</label><div class="colorpair"><select id="setupStaff"></select><button class="smallbtn" type="button" data-open-staff>+ New</button></div></div>
+      <p class="hint" id="setupHint"></p>
+      <div class="notice" id="setupNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit">Save</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="imgDialog" aria-labelledby="imgDialogTitle">
+    <div class="dlghead"><h2 id="imgDialogTitle">Design</h2></div>
+    <div class="dlgbody"><img id="imgDialogImg" class="dimgbig" alt=""><div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Close</button></div></div>
+  </dialog>
+
   <section id="view-log" hidden>
     <div class="boardhead">
       <div><h2>Log</h2><p class="sub">Every activity in this factory, newest first. <span id="logCount"></span></p></div>
     </div>
     <div class="logbar">
-      <select id="logType" aria-label="Activity type"><option value="">All activity</option><option value="warp">Warps</option><option value="loom">Looms</option><option value="dispatch">Dispatches (from looms)</option><option value="delivery">Deliveries (to parties)</option><option value="process">Process</option><option value="stock">Stock</option><option value="party">Parties</option></select>
+      <select id="logType" aria-label="Activity type"><option value="">All activity</option><option value="warp">Warps</option><option value="bobbin">Bobbins</option><option value="loom">Looms</option><option value="dispatch">Dispatches (from looms)</option><option value="delivery">Deliveries (to parties)</option><option value="process">Process</option><option value="stock">Stock</option><option value="party">Parties</option><option value="wages">Wages, staff &amp; designs</option></select>
       <input id="logSearch" type="search" placeholder="Search (warp, loom, party, LR…)" aria-label="Search the log">
     </div>
     <section class="panel"><div id="logTable" class="tablewrap"></div><div class="logmore" id="logMore"></div></section>
@@ -492,6 +750,14 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
         <div class="field"><label for="facPhone">Owner phone</label><input id="facPhone" type="tel" inputmode="tel"></div>
         <div class="field"><label for="facEmail">Owner email</label><input id="facEmail" type="email"></div>
       </div>
+      <div class="field"><label>Use this factory for *</label>
+        <div class="seg seg3" role="radiogroup">
+          <label><input type="radio" name="facModules" value="both" checked><span>Stock + Wages<small>Everything</small></span></label>
+          <label><input type="radio" name="facModules" value="stock"><span>Stock only<small>Process, stock, parties</small></span></label>
+          <label><input type="radio" name="facModules" value="wages"><span>Wages only<small>Designs, staff, wages</small></span></label>
+        </div>
+        <div class="hint">Warps, looms and dispatch are always on. Turning a part off hides it; its data is kept.</div>
+      </div>
       <div class="notice" id="factoryNotice"></div>
       <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="factorySubmit">Add factory</button></div>
     </form>
@@ -533,9 +799,14 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <footer>Standard saree length: 6.3 m · Triple-width output: 3 sarees per 6.3 m woven length<span id="footerBackup" hidden> · <a href="#" id="footerBackupLink">Download backup</a></span></footer>
 </main>
+<!-- Printable wage sheet (Print / Save as PDF). Only this is printed while it is open. -->
+<div class="sheetview" id="sheetView" hidden>
+  <div class="sheetbar"><strong id="sheetTitle">Wage sheet</strong><div class="headbtns"><button class="btn btn-inline" type="button" id="sheetPrint">🖨 Print / Save as PDF</button><button class="btn btn-inline ghostbtn" type="button" id="sheetCsv">⬇ Excel (CSV)</button><button class="btn btn-inline ghostbtn" type="button" id="sheetClose">✕ Close</button></div></div>
+  <div class="sheetpage" id="sheetPage"></div>
+</div>
 <script>
 const $ = id => document.getElementById(id);
-let db = { warps: [], looms: [], deliveries: [] };
+let db = { warps: [], bobbins: [], looms: [], deliveries: [], staff: [], designs: [], wagePayouts: [], wageDeductions: [] };
 const fmt = n => Number(n || 0).toLocaleString("en-IN",{maximumFractionDigits:2});
 const plural = (n, word) => `${fmt(n)} ${word}${n===1?"":"s"}`;
 const widthLabel = w => w === "triple" ? "Triple width" : "Single width";
@@ -582,6 +853,25 @@ const warpSpent=w=>w.status==="Completed"||w.remainingMeters<SAREE_M-1e-9;
 // Bars turn red once less than this share of the warp is left.
 const LOW_SHARE=0.2;
 const warpLow=w=>!warpSpent(w)&&w.originalMeters>0&&w.remainingMeters/w.originalMeters<LOW_SHARE;
+// A warp or bobbin with fewer sarees than this left is flagged LOW and listed in the alert banner.
+const LOW_SAREES=5;
+const lowSarees=x=>!warpSpent(x)&&x.status!=="Discarded"&&warpSarees(x).leftSarees<LOW_SAREES;
+const bobbinOf=l=>(db.bobbins||[]).find(b=>b.id===l.bobbinId)||null;
+// Warps and bobbins running on looms that are low, for the banner, dashboard and share text.
+function lowItems() {
+  const out=[];
+  db.looms.forEach(l=>{
+    const w=db.warps.find(x=>x.id===l.warpId), b=bobbinOf(l);
+    if(w&&lowSarees(w)) out.push({loom:l,kind:"Warp",item:w,left:warpSarees(w).leftSarees});
+    if(b&&lowSarees(b)) out.push({loom:l,kind:"Bobbin",item:b,left:warpSarees(b).leftSarees});
+  });
+  return out.sort((a,b)=>a.left-b.left);
+}
+function renderLowAlert() {
+  const list=currentFactoryId?lowItems():[];
+  $("lowAlert").hidden=!list.length;
+  $("lowAlert").innerHTML=list.length?`<strong>⚠ Running low · less than ${LOW_SAREES} sarees left</strong><ul>${list.map(x=>`<li><b>${esc(x.loom.name)}</b> · ${x.kind.toLowerCase()} ${esc(x.item.name)}: ${plural(x.left,"saree")} (${fmt(x.item.remainingMeters)} m) left</li>`).join("")}</ul>Get the next ${list.some(x=>x.kind==="Warp")&&list.some(x=>x.kind==="Bobbin")?"warp or bobbin":list[0].kind.toLowerCase()} ready: <a href="#${list.some(x=>x.kind==="Warp")?"warps":"bobbins"}">open the board</a>.`:"";
+}
 function warpSarees(w) {
   const perLength=w.widthType==="triple"?3:1;
   const usedM=Math.max(0,w.originalMeters-w.remainingMeters);
@@ -622,42 +912,106 @@ function swatch(w) {
 }
 function renderStats() {
   $("statLooms").textContent=db.looms.length;
-  $("statRunning").textContent=db.looms.filter(l=>l.warpId&&!l.stoppedAt).length;
+  $("statRunning").textContent=db.looms.filter(loomRunning).length;
   $("statMeters").textContent=fmt(db.warps.filter(w=>!warpSpent(w)&&w.status!=="Discarded").reduce((s,w)=>s+w.remainingMeters,0));
   $("statSarees").textContent=fmt(db.deliveries.reduce((s,d)=>s+d.sarees,0));
 }
 function renderWarpOptions() {
   const old=$("deliveryLoom").value;
-  $("deliveryLoom").innerHTML=db.looms.filter(l=>l.warpId&&!l.stoppedAt).map(l=>{const w=db.warps.find(x=>x.id===l.warpId);return `<option value="${esc(l.id)}">${esc(l.name)} · ${esc(w?w.name:"")}</option>`}).join("");
+  $("deliveryLoom").innerHTML=db.looms.filter(loomRunning).map(l=>{const w=db.warps.find(x=>x.id===l.warpId);return `<option value="${esc(l.id)}">${esc(l.name)} · ${esc(w?w.name:"")}</option>`}).join("");
   if([...$("deliveryLoom").options].some(o=>o.value===old)) $("deliveryLoom").value=old;
 }
 let flashIds=new Set();
 const TRASH_ICON='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg>';
+// ---- Production counts: sarees dispatched per local day, per loom and for all looms ----
+const dayKey=v=>{ const d=new Date(v); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+function prodStats() {
+  const days=[...Array(30)].map((_,i)=>{ const d=new Date(); d.setDate(d.getDate()-i); return dayKey(d); });  // today first
+  const in30=new Set(days), byLoom=new Map(), all={};
+  db.deliveries.forEach(d=>{
+    const k=dayKey(d.createdAt); if(!in30.has(k)) return;
+    const m=byLoom.get(d.loomId)||byLoom.set(d.loomId,{name:d.loomName,days:{}}).get(d.loomId);
+    m.days[k]=(m.days[k]||0)+d.sarees; all[k]=(all[k]||0)+d.sarees;
+  });
+  const sum=(map,n)=>days.slice(0,n).reduce((s,k)=>s+(map[k]||0),0);
+  return {days,byLoom,all,sum,loom:id=>{ const m=byLoom.get(id); const map=m?m.days:{}; return {today:map[days[0]]||0,d7:sum(map,7),d30:sum(map,30),map}; }};
+}
+let PS=null; // prodStats() of the last render, used by the loom cards
+function renderProduction() {
+  PS=prodStats();
+  const {days,all,sum}=PS, d7=sum(all,7), d30=sum(all,30), running=db.looms.filter(loomRunning).length;
+  $("pdToday").textContent=fmt(all[days[0]]||0); $("pdTodayNote").textContent=`yesterday ${fmt(all[days[1]]||0)}`;
+  $("pd7").textContent=fmt(d7); $("pd7Note").textContent=`${fmt(Math.round(d7/7*10)/10)} a day`;
+  $("pd30").textContent=fmt(d30); $("pd30Note").textContent=`${fmt(Math.round(d30/30*10)/10)} a day${running?` · ${fmt(Math.round(d30/30/running*10)/10)} per running loom`:""}`;
+  $("pdAll").textContent=fmt(db.deliveries.reduce((s,d)=>s+d.sarees,0));
+  const week=days.slice(0,7).reverse(), label=k=>{ const d=new Date(k+"T00:00"); return k===days[0]?"Today":d.toLocaleDateString("en-IN",{weekday:"short",day:"numeric"}); };
+  const cell=n=>`<td class="${n?"":"zero"}">${fmt(n)}</td>`;
+  // Current looms in board order, then looms removed in the last 30 days that still have dispatches.
+  const rows=[...byOrder(db.looms).map(l=>({id:l.id,name:l.name,width:l.widthType})),
+    ...[...PS.byLoom.entries()].filter(([id])=>!db.looms.some(l=>l.id===id)).map(([id,m])=>({id,name:`${m.name||"Loom"} (removed)`}))];
+  const row=(name,map,cls="")=>`<tr class="${cls}"><td>${name}</td>${week.map(k=>cell(map[k]||0)).join("")}<td class="tot"><strong>${fmt(sum(map,7))}</strong></td><td><strong>${fmt(sum(map,30))}</strong></td><td>${fmt(Math.round(sum(map,30)/30*10)/10)}</td></tr>`;
+  $("prodTable").innerHTML=rows.length?`<table><thead><tr><th>Loom</th>${week.map(k=>`<th>${label(k)}</th>`).join("")}<th class="tot">7 days</th><th>30 days</th><th>Per day (30 d)</th></tr></thead><tbody>
+    ${row("<strong>All looms</strong>",all,"allrow")}${rows.map(r=>row(`<strong>${esc(r.name)}</strong>${r.width?`<br><span style="color:var(--muted);font-weight:500">${widthLabel(r.width)}</span>`:""}`,PS.loom(r.id).map)).join("")}</tbody></table>`
+    :'<div class="empty">No looms yet.</div>';
+}
+// Mirrors server loomState(): a loom runs only when it is not stopped by hand, has a warp and,
+// if it needs one, a bobbin. Otherwise it is stopped, with the reason.
+function loomState(l) {
+  if(l.stoppedAt) return {running:false,manual:true,reason:l.stopReason||"Stopped by hand"};
+  if(!l.warpId) return {running:false,reason:l.warpEnded?`Warp ${l.warpEnded.name} finished`:"No warp"};
+  if(l.needsBobbin&&!l.bobbinId) return {running:false,reason:l.bobbinEnded?`Bobbin ${l.bobbinEnded.name} finished`:"No bobbin"};
+  return {running:true,reason:""};
+}
+const loomRunning=l=>loomState(l).running;
+// Running first, then stopped by hand, then stopped for want of a warp/bobbin.
+const loomRank=l=>{ const st=loomState(l); return st.running?0:st.manual?1:2; };
+const loomPill=l=>{ const st=loomState(l); return st.running?'<span class="pill green">Running</span>':'<span class="pill red">Stopped</span>'; };
 function loomCard(l, sareesByLoom) {
-  const w=db.warps.find(x=>x.id===l.warpId), delivered=sareesByLoom[l.id]||0, stopped=!!l.stoppedAt;
+  const w=db.warps.find(x=>x.id===l.warpId), b=bobbinOf(l), delivered=sareesByLoom[l.id]||0, st=loomState(l);
   const last=db.deliveries.find(d=>d.loomId===l.id), flash=flashIds.has(l.id)?" flash":"";
-  const pill=stopped?'<span class="pill red">Stopped</span>':w?'<span class="pill green">Running</span>':'<span class="pill gray">Idle</span>';
-  const tools=stopped?(!isAdmin()?"":`<button class="iconbtn" data-remove title="Remove loom" aria-label="Remove ${esc(l.name)}">${TRASH_ICON}</button>`):`<button class="iconbtn stop" data-stop title="Stop loom" aria-label="Stop ${esc(l.name)}">⏸</button>`;
-  const head=`<div class="lhead"><div><h4>${esc(l.name)}</h4><div class="meta">${widthLabel(l.widthType)}</div></div><div class="lhead-r">${pill}${tools}<span class="grip" title="Drag to rearrange" aria-hidden="true">⠿</span></div></div>`;
-  const total=`<div class="lbig"><b>${fmt(delivered)}</b><span>${delivered===1?"saree":"sarees"} dispatched${last?` · last ${fmtDate(last.createdAt)}`:""}</span></div>`;
-  const stopNote=stopped?`<div class="wstate">Stopped since ${fmtDate(l.stoppedAt)}<small>${esc(l.stopReason||"No reason given")}</small></div>`:"";
-  const action=stopped?`<button class="actbtn" data-resume>Resume loom →</button>`
-    :w?`<button class="actbtn" data-deliver="${esc(l.id)}">Dispatch →</button>`
-    :`<button class="actbtn" data-assign="${esc(l.id)}">Assign warp →</button>`;
-  const cls=`wcard lcard${stopped?" stopped":w?"":" idle"}${flash}`;
+  const tools=(st.manual?"":`<button class="iconbtn stop" data-stop title="Stop loom" aria-label="Stop ${esc(l.name)}">⏸</button>`)
+    +(!st.running&&isAdmin()?`<button class="iconbtn" data-remove title="Remove loom" aria-label="Remove ${esc(l.name)}">${TRASH_ICON}</button>`:"");
+  const head=`<div class="lhead"><div><h4>${esc(l.name)}</h4><div class="meta">${widthLabel(l.widthType)} · ${l.needsBobbin?"warp + bobbin":"warp only"}</div></div><div class="lhead-r">${loomPill(l)}${tools}<span class="grip" title="Drag to rearrange" aria-hidden="true">⠿</span></div></div>`;
+  const pc=(PS||prodStats()).loom(l.id);
+  const total=`<div class="lbig"><b>${fmt(delivered)}</b><span>${delivered===1?"saree":"sarees"} dispatched${last?` · last ${fmtDate(last.createdAt)}`:""}</span></div>
+    <div class="lprod"><span><b>${fmt(pc.today)}</b>Today</span><span><b>${fmt(pc.d7)}</b>7 days</span><span><b>${fmt(pc.d30)}</b>30 days</span></div>`;
+  const stopNote=st.running?"":`<div class="wstate">Stopped${st.manual?` since ${fmtDate(l.stoppedAt)}`:""}<small>${esc(st.reason)}</small></div>`;
+  const action=st.manual?`<button class="actbtn" data-resume>Resume loom →</button>`
+    :!w?`<button class="actbtn" data-assign="${esc(l.id)}">Assign warp →</button>`
+    :l.needsBobbin&&!b?`<button class="actbtn" data-bobbin-add>Put bobbin on →</button>`
+    :`<button class="actbtn" data-deliver="${esc(l.id)}">Dispatch →</button>`;
+  const cls=`wcard lcard${st.running?"":" stopped"}${flash}`;
   if(!w) return `<div class="${cls}" data-loom="${esc(l.id)}">${head}${total}${stopNote}
-    ${stopped?"":`<div class="wstate">No warp running${l.status==="Warp Completed"?"<small>Last warp completed</small>":""}</div>`}
+    ${loomBobbin(l)}
+    ${mods().wages?loomSetup(l):""}
     <div class="cardact">${action}</div></div>`;
   const q=warpSarees(w);
   return `<div class="${cls}" data-loom="${esc(l.id)}">${head}${total}${stopNote}
-    <div class="wstate">${esc(w.name)}<small>${esc(w.bodyColor)} / ${esc(w.borderColor)}${w.startedAt?` · since ${fmtDate(w.startedAt)}`:""}</small></div>
+    <div class="wstate">${esc(w.name)}${lowSarees(w)?'<span class="lowtag">LOW</span>':""}<small>${esc(w.bodyColor)} / ${esc(w.borderColor)}${w.startedAt?` · since ${fmtDate(w.startedAt)}`:""}</small></div>
     ${swatch(w)}
-    ${bar(w.remainingMeters,w.originalMeters)}
+    ${bar(w.remainingMeters,w.originalMeters,lowSarees(w))}
     <div class="mini">
       <div>Woven<b>${fmt(q.usedM)} m</b><i>${plural(q.usedSarees,"saree")}</i></div>
-      <div${warpLow(w)?' class="lowtxt"':""}>Left<b>${fmt(w.remainingMeters)} m</b><i>${plural(q.leftSarees,"saree")}</i></div>
+      <div${warpLow(w)||lowSarees(w)?' class="lowtxt"':""}>Left<b>${fmt(w.remainingMeters)} m</b><i>${plural(q.leftSarees,"saree")}</i></div>
     </div>
+    ${loomBobbin(l)}
+    ${mods().wages?loomSetup(l):""}
     <div class="cardact">${action}</div></div>`;
+}
+// Optional bobbin on a loom card: its balance, or a button to put one on.
+function loomBobbin(l) {
+  const b=bobbinOf(l);
+  if(!l.needsBobbin) return "";
+  if(!b) return l.stoppedAt||l.warpId?"":`<div class="lbobnone"><button class="smallbtn" type="button" data-bobbin-add>+ Bobbin</button></div>`;
+  const q=warpSarees(b), low=lowSarees(b);
+  return `<div class="lbob${low?" low":""}"><div class="lbobhead"><span>🧵 Bobbin <b>${esc(b.name)}</b> <small>${esc(b.color)}</small>${low?'<span class="lowtag">LOW</span>':""}</span><button class="smallbtn" type="button" data-bobbin-off>Take off</button></div>
+    ${bar(b.remainingMeters,b.originalMeters,low)}<small class="lbobleft">${fmt(b.remainingMeters)} m · ${plural(q.leftSarees,"saree")} left</small></div>`;
+}
+// Design + staff strip on a loom card; clicking it opens the Design & staff form.
+function loomSetup(l) {
+  const d=designById(l.designId), s=staffById(l.staffId);
+  return `<button type="button" class="lsetup${d&&s?"":" unset"}" data-setup="${esc(l.id)}" title="Change design and staff">
+    ${designThumb(d)}<span>${d?`<b>${esc(d.number)}</b>${d.name?` · ${esc(d.name)}`:""} · ${money(d.rate)}/saree`:"No design set"}<small>👤 ${s?esc(s.name):"No staff set"}${d&&s?"":" · no wages recorded"}</small></span>✎</button>`;
 }
 // Manual tile order (set by dragging) wins; tiles never arranged (order unset) keep their
 // default order and sit above arranged ones, so new tiles show up first.
@@ -668,21 +1022,20 @@ function renderLooms() {
   const sareesByLoom={};
   db.deliveries.forEach(d=>sareesByLoom[d.loomId]=(sareesByLoom[d.loomId]||0)+d.sarees);
   ["single","triple"].forEach(g=>{
-    // Default order: running, stopped, idle (stable, so newest first within each).
-    const rank=l=>l.stoppedAt?1:l.warpId?0:2;
-    const list=byOrder(db.looms.filter(l=>l.widthType===g).sort((a,b)=>rank(a)-rank(b)));
-    const running=list.filter(l=>rank(l)===0).length, stopped=list.filter(l=>rank(l)===1).length;
+    // Default order: running, stopped by hand, stopped for want of warp/bobbin (stable, newest first within each).
+    const list=byOrder(db.looms.filter(l=>l.widthType===g).sort((a,b)=>loomRank(a)-loomRank(b)));
+    const running=list.filter(loomRunning).length, stopped=list.length-running;
     const el=document.querySelector(`.loomgroup[data-group=${g}]`);
     // A section only appears when the factory has looms of that width.
     el.hidden=!list.length;
     el.querySelector("[data-count]").textContent=list.length;
-    el.querySelector("[data-sub]").textContent=`${running} running${stopped?` · ${stopped} stopped`:""} · ${list.length-running-stopped} idle`;
+    el.querySelector("[data-sub]").textContent=`${running} running · ${stopped} stopped`;
     el.querySelector(".loomgrid").innerHTML=list.map(l=>loomCard(l,sareesByLoom)).join("");
   });
 }
-function bar(remaining, original) {
+function bar(remaining, original, lowLeft=false) {
   const pct=original>0?Math.max(0,Math.min(100,remaining/original*100)):0;
-  const low=remaining>=SAREE_M-1e-9&&pct<LOW_SHARE*100;
+  const low=remaining>=SAREE_M-1e-9&&(pct<LOW_SHARE*100||lowLeft);
   return `<div class="bar${low?" low":""}"><i style="width:${pct.toFixed(1)}%"></i></div>`;
 }
 function warpCell(w) {
@@ -694,14 +1047,14 @@ function renderHome() {
   $("homeLoomCount").textContent=plural(db.looms.length,"loom");
   const sareesByLoom={};
   db.deliveries.forEach(d=>sareesByLoom[d.loomId]=(sareesByLoom[d.loomId]||0)+d.sarees);
-  const rank=l=>l.stoppedAt?1:l.warpId?0:2;
   $("homeLoomTables").innerHTML=db.looms.length?["single","triple"].map(g=>{
-    const list=db.looms.filter(l=>l.widthType===g).sort((a,b)=>rank(a)-rank(b));
+    const list=db.looms.filter(l=>l.widthType===g).sort((a,b)=>loomRank(a)-loomRank(b));
     if(!list.length) return "";
     return `<div class="widthhead ${g}">${widthLabel(g)} looms <span>· ${plural(list.length,"loom")}</span></div>
     <div class="tablewrap"><table><thead><tr><th>Loom</th><th>Warp running</th><th>Warp balance</th><th>Saree balance</th><th>Sarees dispatched</th><th>Status</th></tr></thead><tbody>${list.map(l=>{
       const w=db.warps.find(x=>x.id===l.warpId), q=w&&warpSarees(w);
-      return `<tr><td><strong>${esc(l.name)}</strong></td><td>${w?warpCell(w):"—"}</td><td>${w?`${fmt(w.remainingMeters)} / ${fmt(w.originalMeters)} m${bar(w.remainingMeters,w.originalMeters)}`:"—"}</td><td>${w?`<strong>${plural(q.leftSarees,"saree")}</strong>`:"—"}</td><td><strong>${fmt(sareesByLoom[l.id]||0)}</strong></td><td>${badge(l.stoppedAt?"Stopped":w?"Running":"Idle")}</td></tr>`;
+      const b=bobbinOf(l), bq=b&&warpSarees(b);
+      return `<tr><td><strong>${esc(l.name)}</strong></td><td>${w?warpCell(w):"—"}${b?`<div class="meta" style="margin-top:4px">🧵 Bobbin ${esc(b.name)} · ${esc(b.color)}</div>`:""}</td><td>${w?`${fmt(w.remainingMeters)} / ${fmt(w.originalMeters)} m${bar(w.remainingMeters,w.originalMeters,lowSarees(w))}`:"—"}${b?`<div class="meta">Bobbin ${fmt(b.remainingMeters)} / ${fmt(b.originalMeters)} m</div>`:""}</td><td>${w?`<strong>${plural(q.leftSarees,"saree")}</strong>${lowSarees(w)?'<span class="lowtag">LOW</span>':""}`:"—"}${b?`<div class="meta">Bobbin ${plural(bq.leftSarees,"saree")}${lowSarees(b)?'<span class="lowtag">LOW</span>':""}</div>`:""}</td><td><strong>${fmt(sareesByLoom[l.id]||0)}</strong></td><td>${loomPill(l)}${loomRunning(l)?"":`<br><span style="color:var(--muted)">${esc(loomState(l).reason)}</span>`}</td></tr>`;
     }).join("")}</tbody></table></div>`;
   }).join(""):'<div class="empty">No looms yet. <a href="#warps">Add a loom</a></div>';
 
@@ -734,21 +1087,24 @@ function renderHome() {
 // ---- Dashboard export: phone-width JPG download and WhatsApp share ----
 function dashboardText() {
   const stamp=new Date().toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
-  const running=db.looms.filter(l=>l.warpId&&!l.stoppedAt).length, stopped=db.looms.filter(l=>l.stoppedAt).length;
+  const running=db.looms.filter(loomRunning).length, stopped=db.looms.length-running;
   const today=new Date().toDateString(), todayN=db.deliveries.filter(d=>new Date(d.createdAt).toDateString()===today).reduce((s,d)=>s+d.sarees,0);
   const f=currentFactory();
-  const sumSt=sumStock();
+  const sumSt=sumStock(), ps=prodStats();
   const lines=[`*My Thari — ${f?f.name:"Dashboard"}*`,f?.location?`${f.location} · ${stamp}`:stamp,"",
-    `Looms: ${db.looms.length} · Running ${running} · Stopped ${stopped} · Idle ${db.looms.length-running-stopped}`,
-    `Sarees dispatched: ${fmt(db.deliveries.reduce((s,d)=>s+d.sarees,0))} (today ${fmt(todayN)})`,
-    `On the way: dispatched ${fmt(sumSt("sent"))} · at godown ${fmt(sumSt("delivered"))} · in process ${fmt(sumSt("process"))} · in folding ${fmt(sumSt("folding"))}`,
-    `Stock in hand: stock ${fmt(sumSt("stock"))} · mai ${fmt(sumSt("mai")+sumSt("cleaning"))} · lot ${fmt(sumSt("lot"))} · damage ${fmt(sumSt("damage"))}`];
+    `Looms: ${db.looms.length} · Running ${running} · Stopped ${stopped}`,
+    `Sarees dispatched: ${fmt(db.deliveries.reduce((s,d)=>s+d.sarees,0))} (today ${fmt(todayN)} · last 7 days ${fmt(ps.sum(ps.all,7))} · last 30 days ${fmt(ps.sum(ps.all,30))})`,
+    ...(!mods().stock?[]:[`On the way: dispatched ${fmt(sumSt("sent"))} · at godown ${fmt(sumSt("delivered"))} · in process ${fmt(sumSt("process"))} · in folding ${fmt(sumSt("folding"))}`,
+    `Stock in hand: stock ${fmt(sumSt("stock"))} · mai ${fmt(sumSt("mai")+sumSt("cleaning"))} · lot ${fmt(sumSt("lot"))} · damage ${fmt(sumSt("damage"))}`])];
+  const lowList=lowItems();
+  if(lowList.length){ lines.push("",`*⚠ Running low (under ${LOW_SAREES} sarees)*`); lowList.forEach(x=>lines.push(`• ${x.loom.name} ${x.kind.toLowerCase()} ${x.item.name}: ${plural(x.left,"saree")} left`)); }
   ["single","triple"].forEach(g=>{
     const list=db.looms.filter(l=>l.widthType===g); if(!list.length) return;
     lines.push("",`*${widthLabel(g)} looms*`);
     list.forEach(l=>{
       const w=db.warps.find(x=>x.id===l.warpId);
-      lines.push(`• ${l.name}${l.stoppedAt?" (stopped)":""} — `+(w?`${w.name} (${w.bodyColor}/${w.borderColor}): ${fmt(w.remainingMeters)} m · ${plural(warpSarees(w).leftSarees,"saree")} left`:"no warp"));
+      const b=bobbinOf(l);
+      lines.push(`• ${l.name}${loomRunning(l)?"":` (stopped: ${loomState(l).reason})`} — `+(w?`${w.name} (${w.bodyColor}/${w.borderColor}): ${fmt(w.remainingMeters)} m · ${plural(warpSarees(w).leftSarees,"saree")} left`:"no warp")+(b?` · bobbin ${b.name}: ${plural(warpSarees(b).leftSarees,"saree")} left`:""));
     });
   });
   const active=db.warps.filter(w=>["ordered","ready"].includes(warpState(w).key));
@@ -763,20 +1119,20 @@ function loadExporter() {
 // stacked rows instead of wide tables, so it reads without zooming when shared on WhatsApp.
 function reportHtml() {
   const f=currentFactory(), stamp=new Date().toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
-  const running=db.looms.filter(l=>l.warpId&&!l.stoppedAt).length;
+  const running=db.looms.filter(loomRunning).length;
   const today=new Date().toDateString(), todayN=db.deliveries.filter(d=>new Date(d.createdAt).toDateString()===today).reduce((s,d)=>s+d.sarees,0);
   const meters=db.warps.filter(w=>!warpSpent(w)&&w.status!=="Discarded").reduce((s,w)=>s+w.remainingMeters,0);
   const sareesByLoom={}; db.deliveries.forEach(d=>sareesByLoom[d.loomId]=(sareesByLoom[d.loomId]||0)+d.sarees);
   const mbar=w=>{ const pct=w.originalMeters>0?Math.max(0,Math.min(100,w.remainingMeters/w.originalMeters*100)):0; return `<div class="mr-bar${warpLow(w)?" low":""}"><i style="width:${pct.toFixed(1)}%"></i></div>`; };
   const warpLine=w=>`<div class="mr-warp">${swatch(w).replace('class="saree','class="saree mini')}<span><b>${esc(w.name)}</b> · ${esc(w.bodyColor)} / ${esc(w.borderColor)}</span></div>`;
   const statCard=(label,n,note="")=>`<div class="mr-stat"><small>${label}</small><b>${fmt(n)}</b>${note?`<span>${note}</span>`:""}</div>`;
-  const rank=l=>l.stoppedAt?1:l.warpId?0:2;
   const looms=["single","triple"].map(g=>{
-    const list=db.looms.filter(l=>l.widthType===g).sort((a,b)=>rank(a)-rank(b)); if(!list.length) return "";
+    const list=db.looms.filter(l=>l.widthType===g).sort((a,b)=>loomRank(a)-loomRank(b)); if(!list.length) return "";
     return `<div class="mr-sub">${widthLabel(g)} · ${plural(list.length,"loom")}</div>`+list.map(l=>{
       const w=db.warps.find(x=>x.id===l.warpId);
-      return `<div class="mr-row"><div class="mr-top"><strong>${esc(l.name)}</strong>${badge(l.stoppedAt?"Stopped":w?"Running":"Idle")}</div>
-        ${w?`${warpLine(w)}<div class="mr-meta"><b>${fmt(w.remainingMeters)}</b> / ${fmt(w.originalMeters)} m · <b>${plural(warpSarees(w).leftSarees,"saree")}</b> left · ${fmt(sareesByLoom[l.id]||0)} dispatched</div>${mbar(w)}`:`<div class="mr-meta">No warp · ${fmt(sareesByLoom[l.id]||0)} delivered</div>`}</div>`;
+      return `<div class="mr-row"><div class="mr-top"><strong>${esc(l.name)}</strong>${loomPill(l)}</div>${loomRunning(l)?"":`<div class="mr-meta">Stopped: ${esc(loomState(l).reason)}</div>`}
+        ${w?`${warpLine(w)}<div class="mr-meta"><b>${fmt(w.remainingMeters)}</b> / ${fmt(w.originalMeters)} m · <b>${plural(warpSarees(w).leftSarees,"saree")}</b> left${lowSarees(w)?' <span class="lowtag">LOW</span>':""} · ${fmt(sareesByLoom[l.id]||0)} dispatched</div>${mbar(w)}`:`<div class="mr-meta">No warp · ${fmt(sareesByLoom[l.id]||0)} delivered</div>`}
+        ${bobbinOf(l)?(b=>`<div class="mr-meta">🧵 Bobbin <b>${esc(b.name)}</b> · ${esc(b.color)} · <b>${plural(warpSarees(b).leftSarees,"saree")}</b> left${lowSarees(b)?' <span class="lowtag">LOW</span>':""}</div>`)(bobbinOf(l)):""}</div>`;
     }).join("");
   }).join("")||'<div class="mr-meta">No looms yet.</div>';
   const waiting=db.warps.map(w=>({w,st:warpState(w)})).filter(x=>x.st.key==="ready"||x.st.key==="ordered");
@@ -789,13 +1145,14 @@ function reportHtml() {
     return `<div class="mr-row">${warpLine(w)}<div class="mr-meta">${parts.map(([k,n])=>`${k} <b>${fmt(n)}</b>`).join(" · ")}</div></div>`;
   }).join("");
   return `<div class="mr-head"><span class="logocard"><img src="img/thari-logo-640.png" alt=""></span><div><h1>${esc(f?f.name:"My Thari")}</h1><p>${f?.location?`${esc(f.location)} · `:""}${esc(stamp)}</p></div></div>
-    <div class="mr-stats">${statCard("Looms",db.looms.length,`${running} running`)}${statCard("Active warp meters",meters)}${statCard("Sarees dispatched",db.deliveries.reduce((s,d)=>s+d.sarees,0),`today ${fmt(todayN)}`)}${statCard("In stock",sumSt("stock"))}</div>
+    <div class="mr-stats">${statCard("Looms",db.looms.length,`${running} running`)}${statCard("Active warp meters",meters)}${statCard("Sarees dispatched",db.deliveries.reduce((s,d)=>s+d.sarees,0),`today ${fmt(todayN)}`)}${mods().stock?statCard("In stock",sumSt("stock")):statCard("Running looms",running)}</div>
+    ${lowItems().length?`<div class="mr-sec" style="border:2px solid #fecaca"><h2>⚠ Running low <span>under ${LOW_SAREES} sarees</span></h2>${lowItems().map(x=>`<div class="mr-row"><div class="mr-top"><strong>${esc(x.loom.name)}</strong><span class="lowtag">${plural(x.left,"saree")} left</span></div><div class="mr-meta">${x.kind} ${esc(x.item.name)} · ${fmt(x.item.remainingMeters)} m</div></div>`).join("")}</div>`:""}
     <div class="mr-sec"><h2>Looms <span>${plural(db.looms.length,"loom")}</span></h2>${looms}</div>
     ${waiting.length?`<div class="mr-sec"><h2>Warps waiting <span>${plural(waiting.length,"warp")}</span></h2>${warps}</div>`:""}
-    <div class="mr-sec"><h2>Stock</h2>
+    ${!mods().stock?"":`<div class="mr-sec"><h2>Stock</h2>
       <div class="mr-sub">On the way</div><div class="mr-chips">${chip("Dispatched",sumSt("sent"))}${chip("Godown",sumSt("delivered"))}${chip("Process",sumSt("process"))}${chip("Folding",sumSt("folding"))}</div>
       <div class="mr-sub">In hand</div><div class="mr-chips">${chip("Stock",sumSt("stock"))}${chip("Mai",sumSt("mai")+sumSt("cleaning"))}${chip("Lot",sumSt("lot"))}${chip("Damage",sumSt("damage"))}</div>
-      ${stockList?`<div class="mr-sub">On the way by warp</div>${stockList}`:""}</div>
+      ${stockList?`<div class="mr-sub">On the way by warp</div>${stockList}`:""}</div>`}
     <div class="mr-foot">My Thari · Track all my loom production</div>`;
 }
 async function dashboardBlob() {
@@ -840,13 +1197,23 @@ $("waDashboard").addEventListener("click",e=>{
 async function refresh() {
   if(!currentFactoryId||!session.user) return;
   db=await api("/api/data");
-  renderStats();renderWarpOptions();renderHome();renderLooms();renderWarps();renderProcess();renderStock();renderLog();updatePreview();
+  renderStats();renderWarpOptions();renderHome();renderProduction();renderLooms();renderLoomList();if($("manageLoomsDialog").open) renderManageLooms();renderWarps();renderProcess();renderStock();renderDesigns();renderStaff();renderWages();renderLog();applyModules();renderLowAlert();updatePreview();loadDesignImages();
   if(flashIds.size) setTimeout(()=>flashIds=new Set(),1600);
 }
-const views=["home","warps","looms","process","stock","log","settings"];
+const views=["home","loomlist","warps","bobbins","looms","process","stock","designs","staff","wages","log","settings"];
+// Parts of the app a factory can turn off in Settings (factory.modules, missing = on).
+const VIEW_MODULE={process:"stock",stock:"stock",designs:"wages",staff:"wages",wages:"wages"};
+const mods=()=>{ const m=currentFactory()?.modules; return {stock:m?.stock!==false,wages:m?.wages!==false}; };
+function applyModules() {
+  const m=mods();
+  document.querySelectorAll("[data-mod]").forEach(el=>el.hidden=!m[el.dataset.mod]);
+  $("homeStockPanel").hidden=!m.stock;
+}
 function route() {
   let v=views.includes(location.hash.slice(1))?location.hash.slice(1):"home";
   if(v==="settings"&&!isAdmin()) v="home";
+  applyModules();
+  if(VIEW_MODULE[v]&&!mods()[VIEW_MODULE[v]]) v="home";
   // Without a factory only Settings (for admins) makes sense; everything else shows a hint.
   const noFactory=!currentFactoryId&&v!=="settings";
   $("noFactory").hidden=!noFactory||!session.user;
@@ -858,46 +1225,53 @@ function route() {
   window.scrollTo(0,0);
 }
 window.addEventListener("hashchange",route);
-$("warpOrderDate").value=todayISO();
-const STAGE_EMPTY={ordered:'No warps on order.<div class="cardact"><button class="actbtn" type="button" data-open-warp>+ Add warp</button></div>',ready:"Drag ordered warps here once received.",running:"Drag a ready warp here to start it on a loom."};
-function warpCard(w) {
-  const st=warpState(w), q=warpSarees(w), done=st.key==="completed";
-  const loom=db.looms.find(l=>l.id===w.assignedLoomId);
+$("warpOrderDate").value=todayISO(); $("bobbinOrderDate").value=todayISO();
+// Warp and bobbin boards share one implementation; BOARDS holds what differs. A loom holds one warp
+// (loom.warpId) and optionally one bobbin (loom.bobbinId). Bobbins have one colour (color/colorHex).
+const BOARDS={
+  warp:{kind:"warp",coll:"warps",api:"/api/warps",slot:"warpId",noun:"warp",Noun:"Warp",board:"warpBoard",notice:"warpListNotice",count:"warpCount",open:()=>openWarpForm()},
+  bobbin:{kind:"bobbin",coll:"bobbins",api:"/api/bobbins",slot:"bobbinId",noun:"bobbin",Noun:"Bobbin",board:"bobbinBoard",notice:"bobbinListNotice",count:"bobbinCount",open:()=>openBobbinForm()}};
+const stageEmpty=(K,stage)=>({ordered:`No ${K.noun}s on order.<div class="cardact"><button class="actbtn" type="button" data-open-item>+ Add ${K.noun}</button></div>`,ready:`Drag ordered ${K.noun}s here once received.`,running:`Drag a ready ${K.noun} here to start it on a loom.`})[stage];
+const colourText=x=>x.color!=null?x.color:`${x.bodyColor} / ${x.borderColor}`;
+const swatchOf=x=>x.color!=null?swatch({bodyColor:x.color,borderColor:x.color,bodyHex:x.colorHex,borderHex:x.colorHex}):swatch(x);
+function warpCard(w, K=BOARDS.warp) {
+  const st=warpState(w), q=warpSarees(w), done=st.key==="completed", low=lowSarees(w);
   const act=st.key==="ordered"?`<button class="actbtn" data-act="ready">Mark ready →</button>`
     :st.key==="ready"?`<button class="actbtn" data-act="running">Start on loom →</button>`
     :"";
-  return `<div class="wcard${flashIds.has(w.id)?" flash":""}" data-warp="${esc(w.id)}"${done?' style="cursor:default"':""}>
-    ${done?"":`<div class="cardtools">${st.key==="running"||!isAdmin()?"":`<button class="iconbtn" data-discard title="Discard warp" aria-label="Discard ${esc(w.name)}">✕</button>`}<span class="grip" title="Drag to move" aria-hidden="true">⠿</span></div>`}
-    <h4>${esc(w.name)}</h4>
-    <div class="meta">${widthLabel(w.widthType)} · ${esc(w.bodyColor)} / ${esc(w.borderColor)} · ${fmt(w.originalMeters)} m</div>
-    ${swatch(w)}
+  return `<div class="wcard${K.kind==="bobbin"?" bob":""}${flashIds.has(w.id)?" flash":""}" data-item="${esc(w.id)}"${done?' style="cursor:default"':""}>
+    ${done?"":`<div class="cardtools">${st.key==="running"||!isAdmin()?"":`<button class="iconbtn" data-discard title="Discard ${K.noun}" aria-label="Discard ${esc(w.name)}">✕</button>`}<span class="grip" title="Drag to move" aria-hidden="true">⠿</span></div>`}
+    <h4>${esc(w.name)}${low&&st.key==="running"?'<span class="lowtag">LOW</span>':""}</h4>
+    <div class="meta">${widthLabel(w.widthType)} · ${esc(colourText(w))} · ${fmt(w.originalMeters)} m</div>
+    ${swatchOf(w)}
     <div class="wstate">${esc(st.text)}${st.sub?`<small>${esc(st.sub)}</small>`:""}</div>
-    ${bar(w.remainingMeters,w.originalMeters)}
+    ${bar(w.remainingMeters,w.originalMeters,low)}
     <div class="mini">
-      <div>Woven<b>${fmt(q.usedM)} m</b><i>${fmt(q.usedSarees)} saree${q.usedSarees===1?"":"s"}</i></div>
-      <div${warpLow(w)?' class="lowtxt"':""}>Left<b>${fmt(w.remainingMeters)} m</b><i>${fmt(q.leftSarees)} saree${q.leftSarees===1?"":"s"}</i></div>
+      <div>${K.kind==="bobbin"?"Used":"Woven"}<b>${fmt(q.usedM)} m</b><i>${plural(q.usedSarees,"saree")}</i></div>
+      <div${warpLow(w)||low?' class="lowtxt"':""}>Left<b>${fmt(w.remainingMeters)} m</b><i>${plural(q.leftSarees,"saree")}</i></div>
     </div>
     ${act?`<div class="cardact">${act}</div>`:""}
   </div>`;
 }
-function renderWarps() {
-  // Completed warps are not shown on the board; they remain on Home and in delivery history.
+function renderBoard(K) {
+  // Completed items are not shown on the board; they remain on Home and in dispatch history.
   const by={ordered:[],ready:[],running:[],completed:[],discarded:[]};
-  byOrder(db.warps).forEach(w=>by[warpState(w).key].push(w));
+  byOrder(db[K.coll]||[]).forEach(w=>by[warpState(w).key].push(w));
   const active=by.ordered.length+by.ready.length+by.running.length;
-  $("warpCount").textContent=`${active} active warp${active===1?"":"s"}${by.completed.length?` · ${by.completed.length} completed`:""}`;
-  document.querySelectorAll("#warpBoard .col").forEach(col=>{
+  $(K.count).textContent=`${active} active ${K.noun}${active===1?"":"s"}${by.completed.length?` · ${by.completed.length} completed`:""}`;
+  document.querySelectorAll(`#${K.board} .col`).forEach(col=>{
     const list=by[col.dataset.stage];
     col.querySelector("[data-count]").textContent=list.length;
     col.querySelector("[data-meters]").textContent=`${fmt(list.reduce((s,w)=>s+w.remainingMeters,0))} m`;
-    col.querySelector(".cards").innerHTML=list.length?list.map(warpCard).join(""):`<div class="colempty">${STAGE_EMPTY[col.dataset.stage]}</div>`;
+    col.querySelector(".cards").innerHTML=list.length?list.map(w=>warpCard(w,K)).join(""):`<div class="colempty">${stageEmpty(K,col.dataset.stage)}</div>`;
   });
 }
-// Mirrors the server's /api/warps/:id/move rules so blocked drops can be explained up front.
-function moveBlock(w, from, to) {
-  if(from==="completed") return "Completed warps can't be moved.";
-  if(to==="ordered"&&from==="running") return "Take the warp off its loom first (drag it to Ready), then back to Ordered.";
-  if(to==="ordered"&&w.remainingMeters<w.originalMeters) return "This warp has already been woven, so it can't go back to Ordered.";
+function renderWarps() { renderBoard(BOARDS.warp); renderBoard(BOARDS.bobbin); }
+// Mirrors the server's move rules so blocked drops can be explained up front.
+function moveBlock(w, from, to, K=BOARDS.warp) {
+  if(from==="completed") return `Completed ${K.noun}s can't be moved.`;
+  if(to==="ordered"&&from==="running") return `Take the ${K.noun} off its loom first (drag it to Ready), then back to Ordered.`;
+  if(to==="ordered"&&w.remainingMeters<w.originalMeters) return `This ${K.noun} has already been used, so it can't go back to Ordered.`;
   return null;
 }
 let askResolve=null;
@@ -926,26 +1300,28 @@ $("askForm").addEventListener("submit",e=>{
 });
 $("askDialog").addEventListener("close",()=>{ if(askResolve){const r=askResolve;askResolve=null;r(null)} });
 document.querySelectorAll("dialog [data-close]").forEach(b=>b.addEventListener("click",()=>b.closest("dialog").close()));
-async function moveWarp(w, to) {
+async function moveWarp(w, to, K=BOARDS.warp) {
   const from=warpState(w).key; if(from===to) return;
-  hideNotice("warpListNotice");
-  const blocked=moveBlock(w,from,to); if(blocked) return notice("warpListNotice",blocked);
+  hideNotice(K.notice);
+  const blocked=moveBlock(w,from,to,K); if(blocked) return notice(K.notice,blocked);
   const body={to,date:todayISO()}, loom=db.looms.find(l=>l.id===w.assignedLoomId);
   let msg;
   if(to==="running") {
-    const free=db.looms.filter(l=>!l.warpId&&!l.stoppedAt&&l.widthType===w.widthType);
-    if(!free.length) return notice("warpListNotice",`No free ${widthLabel(w.widthType).toLowerCase()} loom for ${w.name}. Add a loom first.`);
-    const loomId=await ask({title:`Start ${w.name} on a loom`,text:`Free ${widthLabel(w.widthType).toLowerCase()} looms are listed.`,options:free.map(l=>[l.id,l.plan?`${l.name} · ${l.plan}`:l.name]),ok:"Start on loom"});
+    const free=db.looms.filter(l=>!l[K.slot]&&!l.stoppedAt&&l.widthType===w.widthType&&(K.kind!=="bobbin"||l.needsBobbin));
+    if(!free.length) return notice(K.notice,K.kind==="bobbin"?`No ${widthLabel(w.widthType).toLowerCase()} loom that uses a bobbin is free for ${w.name}. Set a loom to "Warp + bobbin" on the Looms page.`:`No ${widthLabel(w.widthType).toLowerCase()} loom without a warp for ${w.name}. Add a loom first.`);
+    const label=l=>{ const cur=db.warps.find(x=>x.id===l.warpId); return `${l.name}${K.kind==="bobbin"&&cur?` · warp ${cur.name}`:""}`; };
+    const loomId=await ask({title:`Start ${w.name} on a loom`,text:`${widthLabel(w.widthType)} looms without a ${K.noun} are listed.`,options:free.map(l=>[l.id,label(l)]),ok:"Start on loom"});
     if(!loomId) return;
     body.loomId=loomId; msg=`${w.name} is now running on ${free.find(l=>l.id===loomId).name}.`;
   } else if(to==="ready"&&from==="running") {
-    if(!await ask({title:`Take ${w.name} off ${loom?loom.name:"its loom"}?`,text:"The loom becomes available again. Woven meters and dispatch history are kept.",ok:"Take off loom"})) return;
+    if(!await ask({title:`Take ${w.name} off ${loom?loom.name:"its loom"}?`,text:K.kind==="bobbin"?"The loom keeps its warp and runs without a bobbin. Used meters are kept.":"The loom becomes available again. Woven meters and dispatch history are kept.",ok:"Take off loom"})) return;
     msg=`${w.name} taken off ${loom?loom.name:"its loom"} and moved to Ready.`;
   } else msg=to==="ready"?`${w.name} marked ready.`:`${w.name} moved back to Ordered.`;
   try{
-    await api(`/api/warps/${encodeURIComponent(w.id)}/move`,{method:"POST",body:JSON.stringify(body)});
-    notice("warpListNotice",msg,true); await refresh();
-  }catch(err){notice("warpListNotice",err.message)}
+    await api(`${K.api}/${encodeURIComponent(w.id)}/move`,{method:"POST",body:JSON.stringify(body)});
+    notice(K.notice,msg,true); flashIds=new Set([w.id]); await refresh();
+    if(to==="running"&&K.kind==="warp"&&mods().wages) openSetup(body.loomId,true);
+  }catch(err){notice(K.notice,err.message)}
 }
 // Pointer-based drag (HTML5 drag-and-drop does not work on touch screens).
 // Mouse drags from anywhere on the card; touch drags only from the grip so the page can still scroll.
@@ -955,9 +1331,9 @@ function endDrag(drop) {
   const d=drag; drag=null; cancelAnimationFrame(d.raf);
   if(d.ghost) d.ghost.remove();
   d.card.classList.remove("dragging");
-  document.querySelectorAll("#warpBoard .col").forEach(c=>c.classList.remove("over","blocked"));
-  if(drop&&d.started&&d.over) return moveWarp(d.w,d.over.dataset.stage);
-  if(drop&&d.started&&d.reordered) saveOrder("warps",d.card.parentElement);
+  document.querySelectorAll(`#${d.K.board} .col`).forEach(c=>c.classList.remove("over","blocked"));
+  if(drop&&d.started&&d.over) return moveWarp(d.w,d.over.dataset.stage,d.K);
+  if(drop&&d.started&&d.reordered) saveOrder(d.K.coll,d.card.parentElement);
 }
 // Live reorder while dragging: move the dragged tile to where the pointer is among its siblings.
 // Columns stack tiles vertically; loom sections are grids, so compare by row, then by x.
@@ -972,45 +1348,56 @@ function placeAmong(container, card, x, y, grid) {
   return true;
 }
 async function saveOrder(kind, container) {
-  const ids=[...container.querySelectorAll(kind==="warps"?".wcard[data-warp]":".wcard[data-loom]")].map(c=>c.dataset.warp||c.dataset.loom);
+  const ids=[...container.querySelectorAll(kind==="looms"?".wcard[data-loom]":".wcard[data-item]")].map(c=>c.dataset.item||c.dataset.loom);
   try{ await api("/api/order",{method:"POST",body:JSON.stringify({kind,ids})}); await refresh(); }
   catch(err){ toast(err.message); await refresh(); }
 }
-$("warpBoard").addEventListener("pointerdown",e=>{
-  const card=e.target.closest(".wcard");
-  if(!card||e.button>0||e.target.closest("button,a,select")) return;
-  if(e.pointerType!=="mouse"&&!e.target.closest(".grip")) return;
-  const w=db.warps.find(x=>x.id===card.dataset.warp);
-  if(!w||warpState(w).key==="completed") return;
-  e.preventDefault();
-  try{card.setPointerCapture(e.pointerId)}catch{}
-  drag={card,w,from:warpState(w).key,x:e.clientX,y:e.clientY,started:false,over:null,vy:0,raf:0};
+Object.values(BOARDS).forEach(K=>{
+  const boardEl=$(K.board), cols=()=>boardEl.querySelectorAll(".col");
+  boardEl.addEventListener("pointerdown",e=>{
+    const card=e.target.closest(".wcard");
+    if(!card||e.button>0||e.target.closest("button,a,select")) return;
+    if(e.pointerType!=="mouse"&&!e.target.closest(".grip")) return;
+    const w=db[K.coll].find(x=>x.id===card.dataset.item);
+    if(!w||warpState(w).key==="completed") return;
+    e.preventDefault();
+    try{card.setPointerCapture(e.pointerId)}catch{}
+    drag={K,card,w,from:warpState(w).key,x:e.clientX,y:e.clientY,started:false,over:null,vy:0,raf:0};
+  });
+  boardEl.addEventListener("pointermove",e=>{
+    if(!drag||drag.K!==K) return;
+    if(!drag.started) {
+      if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<6) return;
+      const r=drag.card.getBoundingClientRect(), cs=getComputedStyle(drag.card), g=drag.card.cloneNode(true);
+      ["--c1","--c2","--t"].forEach(v=>g.style.setProperty(v,cs.getPropertyValue(v)));
+      g.classList.add("ghost"); g.style.width=r.width+"px";
+      document.body.appendChild(g);
+      Object.assign(drag,{started:true,ghost:g,ox:drag.x-r.left,oy:drag.y-r.top});
+      drag.card.classList.add("dragging");
+      cols().forEach(c=>{ if(c.dataset.stage!==drag.from&&moveBlock(drag.w,drag.from,c.dataset.stage,K)) c.classList.add("blocked"); });
+      const tick=()=>{ if(!drag) return; if(drag.vy) window.scrollBy(0,drag.vy); drag.raf=requestAnimationFrame(tick); };
+      drag.raf=requestAnimationFrame(tick);
+    }
+    drag.ghost.style.left=(e.clientX-drag.ox)+"px"; drag.ghost.style.top=(e.clientY-drag.oy)+"px";
+    drag.vy=e.clientY<70?-12:e.clientY>innerHeight-70?12:0;
+    const col=document.elementFromPoint(e.clientX,e.clientY)?.closest(`#${K.board} .col`)||null;
+    const target=col&&col.dataset.stage!==drag.from?col:null;
+    cols().forEach(c=>c.classList.toggle("over",c===target));
+    drag.over=target;
+    // Same column: rearrange instead of changing stage.
+    if(col&&col.dataset.stage===drag.from&&placeAmong(drag.card.parentElement,drag.card,e.clientX,e.clientY,false)) drag.reordered=true;
+  });
+  boardEl.addEventListener("pointerup",()=>endDrag(true));
+  boardEl.addEventListener("pointercancel",()=>endDrag(false));
+  boardEl.addEventListener("click",e=>{
+    if(e.target.closest("[data-open-item]")) return K.open();
+    const card=e.target.closest(".wcard"); if(!card) return;
+    const w=db[K.coll].find(x=>x.id===card.dataset.item); if(!w) return;
+    if(e.target.closest("[data-discard]")) return discardWarp(w,K);
+    const btn=e.target.closest("button[data-act]");
+    if(btn) moveWarp(w,btn.dataset.act,K);
+  });
 });
-$("warpBoard").addEventListener("pointermove",e=>{
-  if(!drag) return;
-  if(!drag.started) {
-    if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<6) return;
-    const r=drag.card.getBoundingClientRect(), cs=getComputedStyle(drag.card), g=drag.card.cloneNode(true);
-    ["--c1","--c2","--t"].forEach(v=>g.style.setProperty(v,cs.getPropertyValue(v)));
-    g.classList.add("ghost"); g.style.width=r.width+"px";
-    document.body.appendChild(g);
-    Object.assign(drag,{started:true,ghost:g,ox:drag.x-r.left,oy:drag.y-r.top});
-    drag.card.classList.add("dragging");
-    document.querySelectorAll("#warpBoard .col").forEach(c=>{ if(c.dataset.stage!==drag.from&&moveBlock(drag.w,drag.from,c.dataset.stage)) c.classList.add("blocked"); });
-    const tick=()=>{ if(!drag) return; if(drag.vy) window.scrollBy(0,drag.vy); drag.raf=requestAnimationFrame(tick); };
-    drag.raf=requestAnimationFrame(tick);
-  }
-  drag.ghost.style.left=(e.clientX-drag.ox)+"px"; drag.ghost.style.top=(e.clientY-drag.oy)+"px";
-  drag.vy=e.clientY<70?-12:e.clientY>innerHeight-70?12:0;
-  const col=document.elementFromPoint(e.clientX,e.clientY)?.closest("#warpBoard .col")||null;
-  const target=col&&col.dataset.stage!==drag.from?col:null;
-  document.querySelectorAll("#warpBoard .col").forEach(c=>c.classList.toggle("over",c===target));
-  drag.over=target;
-  // Same column: rearrange instead of changing stage.
-  if(col&&col.dataset.stage===drag.from&&placeAmong(drag.card.parentElement,drag.card,e.clientX,e.clientY,false)) drag.reordered=true;
-});
-$("warpBoard").addEventListener("pointerup",()=>endDrag(true));
-$("warpBoard").addEventListener("pointercancel",()=>endDrag(false));
 let loomDrag=null;
 $("view-looms").addEventListener("pointerdown",e=>{
   const card=e.target.closest(".lcard");
@@ -1043,28 +1430,20 @@ function endLoomDrag(drop) {
 }
 $("view-looms").addEventListener("pointerup",()=>endLoomDrag(true));
 $("view-looms").addEventListener("pointercancel",()=>endLoomDrag(false));
-$("warpBoard").addEventListener("click",e=>{
-  if(e.target.closest("[data-open-warp]")) return openWarpForm();
-  const card=e.target.closest(".wcard"); if(!card) return;
-  if(e.target.closest("[data-discard]")) return discardWarp(db.warps.find(x=>x.id===card.dataset.warp));
-  const w=db.warps.find(x=>x.id===card.dataset.warp);
-  const btn=e.target.closest("button[data-act]");
-  if(btn) moveWarp(w,btn.dataset.act);
-});
 function openWarpForm() { hideNotice("warpNotice"); $("warpDialog").showModal(); $("warpName").focus(); }
 $("openWarpForm").addEventListener("click",openWarpForm);
-async function discardWarp(w) {
-  const reason=await ask({title:`Discard ${w.name}?`,text:"It is removed from the board. This cannot be undone.",input:{label:"Reason (optional)",placeholder:"e.g. damaged, wrong colour"},ok:"Discard warp",danger:true});
+async function discardWarp(w, K=BOARDS.warp) {
+  const reason=await ask({title:`Discard ${w.name}?`,text:"It is removed from the board. This cannot be undone.",input:{label:"Reason (optional)",placeholder:"e.g. damaged, wrong colour"},ok:`Discard ${K.noun}`,danger:true});
   if(reason===null) return;
   try{
-    await api(`/api/warps/${encodeURIComponent(w.id)}/discard`,{method:"POST",body:JSON.stringify({reason})});
+    await api(`${K.api}/${encodeURIComponent(w.id)}/discard`,{method:"POST",body:JSON.stringify({reason})});
     toast(`${w.name} discarded.`); await refresh();
-  }catch(err){notice("warpListNotice",err.message)}
+  }catch(err){notice(K.notice,err.message)}
 }
 // Colour pickers follow the typed colour name until the user picks a shade by hand.
 // Colour name and picker stay in sync both ways: typing a known name sets the picker, and
 // picking a shade fills in the nearest colour name unless the user typed their own name.
-[["warpBody","warpBodyHex"],["warpBorder","warpBorderHex"]].forEach(([nameId,hexId])=>{
+[["warpBody","warpBodyHex"],["warpBorder","warpBorderHex"],["bobbinColor","bobbinColorHex"]].forEach(([nameId,hexId])=>{
   $(nameId).addEventListener("input",()=>{
     delete $(nameId).dataset.auto;
     const c=colourOf($(nameId).value);
@@ -1076,30 +1455,34 @@ async function discardWarp(w) {
   });
 });
 const pickedHex=id=>$(id).dataset.set?$(id).value:null;
-// Warp length can be entered in meters or sarees. One saree length is 6.3 m; on a triple-width
-// warp each 6.3 m gives 3 sarees, so the conversion depends on the width.
-const warpUnit=()=>$("warpForm").querySelector("input[name=warpUnit]:checked").value;
-function warpLength() {
-  const perLength=$("warpWidth").value==="triple"?3:1, raw=$("warpQty").value, q=Number(raw);
+// Warp and bobbin length can be entered in meters or sarees. One saree length is 6.3 m; on triple
+// width each 6.3 m gives 3 sarees, so the conversion depends on the width. p is "warp" or "bobbin".
+const lenUnit=p=>$(`${p}Form`).querySelector(`input[name=${p}Unit]:checked`).value;
+function lengthOf(p) {
+  const perLength=$(`${p}Width`).value==="triple"?3:1, raw=$(`${p}Qty`).value, q=Number(raw);
   if(raw===""||!Number.isFinite(q)||q<=0) return {meters:null};
-  if(warpUnit()==="sarees"){
+  if(lenUnit(p)==="sarees"){
     if(!Number.isInteger(q)) return {meters:null,error:"Enter a whole number of sarees."};
-    if(q%perLength) return {meters:null,error:`Triple-width warps make sarees in sets of 3. Try ${Math.floor(q/3)*3||3} or ${Math.ceil(q/3)*3}.`};
+    if(q%perLength) return {meters:null,error:`Triple width makes sarees in sets of 3. Try ${Math.floor(q/3)*3||3} or ${Math.ceil(q/3)*3}.`};
     return {meters:Number((q/perLength*SAREE_M).toFixed(2)),sarees:q};
   }
   return {meters:q,sarees:Math.floor((q+1e-9)/SAREE_M)*perLength};
 }
-function updateWarpLength() {
-  const sarees=warpUnit()==="sarees", triple=$("warpWidth").value==="triple";
-  $("warpQtyLabel").textContent=sarees?"Number of sarees *":"Total warp meters *";
-  Object.assign($("warpQty"),sarees?{step:triple?"3":"1",min:triple?"3":"1",placeholder:triple?"e.g. 300":"e.g. 190"}:{step:"0.01",min:"6.3",placeholder:"e.g. 1200"});
-  const r=warpLength(), rule=triple?"triple width: 3 sarees per 6.3 m":"single width: 1 saree = 6.3 m";
-  $("warpQtyHint").textContent=r.error||(r.meters==null?`1 saree = 6.3 m (${rule}).`:sarees?`= ${fmt(r.meters)} m of warp (${rule}).`:`= ${plural(r.sarees,"saree")} (${rule}).`);
-  $("warpQtyHint").style.color=r.error?"var(--red)":"";
+const warpLength=()=>lengthOf("warp");
+function updateLength(p) {
+  const sarees=lenUnit(p)==="sarees", triple=$(`${p}Width`).value==="triple";
+  $(`${p}QtyLabel`).textContent=sarees?"Number of sarees *":`Total ${p} meters *`;
+  Object.assign($(`${p}Qty`),sarees?{step:triple?"3":"1",min:triple?"3":"1",placeholder:triple?"e.g. 300":"e.g. 190"}:{step:"0.01",min:"6.3",placeholder:"e.g. 1200"});
+  const r=lengthOf(p), rule=triple?"triple width: 3 sarees per 6.3 m":"single width: 1 saree = 6.3 m";
+  $(`${p}QtyHint`).textContent=r.error||(r.meters==null?`1 saree = 6.3 m (${rule}).`:sarees?`= ${fmt(r.meters)} m of ${p} (${rule}).`:`= ${plural(r.sarees,"saree")} (${rule}).`);
+  $(`${p}QtyHint`).style.color=r.error?"var(--red)":"";
 }
-$("warpForm").addEventListener("change",e=>{ if(e.target.name==="warpUnit"){ $("warpQty").value=""; updateWarpLength(); } if(e.target.id==="warpWidth") updateWarpLength(); });
-$("warpQty").addEventListener("input",updateWarpLength);
-updateWarpLength();
+const updateWarpLength=()=>updateLength("warp");
+["warp","bobbin"].forEach(p=>{
+  $(`${p}Form`).addEventListener("change",e=>{ if(e.target.name===`${p}Unit`){ $(`${p}Qty`).value=""; updateLength(p); } if(e.target.id===`${p}Width`) updateLength(p); });
+  $(`${p}Qty`).addEventListener("input",()=>updateLength(p));
+  updateLength(p);
+});
 $("warpForm").addEventListener("submit",async e=>{
   e.preventDefault();hideNotice("warpNotice");
   const len=warpLength();
@@ -1114,47 +1497,134 @@ $("warpForm").addEventListener("submit",async e=>{
     notice("warpListNotice",`${name} added to Ordered.`,true);await refresh();
   }catch(err){notice("warpNotice",err.message)}
 });
+function openBobbinForm() { hideNotice("bobbinNotice"); $("bobbinDialog").showModal(); $("bobbinName").focus(); }
+$("openBobbinForm").addEventListener("click",openBobbinForm);
+$("bobbinForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("bobbinNotice");
+  const len=lengthOf("bobbin");
+  if(len.error||len.meters==null) return notice("bobbinNotice",len.error||"Enter the bobbin length.");
+  if(len.meters<SAREE_M) return notice("bobbinNotice","A bobbin must be at least 6.3 m (one saree length).");
+  try{
+    const b=await api("/api/bobbins",{method:"POST",body:JSON.stringify({name:$("bobbinName").value,widthType:$("bobbinWidth").value,meters:len.meters,orderDate:$("bobbinOrderDate").value,color:$("bobbinColor").value,colorHex:pickedHex("bobbinColorHex")})});
+    e.target.reset(); $("bobbinOrderDate").value=todayISO(); $("bobbinDialog").close(); updateLength("bobbin");
+    delete $("bobbinColor").dataset.auto; $("bobbinColorHex").value="#cccccc"; delete $("bobbinColorHex").dataset.set;
+    notice("bobbinListNotice",`${b.name} added to Ordered.`,true); flashIds=new Set([b.id]); await refresh();
+  }catch(err){notice("bobbinNotice",err.message)}
+});
 let toastTimer=0;
 function toast(msg) {
   const t=$("toast"); t.textContent=msg; t.classList.add("show");
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),3500);
 }
-document.querySelectorAll("[data-open-loom]").forEach(b=>b.addEventListener("click",()=>{
-  hideNotice("loomNotice"); $("loomDialog").showModal(); $("loomName").focus();
-}));
+// Stop by hand, resume, remove: shared by the Production cards and the Looms page.
+async function stopLoom(lm, noticeId) {
+  const reason=await ask({title:`Stop ${lm.name}?`,text:"Dispatches and warp/bobbin assignment pause until you resume it. Its warp and bobbin stay on the loom.",input:{label:"Reason (optional)",placeholder:"e.g. motor repair, yarn break"},ok:"Stop loom",danger:true});
+  if(reason===null) return;
+  try{ await api(`/api/looms/${encodeURIComponent(lm.id)}/stop`,{method:"POST",body:JSON.stringify({reason})}); flashIds=new Set([lm.id]); toast(`${lm.name} stopped.`); await refresh(); }
+  catch(err){notice(noticeId,err.message)}
+}
+async function resumeLoom(lm, noticeId) {
+  try{
+    await api(`/api/looms/${encodeURIComponent(lm.id)}/resume`,{method:"POST",body:"{}"}); flashIds=new Set([lm.id]); await refresh();
+    const now=db.looms.find(x=>x.id===lm.id), st=now&&loomState(now);
+    toast(st&&!st.running?`${lm.name} resumed, but it is still stopped: ${st.reason}.`:`${lm.name} resumed and running.`);
+  }catch(err){notice(noticeId,err.message)}
+}
+async function removeLoom(lm, noticeId) {
+  const w=db.warps.find(x=>x.id===lm.warpId), b=bobbinOf(lm);
+  const back=[w&&w.name,b&&`bobbin ${b.name}`].filter(Boolean);
+  const ok=await ask({title:`Remove ${lm.name}?`,text:`${back.length?`${back.join(" and ")} go${back.length===1?"es":""} back to Ready. `:""}Its dispatch history is kept. This cannot be undone.`,ok:"Remove loom",danger:true});
+  if(!ok) return;
+  try{ await api(`/api/looms/${encodeURIComponent(lm.id)}`,{method:"DELETE"}); flashIds=new Set([w&&w.id,b&&b.id].filter(Boolean)); toast(`${lm.name} removed.${back.length?` ${back.join(" and ")} back in Ready.`:""}`); await refresh(); }
+  catch(err){notice(noticeId,err.message)}
+}
+// Looms page: every loom with its state (running / stopped and why), what it runs on, and actions.
+function renderLoomList() {
+  const list=byOrder(db.looms.slice().sort((a,b)=>loomRank(a)-loomRank(b)));
+  const running=list.filter(loomRunning).length, wages=mods().wages;
+  $("lmTotal").textContent=list.length; $("lmRunning").textContent=running; $("lmStopped").textContent=list.length-running;
+  const itemCell=(x,low)=>x?`<strong>${esc(x.name)}</strong>${low?'<span class="lowtag">LOW</span>':""}<br><span style="color:var(--muted)">${fmt(x.remainingMeters)} m · ${plural(warpSarees(x).leftSarees,"saree")}</span>`:'<span style="color:var(--muted)">—</span>';
+  $("loomTable").innerHTML=list.length?`<table><thead><tr><th>Loom</th><th>Runs on</th><th>State</th><th>Warp</th><th>Bobbin</th>${wages?"<th>Design / staff</th>":""}</tr></thead><tbody>${list.map(l=>{
+    const st=loomState(l), w=db.warps.find(x=>x.id===l.warpId), b=bobbinOf(l), d=designById(l.designId), sf=staffById(l.staffId);
+    return `<tr data-id="${esc(l.id)}"${flashIds.has(l.id)?' class="flashrow"':""}><td><strong>${esc(l.name)}</strong><br><span style="color:var(--muted)">${widthLabel(l.widthType)}</span></td>
+      <td>${l.needsBobbin?"Warp + bobbin":"Warp only"}</td>
+      <td class="why">${loomPill(l)}${st.running?"":`<br><span style="color:var(--muted)">${esc(st.reason)}${st.manual?` · since ${fmtDate(l.stoppedAt)}`:""}</span>`}</td>
+      <td>${itemCell(w,w&&lowSarees(w))}</td><td>${l.needsBobbin?itemCell(b,b&&lowSarees(b)):'<span style="color:var(--muted)">Not used</span>'}</td>
+      ${wages?`<td>${d?`<strong>${esc(d.number)}</strong> · ${money(d.rate)}`:'<span style="color:var(--muted)">No design</span>'}<br><span style="color:var(--muted)">👤 ${sf?esc(sf.name):"No staff"}</span></td>`:""}</tr>`;
+  }).join("")}</tbody></table>`:'<div class="empty">No looms yet. Use + Add loom.</div>';
+}
+// Manage looms (from the Looms page): every loom with its edit actions. Re-rendered after each change.
+function renderManageLooms() {
+  const list=byOrder(db.looms.slice().sort((a,b)=>loomRank(a)-loomRank(b))), wages=mods().wages;
+  $("manageLoomsList").innerHTML=list.length?list.map(l=>{
+    const st=loomState(l);
+    return `<div class="mlrow" data-id="${esc(l.id)}"><div><strong>${esc(l.name)}</strong> ${loomPill(l)}<div class="meta">${widthLabel(l.widthType)} · ${l.needsBobbin?"warp + bobbin":"warp only"}${st.running?"":` · ${esc(st.reason)}`}</div></div>
+      <div class="rowacts"><button class="smallbtn" type="button" data-lm="edit">Edit</button>${st.manual?`<button class="smallbtn" type="button" data-lm="resume">Resume</button>`:`<button class="smallbtn" type="button" data-lm="stop">Stop</button>`}${wages?`<button class="smallbtn" type="button" data-lm="setup">Design &amp; staff</button>`:""}${!st.running&&isAdmin()?`<button class="smallbtn danger" type="button" data-lm="remove" title="Remove">${TRASH_ICON}</button>`:""}</div></div>`;
+  }).join(""):'<div class="empty">No looms yet.</div>';
+}
+$("openManageLooms").addEventListener("click",()=>{ hideNotice("manageLoomsNotice"); renderManageLooms(); $("manageLoomsDialog").showModal(); });
+$("manageLoomsList").addEventListener("click",e=>{
+  const btn=e.target.closest("[data-lm]"); if(!btn) return;
+  const lm=db.looms.find(x=>x.id===btn.closest("[data-id]").dataset.id); if(!lm) return;
+  hideNotice("manageLoomsNotice");
+  const a=btn.dataset.lm;
+  if(a==="edit") openLoomDialog(lm);
+  if(a==="stop") stopLoom(lm,"manageLoomsNotice");
+  if(a==="resume") resumeLoom(lm,"manageLoomsNotice");
+  if(a==="remove") removeLoom(lm,"manageLoomsNotice");
+  if(a==="setup") openSetup(lm.id);
+});
+// Add / edit loom: number, width and whether it runs on warp only or warp + bobbin.
+let loomEditId=null;
+function openLoomDialog(l) {
+  loomEditId=l?l.id:null; $("loomForm").reset(); hideNotice("loomNotice");
+  $("loomDialogTitle").textContent=l?`Edit ${l.name}`:"Add loom"; $("loomSubmit").textContent=l?"Save":"Add loom";
+  $("loomDialogSub").textContent=l?"Width can change only while no warp or bobbin is on the loom.":"Give the loom a number, its width and what it runs on.";
+  if(l){
+    $("loomName").value=l.name;
+    $("loomForm").querySelector(`input[name=loomWidth][value=${l.widthType}]`).checked=true;
+    $("loomForm").querySelector(`input[name=loomNeeds][value=${l.needsBobbin?"bobbin":"warp"}]`).checked=true;
+  }
+  $("loomDialog").showModal(); $("loomName").focus();
+}
+document.querySelectorAll("[data-open-loom]").forEach(b=>b.addEventListener("click",()=>openLoomDialog(null)));
 $("loomForm").addEventListener("submit",async e=>{
   e.preventDefault();hideNotice("loomNotice");
   const name=$("loomName").value.trim(), widthType=e.target.querySelector("input[name=loomWidth]:checked").value;
+  const needsBobbin=e.target.querySelector("input[name=loomNeeds]:checked").value==="bobbin";
   try{
-    await api("/api/looms",{method:"POST",body:JSON.stringify({name,widthType})});
-    e.target.reset();$("loomDialog").close();
-    toast(`${name} added (${widthLabel(widthType).toLowerCase()}).`);await refresh();
+    const l=await api(loomEditId?`/api/looms/${encodeURIComponent(loomEditId)}`:"/api/looms",{method:loomEditId?"PUT":"POST",body:JSON.stringify({name,widthType,needsBobbin})});
+    e.target.reset();$("loomDialog").close(); flashIds=new Set([l.id]);
+    toast(loomEditId?`${name} saved.`:`${name} added (${widthLabel(widthType).toLowerCase()}, ${needsBobbin?"warp + bobbin":"warp only"}).`);await refresh();
   }catch(err){notice("loomNotice",err.message)}
 });
 $("view-looms").addEventListener("click",async e=>{
+  const bcard=e.target.closest(".lcard"), bl=bcard&&db.looms.find(x=>x.id===bcard.dataset.loom);
+  if(bl&&e.target.closest("[data-bobbin-add]")) {
+    hideNotice("loomListNotice");
+    const ready=(db.bobbins||[]).filter(b=>warpState(b).key==="ready"&&b.widthType===bl.widthType);
+    if(!ready.length) return notice("loomListNotice",`No ready ${widthLabel(bl.widthType).toLowerCase()} bobbin for ${bl.name}. Add one on the Bobbin board and mark it ready.`);
+    const bobbinId=await ask({title:`Put a bobbin on ${bl.name}`,text:`Ready ${widthLabel(bl.widthType).toLowerCase()} bobbins are listed. Dispatches then use the same length from the warp and the bobbin.`,options:ready.map(b=>[b.id,`${b.name} · ${b.color} · ${fmt(b.remainingMeters)} m (${plural(warpSarees(b).leftSarees,"saree")})`]),ok:"Put on loom",label:"Bobbin"});
+    if(!bobbinId) return;
+    try{ await api(`/api/bobbins/${encodeURIComponent(bobbinId)}/move`,{method:"POST",body:JSON.stringify({to:"running",loomId:bl.id,date:todayISO()})}); flashIds=new Set([bl.id]); toast(`Bobbin ${ready.find(b=>b.id===bobbinId).name} is on ${bl.name}.`); await refresh(); }
+    catch(err){notice("loomListNotice",err.message)}
+    return;
+  }
+  if(bl&&e.target.closest("[data-bobbin-off]")) {
+    const b=bobbinOf(bl); if(!b) return;
+    if(!await ask({title:`Take bobbin ${b.name} off ${bl.name}?`,text:"It goes back to Ready on the Bobbin board with its remaining meters. The loom keeps its warp.",ok:"Take off"})) return;
+    try{ await api(`/api/bobbins/${encodeURIComponent(b.id)}/move`,{method:"POST",body:JSON.stringify({to:"ready",date:todayISO()})}); flashIds=new Set([bl.id]); toast(`Bobbin ${b.name} taken off ${bl.name}.`); await refresh(); }
+    catch(err){notice("loomListNotice",err.message)}
+    return;
+  }
+  const setup=e.target.closest("[data-setup]");
+  if(setup) return openSetup(setup.dataset.setup);
   const del=e.target.closest("button[data-deliver]");
   if(del) return openDelivery(del.dataset.deliver);
   const card=e.target.closest(".lcard"), lm=card&&db.looms.find(x=>x.id===card.dataset.loom);
-  if(lm&&e.target.closest("[data-stop]")) {
-    const reason=await ask({title:`Stop ${lm.name}?`,text:"Deliveries and warp assignment pause until you resume it. Any running warp stays on the loom.",input:{label:"Reason (optional)",placeholder:"e.g. motor repair, yarn break"},ok:"Stop loom",danger:true});
-    if(reason===null) return;
-    try{ await api(`/api/looms/${encodeURIComponent(lm.id)}/stop`,{method:"POST",body:JSON.stringify({reason})}); flashIds=new Set([lm.id]); toast(`${lm.name} stopped.`); await refresh(); }
-    catch(err){notice("loomListNotice",err.message)}
-    return;
-  }
-  if(lm&&e.target.closest("[data-remove]")) {
-    const w=db.warps.find(x=>x.id===lm.warpId);
-    const ok=await ask({title:`Remove ${lm.name}?`,text:`${w?`${w.name} goes back to Ready. `:""}Its dispatch history is kept. This cannot be undone.`,ok:"Remove loom",danger:true});
-    if(!ok) return;
-    try{ await api(`/api/looms/${encodeURIComponent(lm.id)}`,{method:"DELETE"}); if(w) flashIds=new Set([w.id]); toast(`${lm.name} removed.${w?` ${w.name} is back in Ready.`:""}`); await refresh(); }
-    catch(err){notice("loomListNotice",err.message)}
-    return;
-  }
-  if(lm&&e.target.closest("[data-resume]")) {
-    try{ await api(`/api/looms/${encodeURIComponent(lm.id)}/resume`,{method:"POST",body:"{}"}); flashIds=new Set([lm.id]); toast(`${lm.name} resumed.`); await refresh(); }
-    catch(err){notice("loomListNotice",err.message)}
-    return;
-  }
+  if(lm&&e.target.closest("[data-stop]")) return stopLoom(lm,"loomListNotice");
+  if(lm&&e.target.closest("[data-remove]")) return removeLoom(lm,"loomListNotice");
+  if(lm&&e.target.closest("[data-resume]")) return resumeLoom(lm,"loomListNotice");
   const as=e.target.closest("button[data-assign]"); if(!as) return;
   hideNotice("loomListNotice");
   const l=db.looms.find(x=>x.id===as.dataset.assign);
@@ -1165,11 +1635,13 @@ $("view-looms").addEventListener("click",async e=>{
   try{
     await api(`/api/warps/${encodeURIComponent(warpId)}/move`,{method:"POST",body:JSON.stringify({to:"running",loomId:l.id,date:todayISO()})});
     flashIds=new Set([warpId,l.id]); toast(`${db.warps.find(w=>w.id===warpId).name} is now running on ${l.name}.`); await refresh();
+    // New warp, usually a new design: confirm the design and staff so dispatches earn the right wage.
+    if(mods().wages) openSetup(l.id,true);
   }catch(err){notice("loomListNotice",err.message)}
 });
 // Opens the delivery popup; with a loomId it is locked to that loom, otherwise a loom picker is shown.
 function openDelivery(loomId) {
-  if(!loomId&&!db.looms.some(l=>l.warpId)) return toast("No loom is running a warp yet.");
+  if(!loomId&&!db.looms.some(loomRunning)) return toast("No loom is running. A loom needs a warp (and a bobbin, if it uses one).");
   const loom=loomId&&db.looms.find(l=>l.id===loomId), w=loom&&db.warps.find(x=>x.id===loom.warpId);
   $("deliveryLoomField").hidden=!!loom;
   if(loom) $("deliveryLoom").value=loom.id;
@@ -1189,7 +1661,13 @@ function updatePreview(){
   if(q%perLength!==0) return show(`Triple-width quantities must be a multiple of 3. Try ${Math.floor(q/3)*3||3} or ${Math.ceil(q/3)*3}.`,false);
   const used=q*SAREE_M/perLength, left=w.remainingMeters-used;
   if(left<-1e-9) return show(`Not enough warp: ${fmt(w.remainingMeters)} m left, ${fmt(used)} m needed (max ${fmt(warpSarees(w).leftSarees)} sarees).`,false);
-  show(`Uses ${fmt(used)} m of ${w.name}. Left after: ${fmt(Math.max(0,left))} m (${plural(Math.floor((left+1e-9)/SAREE_M)*perLength,"saree")})${left<SAREE_M-1e-9?` · under ${SAREE_M} m, so the warp will be completed and the loom freed`:""}.`,true);
+  const bb=bobbinOf(loom), bLeft=bb?bb.remainingMeters-used:0;
+  if(bb&&bLeft<-1e-9) return show(`Not enough bobbin: ${bb.name} has ${fmt(bb.remainingMeters)} m, ${fmt(used)} m needed (max ${fmt(warpSarees(bb).leftSarees)} sarees).`,false);
+  const bobText=bb?` Bobbin ${bb.name} left after: ${fmt(Math.max(0,bLeft))} m (${plural(Math.floor((bLeft+1e-9)/SAREE_M)*perLength,"saree")})${bLeft<SAREE_M-1e-9?", so it will be completed":""}.`:"";
+  const d=designById(loom.designId), st=staffById(loom.staffId);
+  if(!mods().wages) return show(`Uses ${fmt(used)} m of ${w.name}. Left after: ${fmt(Math.max(0,left))} m (${plural(Math.floor((left+1e-9)/SAREE_M)*perLength,"saree")})${left<SAREE_M-1e-9?` · under ${SAREE_M} m, so the warp will be completed and the loom freed`:""}.${bobText}`,true);
+  const wage=d&&st?` Wage: ${fmt(q)} × ${money(d.rate)} = ${money(Math.round(q*d.rate*100)/100)} to ${st.name} (${d.number}).`:` No wage is recorded: set the ${d?"staff":st?"design":"design and staff"} on ${loom.name} first.`;
+  show(`Uses ${fmt(used)} m of ${w.name}. Left after: ${fmt(Math.max(0,left))} m (${plural(Math.floor((left+1e-9)/SAREE_M)*perLength,"saree")})${left<SAREE_M-1e-9?` · under ${SAREE_M} m, so the warp will be completed and the loom freed`:""}.${bobText}${wage}`,!!(d&&st));
 }
 $("deliveryLoom").addEventListener("change",updatePreview);
 $("deliverySarees").addEventListener("input",updatePreview);
@@ -1198,7 +1676,8 @@ $("deliveryForm").addEventListener("submit",async e=>{
   try{
     const r=await api("/api/deliveries",{method:"POST",body:JSON.stringify({loomId:$("deliveryLoom").value,sarees:$("deliverySarees").value,lrNumber:$("deliveryLr").value})});
     $("deliveryDialog").close(); flashIds=new Set([r.warp.id,r.loom.id]);
-    toast(`${plural(r.delivery.sarees,"saree")} dispatched from ${r.delivery.loomName}. ${r.warp.status==="Completed"?`${r.warp.name} is complete (${fmt(r.warp.remainingMeters)} m offcut) — ${r.loom.name} is free for a new warp.`:`${fmt(r.warp.remainingMeters)} m left on ${r.warp.name}.`}`);
+    const lows=[r.warp,r.bobbin].filter(x=>x&&x.status!=="Completed"&&lowSarees(x)).map(x=>`${x.name} has only ${plural(warpSarees(x).leftSarees,"saree")} left`);
+    toast(`${plural(r.delivery.sarees,"saree")} dispatched from ${r.delivery.loomName}.${r.delivery.wage!=null?` ${money(r.delivery.wage)} wage to ${r.delivery.staffName}.`:""} ${r.warp.status==="Completed"?`${r.warp.name} is complete (${fmt(r.warp.remainingMeters)} m offcut) — ${r.loom.name} is free for a new warp.`:`${fmt(r.warp.remainingMeters)} m left on ${r.warp.name}.`}${r.bobbin&&r.bobbin.status==="Completed"?` Bobbin ${r.bobbin.name} is used up.`:""}${lows.length?` ⚠ Low: ${lows.join("; ")}.`:""}`);
     await refresh();
   }catch(err){notice("deliveryNotice",err.message)}
 });
@@ -1403,8 +1882,409 @@ $("actForm").addEventListener("submit",async e=>{
   try{ await stockPost(actCfg.adjust?"/api/stock/adjust":"/api/stock/move",body,actCfg.done(q,p,actBucket)); $("actDialog").close(); }
   catch(err){notice("actNotice",err.message)}
 });
+// ---- Wages: staff, designs and per-saree wages (mirrors the server's wage helpers) ----
+// A dispatch stores staffId/staffName, designNo, rate and wage (sarees x rate). Wages without a
+// payoutId are unpaid; settling puts them in a payout (db.wagePayouts) and a new period starts.
+const money=n=>`${n<0?"−":""}₹${Math.abs(Number(n||0)).toLocaleString("en-IN",{maximumFractionDigits:2})}`;
+const staffById=id=>(db.staff||[]).find(s=>s.id===id)||null;
+const designById=id=>(db.designs||[]).find(d=>d.id===id)||null;
+const unpaidWages=()=>db.deliveries.filter(d=>d.wage!=null&&!d.payoutId);
+const unpaidDeductions=()=>(db.wageDeductions||[]).filter(x=>!x.payoutId);
+const r2=n=>Math.round(n*100)/100;
+// Mirrors server wageLines(): per staff, earnings split by design and rate, minus damage deductions; biggest net first.
+function wageLines(list, cuts=[]) {
+  const by=new Map();
+  const lineOf=(id,name)=>by.get(id)||by.set(id,{staffId:id,staffName:name,sarees:0,amount:0,items:[],deducted:0,deductions:[],net:0}).get(id);
+  list.forEach(d=>{
+    const line=lineOf(d.staffId,d.staffName);
+    line.sarees+=d.sarees; line.amount=r2(line.amount+d.wage);
+    let it=line.items.find(i=>i.designId===d.designId&&i.rate===d.rate);
+    if(!it) line.items.push(it={designId:d.designId,designNo:d.designNo,designName:d.designName||"",rate:d.rate,sarees:0,amount:0});
+    it.sarees+=d.sarees; it.amount=r2(it.amount+d.wage);
+  });
+  cuts.forEach(x=>{ const line=lineOf(x.staffId,x.staffName); line.deducted=r2(line.deducted+x.amount); x.items.forEach(i=>line.deductions.push({...i,note:x.note||"",at:x.createdAt})); });
+  by.forEach(l=>l.net=r2(l.amount-l.deducted));
+  return [...by.values()].sort((a,b)=>b.net-a.net);
+}
+// Payouts settled before deductions existed have no deducted/net fields.
+const lineNet=l=>l.net??l.amount, lineCut=l=>l.deducted||0;
+const periodStart=()=>{ const all=[...unpaidWages(),...unpaidDeductions()]; return all.length?all.reduce((m,d)=>d.createdAt<m?d.createdAt:m,all[0].createdAt):null; };
+// One deduction item as text; a carried balance has no sarees.
+const dedItem=i=>i.kind==="carry"||i.kind==="other"?i.label:`${fmt(i.sarees)} ${i.label.toLowerCase()} × ${money(i.rate)}`;
+const signed=n=>`<span${n<0?' class="neg"':""}>${money(n)}</span>`;
+// Design images and staff photos are not in /api/data; each is fetched once (per image version) and
+// cached. <img data-img="kind:id"> tags are filled in by loadImages() after each render.
+const IMG_KINDS={
+  design:{find:id=>designById(id),url:id=>`/api/designs/${encodeURIComponent(id)}/image`,title:d=>`Design ${d.number}${d.name?` · ${d.name}`:""}`},
+  staff:{find:id=>staffById(id),url:id=>`/api/staff/${encodeURIComponent(id)}/image`,title:s=>s.name}};
+const imgCache={};
+const imgSrc=(kind,r)=>{ const c=r&&imgCache[`${kind}:${r.id}`]; return c&&c.at===r.imageAt&&c.url?c.url:null; };
+const imgTag=(kind,r,attrs="")=>{ const src=imgSrc(kind,r); return `<img data-img="${kind}:${esc(r.id)}" data-zoom${src?` src="${src}"`:""} ${attrs}>`; };
+// Remember an image just uploaded, so it shows without fetching it back.
+const imgRemember=(kind,r,url)=>{ imgCache[`${kind}:${r.id}`]={at:r.imageAt,url,p:Promise.resolve()}; };
+function designThumb(d, big=false) {
+  if(!d||!d.hasImage) return `<span class="dthumb ph" aria-hidden="true">🎨</span>`;
+  return imgTag("design",d,`class="dthumb" alt="Design ${esc(d.number)}"${big?' style="width:52px;height:52px"':""}`);
+}
+function staffPhoto(s, cls="sphoto") {
+  if(!s||!s.hasImage) return `<span class="${cls} ph" aria-hidden="true">${esc((s?.name||"?").trim().charAt(0).toUpperCase())}</span>`;
+  return imgTag("staff",s,`class="${cls}" alt="${esc(s.name)}"`);
+}
+function loadImages() {
+  document.querySelectorAll("img[data-img]:not([src])").forEach(img=>{
+    const key=img.dataset.img, [kind,id]=key.split(":"), K=IMG_KINDS[kind], r=K&&K.find(id);
+    if(!r||!r.hasImage) return;
+    let c=imgCache[key];
+    if(!c||c.at!==r.imageAt){ c=imgCache[key]={at:r.imageAt,url:null}; c.p=api(K.url(id)).then(x=>{c.url=x.image;}).catch(()=>{}); }
+    c.p.then(()=>{ if(c.url) document.querySelectorAll(`img[data-img="${CSS.escape(key)}"]`).forEach(i=>i.src=c.url); });
+  });
+}
+const loadDesignImages=loadImages;
+// Fetches one image for an edit form (from the cache when possible).
+async function imageFor(kind, r) {
+  const src=imgSrc(kind,r); if(src) return src;
+  try{ const x=await api(IMG_KINDS[kind].url(r.id)); imgRemember(kind,r,x.image); return x.image; }catch{ return ""; }
+}
+document.addEventListener("click",e=>{
+  const img=e.target.closest("img[data-zoom][src]"); if(!img) return;
+  e.stopPropagation(); e.preventDefault();
+  const [kind,id]=(img.dataset.img||"").split(":"), K=IMG_KINDS[kind], r=K&&K.find(id);
+  $("imgDialogTitle").textContent=r?K.title(r):"";
+  $("imgDialogImg").src=img.src; $("imgDialog").showModal();
+},true);
+function renderWages() {
+  const list=unpaidWages(), cuts=unpaidDeductions(), lines=wageLines(list,cuts);
+  // Each staff member's open period starts at their oldest unpaid item (staff can be settled separately).
+  lines.forEach(l=>{ l.since=[...list,...cuts].filter(x=>x.staffId===l.staffId).reduce((m,x)=>!m||x.createdAt<m?x.createdAt:m,null); });
+  const earned=r2(list.reduce((s,d)=>s+d.wage,0)), deducted=r2(cuts.reduce((s,x)=>s+x.amount,0)), sarees=list.reduce((s,d)=>s+d.sarees,0);
+  const pays=db.wagePayouts||[], last=pays[0], since=periodStart();
+  $("wgTotal").textContent=money(earned-deducted);
+  $("wgSince").textContent=since?`${plural(lines.length,"staff").replace(/staffs$/,"staff")} · since ${fmtDate(since)}`:"";
+  $("wgEarned").textContent=money(earned); $("wgSarees").textContent=plural(sarees,"saree");
+  $("wgDeducted").textContent=money(deducted);
+  const dmg=cuts.reduce((s,x)=>s+x.items.reduce((t,i)=>t+i.sarees,0),0);
+  $("wgDedNote").textContent=dmg?`${plural(dmg,"damaged saree")}`:"";
+  $("wgLast").textContent=last?fmtDate(last.createdAt):"—";
+  $("wgLastAmt").textContent=last?`${money(last.total)} to ${plural(last.lines.length,"staff").replace(/staffs$/,"staff")}`:"";
+  $("wgPeriod").textContent=since?`Unpaid since ${fmtDate(since)}${last?` · last settled ${fmtDate(last.createdAt)}`:""}`:"";
+  // A carried balance alone is not a new period to settle.
+  const empty=!list.length&&!cuts.some(x=>!x.carry);
+  $("wageSettle").disabled=empty; $("wageDownload").disabled=empty;
+  $("wageTable").innerHTML=lines.length?`<table><thead><tr><th>Staff</th><th>Looms</th><th>Sarees</th><th>Earned</th><th>Deductions</th><th>Net pay</th><th></th></tr></thead><tbody>${lines.map(l=>{
+    const looms=db.looms.filter(x=>x.staffId===l.staffId).map(x=>x.name).join(", ");
+    const items=[...l.items.map(i=>`${esc(i.designNo)}: ${fmt(i.sarees)} × ${money(i.rate)} = ${money(i.amount)}`),...l.deductions.map(i=>`<span class="neg">− ${esc(dedItem(i))} = ${money(i.amount)}</span>`)];
+    return `<tr><td><div style="display:flex;gap:8px;align-items:flex-start">${staffPhoto(staffById(l.staffId)||{name:l.staffName},"sphoto sm")}<div><strong>${esc(l.staffName)}</strong><div class="wageitems">${items.join("<br>")}</div></div></div></td><td>${esc(looms||"—")}</td><td>${fmt(l.sarees)}</td><td>${money(l.amount)}</td><td>${l.deducted?`<span class="neg">− ${money(l.deducted)}</span>`:"—"}</td><td><strong>${signed(l.net)}</strong>${l.since?`<br><span style="color:var(--muted)">since ${fmtDate(l.since)}</span>`:""}</td><td class="rowacts">${settleDue().has(l.staffId)?`<button class="smallbtn" type="button" data-settle-staff="${esc(l.staffId)}">Settle</button>`:""}</td></tr>`;
+  }).join("")}<tr><td><strong>Total</strong></td><td></td><td><strong>${fmt(sarees)}</strong></td><td><strong>${money(earned)}</strong></td><td><strong>${deducted?`<span class="neg">− ${money(deducted)}</span>`:"—"}</strong></td><td><strong>${signed(r2(earned-deducted))}</strong></td><td></td></tr></tbody></table>`
+    :'<div class="empty">No unpaid wages. Wages are added when sarees are dispatched from a loom that has a design and staff set.</div>';
+  const neg=lines.filter(l=>l.net<0);
+  // Running looms that would dispatch without a wage.
+  const missing=db.looms.filter(l=>loomRunning(l)&&!(designById(l.designId)&&staffById(l.staffId)));
+  $("wageMissing").textContent=[missing.length?`⚠ ${missing.map(l=>l.name).join(", ")} ${missing.length===1?"has":"have"} no design or staff set, so ${missing.length===1?"its":"their"} dispatches earn no wage. Set them on the Production page.`:"",
+    neg.length?`⚠ Deductions are more than the wages earned for ${neg.map(l=>l.staffName).join(", ")}. On settling they are paid ₹0 and the rest is carried to next week.`:""].filter(Boolean).join(" ");
+  $("deductionList").innerHTML=cuts.length?cuts.map(x=>`<div class="wrow" data-deduction="${esc(x.id)}"><div><strong>${esc(x.staffName)}</strong><div class="meta">${x.items.map(i=>esc(dedItem(i))).join(" · ")}${x.note?` · ${esc(x.note)}`:""}<br>${fmtDate(x.createdAt)}${x.by?` · ${esc(x.by)}`:""}</div></div><div class="num2"><b class="neg">− ${money(x.amount)}</b></div>
+    <div class="rowacts"><button class="smallbtn danger" type="button" data-del-deduction title="Remove">${TRASH_ICON}</button></div></div>`).join("")
+    :'<div class="empty">No deductions this period.</div>';
+  $("payoutCount").textContent=pays.length?plural(pays.length,"payout"):"";
+  $("payoutTable").innerHTML=pays.length?`<table><thead><tr><th>Settled on</th><th>Period</th><th>Staff</th><th>Sarees</th><th>Earned</th><th>Deductions</th><th>Paid</th><th>By</th><th></th></tr></thead><tbody>${pays.map(p=>`<tr><td>${fmtDate(p.createdAt)}</td><td>${fmtDate(p.from)} – ${fmtDate(p.to)}</td><td>${p.partial||p.lines.length<=3?esc(p.lines.map(l=>l.staffName).join(", ")):fmt(p.lines.length)}</td><td>${fmt(p.sarees)}</td><td>${money(p.earned??p.total)}</td><td>${p.deducted?`<span class="neg">− ${money(p.deducted)}</span>`:"—"}</td><td><strong>${money(p.total)}</strong>${p.note?`<br><span style="color:var(--muted)">${esc(p.note)}</span>`:""}</td><td>${esc(p.by||"—")}</td><td class="rowacts"><button class="smallbtn" type="button" data-payout="${esc(p.id)}">🧾 Wage sheet</button></td></tr>`).join("")}</tbody></table>`
+    :'<div class="empty">No wages settled yet.</div>';
+}
+// Staff page: one card per person with photo, phone, looms, unpaid wages and last payout.
+function renderStaff() {
+  const all=db.staff||[], q=$("staffSearch").value.trim().toLowerCase();
+  const list=all.filter(s=>!q||`${s.name} ${s.phone||""}`.toLowerCase().includes(q));
+  const lines=wageLines(unpaidWages(),unpaidDeductions());
+  $("staffCount").textContent=plural(all.length,"person").replace("persons","people");
+  $("staffList").innerHTML=list.length?list.map(s=>{
+    const looms=db.looms.filter(l=>l.staffId===s.id), owed=lines.find(l=>l.staffId===s.id);
+    const lastPay=(db.wagePayouts||[]).find(p=>p.lines.some(l=>l.staffId===s.id)), paid=lastPay&&lastPay.lines.find(l=>l.staffId===s.id);
+    return `<div class="scardx${flashIds.has(s.id)?" flash":""}" data-staff="${esc(s.id)}">
+      <div class="shead">${staffPhoto(s)}<div><h4>${esc(s.name)}</h4><div class="meta">${s.phone?`📞 <a href="tel:${esc(s.phone.replace(/[^0-9+]/g,""))}">${esc(s.phone)}</a>`:"No phone"}</div><div class="meta">${looms.length?`Runs ${esc(looms.map(l=>l.name).join(", "))}`:"Not on a loom"}</div></div></div>
+      <div class="sstats"><div>To pay now<b>${signed(owed?owed.net:0)}</b></div><div>Last paid<b>${paid?`${money(lineNet(paid))}`:"—"}</b>${lastPay?fmtDate(lastPay.createdAt):""}</div></div>
+      <div class="rowacts"><button class="smallbtn" type="button" data-edit-staff>Edit</button>${owed&&settleDue().has(s.id)?`<button class="smallbtn" type="button" data-settle-one>Settle</button>`:""}${isAdmin()?`<button class="smallbtn danger" type="button" data-del-staff title="Remove">${TRASH_ICON}</button>`:""}</div></div>`;
+  }).join(""):`<div class="colempty">${all.length?"No one matches.":'No staff yet.<div class="cardact"><button class="actbtn" type="button" data-open-staff-empty>+ Add staff</button></div>'}</div>`;
+}
+$("staffSearch").addEventListener("input",()=>{ renderStaff(); loadImages(); });
+// Designs page: one card per design with its image, wage and the looms running it.
+function renderDesigns() {
+  const all=db.designs||[], q=$("designSearch").value.trim().toLowerCase();
+  const list=all.filter(d=>!q||`${d.number} ${d.name||""}`.toLowerCase().includes(q));
+  $("designCount").textContent=plural(all.length,"design");
+  $("designGrid").innerHTML=list.length?list.map(d=>{
+    const looms=db.looms.filter(l=>l.designId===d.id);
+    return `<div class="dcard${flashIds.has(d.id)?" flash":""}" data-design="${esc(d.id)}">
+      <div class="dimg">${d.hasImage?imgTag("design",d,`alt="Design ${esc(d.number)}"`):'<span aria-hidden="true">🎨</span>'}</div>
+      <div class="dbody"><h4>${esc(d.number)}</h4>${d.name?`<div class="meta">${esc(d.name)}</div>`:""}
+        <div class="drate">${money(d.rate)} <small>per saree</small></div>
+        <div class="meta">${looms.length?`Running on ${esc(looms.map(l=>l.name).join(", "))}`:"Not on a loom"}</div>
+        <div class="rowacts"><button class="smallbtn" type="button" data-edit-design>Edit wage / image</button>${isAdmin()?`<button class="smallbtn danger" type="button" data-del-design title="Remove">${TRASH_ICON}</button>`:""}</div></div></div>`;
+  }).join(""):`<div class="colempty">${all.length?"No design matches.":'No designs yet.<div class="cardact"><button class="actbtn" type="button" data-open-design>+ Add design</button></div>'}</div>`;
+}
+$("designSearch").addEventListener("input",()=>{ renderDesigns(); loadDesignImages(); });
+// CSV (UTF-8 BOM so Excel shows ₹ and Tamil names correctly): earnings per staff and design,
+// damage deductions, then each staff member's earned / deductions / net pay.
+function wageCsv(lines, title, from, to) {
+  const q=v=>{ const t=String(v??""); return /[",\n]/.test(t)?`"${t.replace(/"/g,'""')}"`:t; };
+  const phone=l=>staffById(l.staffId)?.phone||"";
+  const rows=[[title],["Factory",currentFactory()?.name||""],["Period",`${fmtDate(from)} to ${fmtDate(to)}`],[],["Earnings"],["Staff","Phone","Design","Design name","Wage per saree","Sarees","Amount"]];
+  lines.forEach(l=>l.items.forEach(i=>rows.push([l.staffName,phone(l),i.designNo,i.designName,i.rate,i.sarees,i.amount])));
+  const cuts=lines.flatMap(l=>(l.deductions||[]).map(i=>[l.staffName,phone(l),i.label,i.note,i.sarees?i.rate:"",i.sarees||"",-i.amount]));
+  if(cuts.length) rows.push([],["Damage deductions"],["Staff","Phone","Damage","Note","Amount per saree","Sarees","Amount"],...cuts);
+  // Unsettled sheets show what settling would pay: a negative net is paid as 0 and carried forward.
+  const pay=l=>l.carried!=null||lineNet(l)>=0?lineNet(l):0, carry=l=>l.carried??Math.max(0,-lineNet(l));
+  rows.push([],["Staff","Phone","Sarees","Earned","Deductions","Carried to next period","Net pay"]);
+  lines.forEach(l=>rows.push([l.staffName,phone(l),l.sarees,l.amount,-lineCut(l),carry(l)||"",pay(l)]));
+  rows.push(["Total","",lines.reduce((s,l)=>s+l.sarees,0),r2(lines.reduce((s,l)=>s+l.amount,0)),-r2(lines.reduce((s,l)=>s+lineCut(l),0)),r2(lines.reduce((s,l)=>s+carry(l),0))||"",r2(lines.reduce((s,l)=>s+pay(l),0))]);
+  return new Blob(["﻿"+rows.map(r=>r.map(q).join(",")).join("\r\n")],{type:"text/csv;charset=utf-8"});
+}
+const wageFile=day=>`my-thari-wages-${(currentFactory()?.name||"factory").replace(/[^A-Za-z0-9]+/g,"-").toLowerCase()}-${day}.csv`;
+// ---- Wage sheet: a print-ready page (Print / Save as PDF) with a summary and one slip per person ----
+// For an open period a negative net is shown as paid 0 with the rest carried, as settling would do.
+let sheetCsv=null;
+function openWageSheet(lines, {title, from, to, settledAt=null, note="", by=""}) {
+  const f=currentFactory(), pay=l=>l.carried!=null||lineNet(l)>=0?lineNet(l):0, carry=l=>l.carried??Math.max(0,-lineNet(l));
+  const T=k=>r2(lines.reduce((s,l)=>s+k(l),0));
+  const looms=l=>db.looms.filter(x=>x.staffId===l.staffId).map(x=>x.name).join(", ");
+  const phone=l=>staffById(l.staffId)?.phone||"";
+  const photo=l=>{ const st=staffById(l.staffId), src=st&&imgSrc("staff",st); return src?`<img src="${src}" alt="">`:`<span class="ph">${esc((l.staffName||"?").charAt(0).toUpperCase())}</span>`; };
+  const period=`${fmtDate(from)} – ${fmtDate(to)}`;
+  const slip=l=>`<div class="ws-slip"><div class="ws-sh">${photo(l)}<div><strong>${esc(l.staffName)}</strong><small>${[phone(l)&&`📞 ${esc(phone(l))}`,looms(l)&&esc(looms(l))].filter(Boolean).join(" · ")||"&nbsp;"}</small><small>${esc(period)}</small></div></div>
+    <table><thead><tr><th>Design</th><th class="n">Sarees</th><th class="n">Rate</th><th class="n">Amount</th></tr></thead><tbody>
+      ${l.items.length?l.items.map(i=>`<tr><td>${esc(i.designNo)}${i.designName?` · ${esc(i.designName)}`:""}</td><td class="n">${fmt(i.sarees)}</td><td class="n">${money(i.rate)}</td><td class="n">${money(i.amount)}</td></tr>`).join(""):'<tr><td colspan="4">No sarees this period</td></tr>'}
+      <tr class="tot"><td>Earned</td><td class="n">${fmt(l.sarees)}</td><td></td><td class="n">${money(l.amount)}</td></tr>
+      ${(l.deductions||[]).map(i=>`<tr><td class="neg">− ${esc(dedItem(i))}${i.note?` · ${esc(i.note)}`:""}</td><td></td><td></td><td class="n neg">− ${money(i.amount)}</td></tr>`).join("")}
+      ${carry(l)?`<tr><td>Carried to next week</td><td></td><td></td><td class="n">+ ${money(carry(l))}</td></tr>`:""}
+    </tbody></table>
+    <div class="ws-net"><span>Net pay</span><b>${money(pay(l))}</b></div>
+    <div class="ws-sign"><span>Received by</span><span>Paid by</span></div></div>`;
+  $("sheetTitle").textContent=title;
+  $("sheetPage").innerHTML=`<div class="ws-head"><div style="display:flex;gap:12px;align-items:center"><img src="img/thari-logo-640.png" alt=""><div><h1>${esc(f?.name||"My Thari")}</h1><p>${esc([f?.location,f?.ownerName].filter(Boolean).join(" · "))}</p></div></div>
+      <div class="ws-title"><h2>Wage sheet</h2><p><b>${esc(period)}</b></p><p>${settledAt?`Settled ${esc(whenStamp(settledAt))}${by?` by ${esc(by)}`:""}`:`Not settled yet · ${esc(whenStamp(new Date().toISOString()))}`}</p>${note?`<p>${esc(note)}</p>`:""}</div></div>
+    <div class="ws-totals"><div>Staff<b>${fmt(lines.length)}</b></div><div>Sarees<b>${fmt(T(l=>l.sarees))}</b></div><div>Earned − deductions<b>${money(T(l=>l.amount))} − ${money(T(lineCut))}</b></div><div class="pay">Total to pay<b>${money(T(pay))}</b></div></div>
+    <h3>Summary</h3>
+    <table><thead><tr><th>#</th><th>Staff</th><th>Looms</th><th class="n">Sarees</th><th class="n">Earned</th><th class="n">Deductions</th><th class="n">Net pay</th><th>Signature</th></tr></thead><tbody>
+      ${lines.map((l,i)=>`<tr><td>${i+1}</td><td><b>${esc(l.staffName)}</b>${phone(l)?`<br>${esc(phone(l))}`:""}</td><td>${esc(looms(l)||"—")}</td><td class="n">${fmt(l.sarees)}</td><td class="n">${money(l.amount)}</td><td class="n">${lineCut(l)?`<span class="neg">− ${money(lineCut(l))}</span>`:"—"}</td><td class="n"><b>${money(pay(l))}</b>${carry(l)?`<br><small>${money(carry(l))} carried</small>`:""}</td><td class="sign"></td></tr>`).join("")}
+      <tr class="tot"><td></td><td>Total</td><td></td><td class="n">${fmt(T(l=>l.sarees))}</td><td class="n">${money(T(l=>l.amount))}</td><td class="n">${T(lineCut)?`− ${money(T(lineCut))}`:"—"}</td><td class="n">${money(T(pay))}</td><td></td></tr>
+    </tbody></table>
+    <h3>Wage slips</h3>
+    <div class="ws-slips">${lines.map(slip).join("")}</div>
+    <div class="ws-foot">My Thari · Track all my loom production</div>`;
+  sheetCsv=()=>saveBlob(wageCsv(lines,title,from,to),wageFile((settledAt||new Date().toISOString()).slice(0,10)));
+  document.body.classList.add("sheet-open"); $("sheetView").hidden=false; $("sheetView").scrollTop=0;
+}
+const whenStamp=v=>new Date(v).toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
+const payoutSheet=p=>openWageSheet(p.lines,{title:`Wages settled on ${fmtDate(p.createdAt)}`,from:p.from,to:p.to,settledAt:p.createdAt,note:p.note,by:p.by});
+function closeSheet(){ $("sheetView").hidden=true; document.body.classList.remove("sheet-open"); }
+$("sheetPrint").addEventListener("click",()=>window.print());
+$("sheetCsv").addEventListener("click",()=>{ if(sheetCsv){ sheetCsv(); toast("Excel sheet (CSV) downloaded."); } });
+$("sheetClose").addEventListener("click",closeSheet);
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&!$("sheetView").hidden&&!document.querySelector("dialog[open]")) closeSheet(); });
+$("wageDownload").addEventListener("click",()=>{
+  const since=periodStart(); if(!since) return;
+  openWageSheet(wageLines(unpaidWages(),unpaidDeductions()),{title:"Wages (not yet settled)",from:since,to:new Date().toISOString()});
+});
+$("payoutTable").addEventListener("click",e=>{
+  const btn=e.target.closest("[data-payout]"); if(!btn) return;
+  const p=(db.wagePayouts||[]).find(x=>x.id===btn.dataset.payout); if(p) payoutSheet(p);
+});
+// Settle: every staff member, or only the ones ticked. Staff with only a carried balance have nothing new to settle.
+const settleDue=()=>new Set([...unpaidWages().map(d=>d.staffId),...unpaidDeductions().filter(x=>!x.carry).map(x=>x.staffId)]);
+let settleLines=[];
+function openSettle(onlyStaffId) {
+  const due=settleDue(); if(!due.size) return;
+  settleLines=wageLines(unpaidWages(),unpaidDeductions()).filter(l=>due.has(l.staffId));
+  $("settleStaff").innerHTML=settleLines.map(l=>`<div class="srow" data-staff="${esc(l.staffId)}"><label><input type="checkbox" value="${esc(l.staffId)}"${!onlyStaffId||onlyStaffId===l.staffId?" checked":""}><span>${esc(l.staffName)}<small>${fmt(l.sarees)} sarees · earned ${money(l.amount)}${l.deducted?` · − ${money(l.deducted)} damage`:""}</small></span><b data-pay></b></label>
+    <div class="sadj"><input type="number" min="0" step="0.01" inputmode="decimal" placeholder="Other deduction ₹" data-adj-amt aria-label="Other deduction for ${esc(l.staffName)}"><input placeholder="Reason, e.g. advance" data-adj-note aria-label="Reason"></div></div>`).join("");
+  $("settleNote").value=""; hideNotice("settleNotice"); settlePreview();
+  $("settleDialog").showModal();
+}
+const settlePicked=()=>[...$("settleStaff").querySelectorAll("input[type=checkbox]:checked")].map(i=>i.value);
+// Other deduction typed for one staff member in the settle form.
+const settleAdj=id=>{ const row=$("settleStaff").querySelector(`.srow[data-staff="${CSS.escape(id)}"]`); return {amount:Number(row.querySelector("[data-adj-amt]").value)||0,note:row.querySelector("[data-adj-note]").value.trim()}; };
+function settlePreview() {
+  const ids=new Set(settlePicked()), picked=settleLines.filter(l=>ids.has(l.staffId));
+  $("settleAll").checked=picked.length===settleLines.length;
+  const after=l=>r2(l.net-settleAdj(l.staffId).amount);
+  $("settleStaff").querySelectorAll(".srow").forEach(row=>{
+    const l=settleLines.find(x=>x.staffId===row.dataset.staff), on=ids.has(l.staffId), n=after(l);
+    row.classList.toggle("off",!on); row.querySelector("[data-pay]").innerHTML=on?money(Math.max(0,n)):'<span style="color:var(--muted)">not now</span>';
+  });
+  const pay=r2(picked.reduce((s,l)=>s+Math.max(0,after(l)),0)), carry=picked.filter(l=>after(l)<0), other=r2(picked.reduce((s,l)=>s+settleAdj(l.staffId).amount,0));
+  $("settlePreview").textContent=picked.length?`Pay ${money(pay)} to ${picked.length===settleLines.length?"all staff":picked.map(l=>l.staffName).join(", ")}${other?` (after ${money(other)} other deductions)`:""}.${carry.length?` ${carry.map(l=>`${l.staffName}: ${money(-after(l))} carried to next week`).join("; ")}.`:""} Their wages then start again from zero and the wage sheet opens.`:"Tick the staff to settle.";
+  $("settleOk").textContent=picked.length===settleLines.length?"Settle all & start new week":`Settle ${picked.length===1?picked[0].staffName:`${picked.length} staff`}`;
+  $("settleOk").disabled=!picked.length;
+}
+$("settleStaff").addEventListener("change",settlePreview);
+$("settleStaff").addEventListener("input",settlePreview);
+$("settleAll").addEventListener("change",e=>{ $("settleStaff").querySelectorAll("input").forEach(i=>i.checked=e.target.checked); settlePreview(); });
+$("wageSettle").addEventListener("click",()=>openSettle());
+$("wageTable").addEventListener("click",e=>{ const b=e.target.closest("[data-settle-staff]"); if(b) openSettle(b.dataset.settleStaff); });
+$("settleForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("settleNotice");
+  const ids=settlePicked(), all=ids.length===settleLines.length;
+  if(!ids.length) return;
+  const adjustments={};
+  for(const id of ids){ const a=settleAdj(id); if(a.amount<0) return notice("settleNotice","Other deductions can't be negative."); if(a.amount) adjustments[id]=a; }
+  try{
+    const p=await api("/api/wages/settle",{method:"POST",body:JSON.stringify({note:$("settleNote").value,adjustments,...(all?{}:{staffIds:ids})})});
+    $("settleDialog").close();
+    toast(`${money(p.total)} settled for ${all?"all staff":p.lines.map(l=>l.staffName).join(", ")}. Their new week has started.`); await refresh();
+    payoutSheet(p);
+  }catch(err){notice("settleNotice",err.message)}
+});
+// Damage deduction form: minor and heavy damage, each sarees x amount per saree (defaults remembered per factory).
+function dedTotals() {
+  const part=k=>{ const n=Number($(`ded${k}Sarees`).value)||0, r=Number($(`ded${k}Rate`).value)||0; return {n,r,a:r2(n*r)}; };
+  return {minor:part("Minor"),heavy:part("Heavy")};
+}
+function dedPreview() {
+  const t=dedTotals(), total=r2(t.minor.a+t.heavy.a), s=staffById($("dedStaff").value);
+  const parts=[["minor damage",t.minor],["heavy damage",t.heavy]].filter(([,x])=>x.n).map(([k,x])=>`${fmt(x.n)} ${k} × ${money(x.r)} = ${money(x.a)}`);
+  $("dedPreview").textContent=parts.length?`${parts.join(" + ")} → ${money(total)} taken off${s?` ${s.name}'s`:""} wages.`:"Enter the number of sarees with minor and/or heavy damage.";
+}
+function openDeduction() {
+  if(!(db.staff||[]).length) return notice("wageNotice","Add staff first.");
+  $("deductionForm").reset(); hideNotice("deductionNotice");
+  // Staff with wages this period first.
+  const owed=new Set(unpaidWages().map(d=>d.staffId));
+  const staff=[...db.staff].sort((a,b)=>owed.has(b.id)-owed.has(a.id));
+  $("dedStaff").innerHTML=staff.map(s=>`<option value="${esc(s.id)}">${esc(s.name)}</option>`).join("");
+  const rates=db.deductionRates||{};
+  $("dedMinorRate").value=rates.minor??""; $("dedHeavyRate").value=rates.heavy??"";
+  dedPreview(); $("deductionDialog").showModal(); $("dedMinorSarees").focus();
+}
+document.querySelectorAll("[data-open-deduction]").forEach(b=>b.addEventListener("click",openDeduction));
+$("deductionForm").addEventListener("input",dedPreview);
+$("deductionForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("deductionNotice");
+  const body={staffId:$("dedStaff").value,note:$("dedNote").value,minorSarees:$("dedMinorSarees").value,minorRate:$("dedMinorRate").value,heavySarees:$("dedHeavySarees").value,heavyRate:$("dedHeavyRate").value};
+  try{
+    const x=await api("/api/wages/deductions",{method:"POST",body:JSON.stringify(body)});
+    $("deductionDialog").close(); toast(`${money(x.amount)} deducted from ${x.staffName}.`); await refresh();
+  }catch(err){notice("deductionNotice",err.message)}
+});
+$("deductionList").addEventListener("click",e=>{
+  const row=e.target.closest("[data-deduction]"); if(!row||!e.target.closest("[data-del-deduction]")) return;
+  const x=(db.wageDeductions||[]).find(d=>d.id===row.dataset.deduction); if(!x) return;
+  removeItem(`/api/wages/deductions/${encodeURIComponent(x.id)}`,`Remove the ${money(x.amount)} deduction for ${x.staffName}?`,"The amount is added back to this period's wages.","Deduction removed.");
+});
+// Staff form (add / edit).
+let staffEditId=null;
+let staffImage; // undefined: unchanged, null: remove, string: new photo
+const showStaffPreview=src=>{ $("staffPreviewBox").hidden=src==null; if(src!=null) $("staffPreview").src=src||""; };
+function openStaff(s) {
+  staffEditId=s?s.id:null; staffImage=undefined; $("staffForm").reset(); hideNotice("staffNotice");
+  $("staffDialogTitle").textContent=s?`Edit ${s.name}`:"Add staff"; $("staffSubmit").textContent=s?"Save":"Add staff";
+  if(s){ $("staffName").value=s.name; $("staffPhone").value=s.phone||""; }
+  showStaffPreview(s&&s.hasImage?imgSrc("staff",s)||"":null);
+  if(s&&s.hasImage&&!imgSrc("staff",s)) imageFor("staff",s).then(src=>{ if(staffEditId===s.id&&staffImage===undefined) showStaffPreview(src); });
+  $("staffDialog").showModal(); $("staffName").focus();
+}
+$("staffFile").addEventListener("change",async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  try{ staffImage=await shrinkImage(f,600); showStaffPreview(staffImage); hideNotice("staffNotice"); }
+  catch(err){ e.target.value=""; notice("staffNotice",err.message); }
+});
+$("staffImgRemove").addEventListener("click",()=>{ staffImage=null; $("staffFile").value=""; showStaffPreview(null); });
+document.querySelectorAll("[data-open-staff]").forEach(b=>b.addEventListener("click",()=>openStaff(null)));
+$("staffForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("staffNotice");
+  const body={name:$("staffName").value,phone:$("staffPhone").value};
+  if(staffImage!==undefined) body.image=staffImage;
+  try{
+    const s=await api(staffEditId?`/api/staff/${encodeURIComponent(staffEditId)}`:"/api/staff",{method:staffEditId?"PUT":"POST",body:JSON.stringify(body)});
+    if(staffImage) imgRemember("staff",s,staffImage);
+    $("staffDialog").close(); flashIds=new Set([s.id]); toast(staffEditId?`${s.name} saved.`:`${s.name} added.`); await refresh();
+    if($("setupDialog").open&&!staffEditId){ fillSetup(); $("setupStaff").value=s.id; }
+  }catch(err){notice("staffNotice",err.message)}
+});
+// Design form (add / edit). The image is shrunk in the browser to keep the data file small.
+let designEditId=null, designImage;
+function openDesign(d) {
+  designEditId=d?d.id:null; designImage=undefined; $("designForm").reset(); hideNotice("designNotice");
+  $("designDialogTitle").textContent=d?`Edit design ${d.number}`:"Add design"; $("designSubmit").textContent=d?"Save":"Add design";
+  $("designDialogSub").textContent=d?"A new wage applies to dispatches from now on. Wages already earned keep their rate.":"The wage is paid per saree dispatched from a loom running this design.";
+  if(d){ $("designNo").value=d.number; $("designName").value=d.name||""; $("designRate").value=d.rate; }
+  showDesignPreview(d&&d.hasImage?imgSrc("design",d)||"":null);
+  if(d&&d.hasImage&&!imgSrc("design",d)) imageFor("design",d).then(src=>{ if(designEditId===d.id&&designImage===undefined) showDesignPreview(src); });
+  $("designDialog").showModal(); $("designNo").focus();
+}
+function showDesignPreview(src) {
+  $("designPreviewBox").hidden=src==null; if(src!=null) $("designPreview").src=src||"";
+}
+function shrinkImage(file, max=800) {
+  return new Promise((ok,fail)=>{
+    const url=URL.createObjectURL(file), img=new Image();
+    img.onload=()=>{
+      const k=Math.min(1,max/Math.max(img.width,img.height)), c=document.createElement("canvas");
+      c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
+      const g=c.getContext("2d"); g.fillStyle="#fff"; g.fillRect(0,0,c.width,c.height); g.drawImage(img,0,0,c.width,c.height);
+      URL.revokeObjectURL(url); ok(c.toDataURL("image/jpeg",0.8));
+    };
+    img.onerror=()=>{ URL.revokeObjectURL(url); fail(new Error("That file is not an image the browser can open.")); };
+    img.src=url;
+  });
+}
+$("designFile").addEventListener("change",async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  try{ designImage=await shrinkImage(f); showDesignPreview(designImage); hideNotice("designNotice"); }
+  catch(err){ e.target.value=""; notice("designNotice",err.message); }
+});
+$("designImgRemove").addEventListener("click",()=>{ designImage=null; $("designFile").value=""; showDesignPreview(null); });
+document.querySelectorAll("[data-open-design]").forEach(b=>b.addEventListener("click",()=>openDesign(null)));
+$("designForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("designNotice");
+  const body={number:$("designNo").value,name:$("designName").value,rate:$("designRate").value};
+  if(designImage!==undefined) body.image=designImage;
+  try{
+    const d=await api(designEditId?`/api/designs/${encodeURIComponent(designEditId)}`:"/api/designs",{method:designEditId?"PUT":"POST",body:JSON.stringify(body)});
+    if(designImage) imgRemember("design",d,designImage);
+    $("designDialog").close(); toast(designEditId?`Design ${d.number} saved.`:`Design ${d.number} added.`); await refresh();
+    if($("setupDialog").open&&!designEditId){ fillSetup(); $("setupDesign").value=d.id; }
+  }catch(err){notice("designNotice",err.message)}
+});
+async function removeItem(url, title, text, done) {
+  if(!await ask({title,text,ok:"Remove",danger:true})) return;
+  try{ await api(url,{method:"DELETE"}); toast(done); await refresh(); }
+  catch(err){notice({"#designs":"designListNotice","#staff":"staffListNotice"}[location.hash]||"wageNotice",err.message)}
+}
+$("staffList").addEventListener("click",e=>{
+  if(e.target.closest("[data-open-staff-empty]")) return openStaff(null);
+  const row=e.target.closest("[data-staff]"), s=row&&staffById(row.dataset.staff); if(!s) return;
+  if(e.target.closest("[data-edit-staff]")) openStaff(s);
+  if(e.target.closest("[data-settle-one]")) openSettle(s.id);
+  if(e.target.closest("[data-del-staff]")) removeItem(`/api/staff/${encodeURIComponent(s.id)}`,`Remove ${s.name}?`,"Unpaid wages and past payouts keep their name.",`${s.name} removed.`);
+});
+$("designGrid").addEventListener("click",e=>{
+  if(e.target.closest("[data-open-design]")) return openDesign(null);
+  const row=e.target.closest("[data-design]"), d=row&&designById(row.dataset.design); if(!d) return;
+  if(e.target.closest("[data-edit-design]")) openDesign(d);
+  if(e.target.closest("[data-del-design]")) removeItem(`/api/designs/${encodeURIComponent(d.id)}`,`Remove design ${d.number}?`,"Wages already earned keep the design number and rate.",`Design ${d.number} removed.`);
+});
+// Design & staff of one loom.
+let setupLoomId=null;
+function fillSetup() {
+  const l=db.looms.find(x=>x.id===setupLoomId), dv=$("setupDesign").value, sv=$("setupStaff").value;
+  $("setupDesign").innerHTML='<option value="">— No design —</option>'+(db.designs||[]).map(d=>`<option value="${esc(d.id)}">${esc(d.number)}${d.name?` · ${esc(d.name)}`:""} · ${money(d.rate)}/saree</option>`).join("");
+  $("setupStaff").innerHTML='<option value="">— No staff —</option>'+(db.staff||[]).map(s=>{ const n=db.looms.filter(x=>x.staffId===s.id&&x.id!==setupLoomId).length; return `<option value="${esc(s.id)}">${esc(s.name)}${n?` · also on ${plural(n,"loom")}`:""}</option>`; }).join("");
+  $("setupDesign").value=dv||l?.designId||""; $("setupStaff").value=sv||l?.staffId||"";
+}
+function openSetup(loomId, afterAssign=false) {
+  const l=db.looms.find(x=>x.id===loomId); if(!l) return;
+  setupLoomId=l.id; $("setupDesign").value=""; $("setupStaff").value=""; fillSetup(); hideNotice("setupNotice");
+  const w=db.warps.find(x=>x.id===l.warpId);
+  $("setupDialogTitle").textContent=`Design & staff · ${l.name}`;
+  $("setupHint").textContent=afterAssign?`${w?w.name:"The warp"} is now on ${l.name}. Check the design and staff so its dispatches earn the right wage.`:"Changes apply to dispatches from now on.";
+  $("setupDialog").showModal();
+}
+$("setupForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("setupNotice");
+  try{
+    const l=await api(`/api/looms/${encodeURIComponent(setupLoomId)}/setup`,{method:"POST",body:JSON.stringify({designId:$("setupDesign").value,staffId:$("setupStaff").value})});
+    $("setupDialog").close(); flashIds=new Set([l.id]); toast(`${l.name} saved.`); await refresh();
+  }catch(err){notice("setupNotice",err.message)}
+});
 // ---- Log: every activity, newest first (stored server-side in db.activity) ----
-const LOG_TYPE={warp:["Warp","violet"],loom:["Loom","blue"],dispatch:["Dispatch","green"],delivery:["Delivery","red"],process:["Process",""],stock:["Stock","teal"],party:["Party","amber"]};
+const LOG_TYPE={warp:["Warp","violet"],bobbin:["Bobbin","blue"],loom:["Loom","blue"],dispatch:["Dispatch","green"],delivery:["Delivery","red"],process:["Process",""],stock:["Stock","teal"],party:["Party","amber"],wages:["Wages","green"]};
 let logLimit=200;
 function renderLog() {
   const type=$("logType").value, q=$("logSearch").value.trim().toLowerCase();
@@ -1447,7 +2327,7 @@ function showLogin(message) {
 }
 function signOut(message) {
   session={token:null,user:null,factories:[]}; currentFactoryId=null; store_.set("loom.token",null);
-  db={warps:[],looms:[],deliveries:[],clients:[],stockMoves:[]};
+  db={warps:[],bobbins:[],looms:[],deliveries:[],clients:[],stockMoves:[],staff:[],designs:[],wagePayouts:[],wageDeductions:[]};
   $("userMenu").hidden=true; showLogin(message);
 }
 function applySession({user,factories}) {
@@ -1527,7 +2407,7 @@ async function loadSettings() {
   $("setFactoryCount").textContent=plural(i.factories.length,"factory").replace(/ys$/,"ies");
   $("setFactoryTable").innerHTML=i.factories.length?`<table><thead><tr><th>Factory</th><th>Owner</th><th>Users</th><th></th></tr></thead><tbody>${i.factories.map(f=>{
     const users=i.users.filter(u=>u.role!=="admin"&&u.factoryIds.includes(f.id)).map(u=>u.name||u.username);
-    return `<tr data-id="${esc(f.id)}"><td><strong>${esc(f.name)}</strong><br><span style="color:var(--muted)">${esc(f.location)}</span></td><td>${esc(f.ownerName)}${f.ownerPhone?`<br><span style="color:var(--muted)">${esc(f.ownerPhone)}</span>`:""}${f.ownerEmail?`<br><span style="color:var(--muted)">${esc(f.ownerEmail)}</span>`:""}</td><td>${users.length?esc(users.join(", ")):'<span style="color:var(--muted)">Admins only</span>'}</td><td class="rowacts"><button class="smallbtn" data-fac="edit">Edit</button><button class="smallbtn danger" data-fac="reset">Reset</button><button class="smallbtn danger" data-fac="delete">Delete</button></td></tr>`;
+    return `<tr data-id="${esc(f.id)}"><td><strong>${esc(f.name)}</strong><br><span style="color:var(--muted)">${esc(f.location)}</span><br><span class="pill ${f.modules?.stock===false||f.modules?.wages===false?"amber":"green"}">${f.modules?.stock===false?"Wages only":f.modules?.wages===false?"Stock only":"Stock + Wages"}</span></td><td>${esc(f.ownerName)}${f.ownerPhone?`<br><span style="color:var(--muted)">${esc(f.ownerPhone)}</span>`:""}${f.ownerEmail?`<br><span style="color:var(--muted)">${esc(f.ownerEmail)}</span>`:""}</td><td>${users.length?esc(users.join(", ")):'<span style="color:var(--muted)">Admins only</span>'}</td><td class="rowacts"><button class="smallbtn" data-fac="edit">Edit</button><button class="smallbtn danger" data-fac="reset">Reset</button><button class="smallbtn danger" data-fac="delete">Delete</button></td></tr>`;
   }).join("")}</tbody></table>`:'<div class="empty">No factories yet. Add the first one.</div>';
   $("setUserCount").textContent=plural(i.users.length,"user");
   $("setUserTable").innerHTML=`<table><thead><tr><th>User</th><th>Role</th><th>Factories</th><th></th></tr></thead><tbody>${i.users.map(u=>{
@@ -1570,12 +2450,15 @@ function openFactoryDialog(f) {
   editingFactory=f||null; $("factoryForm").reset(); hideNotice("factoryNotice");
   $("factoryDialogTitle").textContent=f?`Edit ${f.name}`:"Add factory"; $("factorySubmit").textContent=f?"Save changes":"Add factory";
   if(f){ $("facName").value=f.name; $("facLocation").value=f.location; $("facOwner").value=f.ownerName; $("facPhone").value=f.ownerPhone||""; $("facEmail").value=f.ownerEmail||""; }
+  const m=f?.modules, pick=m?.stock===false?"wages":m?.wages===false?"stock":"both";
+  $("factoryForm").querySelector(`input[name=facModules][value=${pick}]`).checked=true;
   $("factoryDialog").showModal(); $("facName").focus();
 }
 $("addFactoryBtn").addEventListener("click",()=>openFactoryDialog());
 $("factoryForm").addEventListener("submit",async e=>{
   e.preventDefault(); hideNotice("factoryNotice");
-  const body=JSON.stringify({name:$("facName").value,location:$("facLocation").value,ownerName:$("facOwner").value,ownerPhone:$("facPhone").value,ownerEmail:$("facEmail").value});
+  const pick=$("factoryForm").querySelector("input[name=facModules]:checked").value;
+  const body=JSON.stringify({name:$("facName").value,location:$("facLocation").value,ownerName:$("facOwner").value,ownerPhone:$("facPhone").value,ownerEmail:$("facEmail").value,modules:{stock:pick!=="wages",wages:pick!=="stock"}});
   try{
     const f=await api(editingFactory?`/api/admin/factories/${encodeURIComponent(editingFactory.id)}`:"/api/admin/factories",{method:editingFactory?"PUT":"POST",body});
     $("factoryDialog").close(); toast(editingFactory?`${f.name} updated.`:`${f.name} created.`);

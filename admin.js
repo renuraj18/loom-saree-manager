@@ -15,11 +15,16 @@ const STARTED_AT = new Date().toISOString();
 const RESTART_EXIT_CODE = 75;
 const text = v => (typeof v === "string" ? v.trim() : "");
 
+// modules: which parts of the app this factory uses, { stock, wages }; at least one is on.
+// Not sent (older pages): keep the factory's current setting.
 function factoryFields(body) {
-  return { name: text(body.name), location: text(body.location), ownerName: text(body.ownerName), ownerPhone: text(body.ownerPhone), ownerEmail: text(body.ownerEmail) };
+  const f = { name: text(body.name), location: text(body.location), ownerName: text(body.ownerName), ownerPhone: text(body.ownerPhone), ownerEmail: text(body.ownerEmail) };
+  if (body.modules && typeof body.modules === "object") f.modules = { stock: body.modules.stock !== false, wages: body.modules.wages !== false };
+  return f;
 }
 function factoryError(f, accounts, selfId) {
   if (!f.name || !f.location || !f.ownerName) return "Enter the factory name, location and owner name.";
+  if (f.modules && !f.modules.stock && !f.modules.wages) return "Choose Stock, Wages or both for this factory.";
   if (accounts.factories.some(x => x.id !== selfId && x.name.toLowerCase() === f.name.toLowerCase())) return "A factory with this name already exists.";
   return null;
 }
