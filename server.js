@@ -563,6 +563,9 @@ function wageFor(db, loom, quantity) {
   return out;
 }
 const unpaid = db => db.deliveries.filter(d => d.wage != null && !d.payoutId);
+// Sarees paid for on a dispatch: the dispatched count, unless edited on the Wages page (wageSarees).
+// Only the wage changes; production and stock keep the dispatched count.
+const wageQty = d => d.wageSarees ?? d.sarees;
 const unpaidDeductions = db => db.wageDeductions.filter(x => !x.payoutId);
 // Per-staff totals: earnings split by design and rate, minus damage deductions. Biggest net pay first.
 //   line: { staffId, staffName, sarees, amount (earned), items, deducted, deductions, net }
@@ -572,11 +575,11 @@ function wageLines(deliveries, deductions = []) {
     || byStaff.set(staffId, { staffId, staffName, sarees: 0, amount: 0, items: [], deducted: 0, deductions: [], net: 0 }).get(staffId);
   for (const d of deliveries) {
     const line = lineOf(d.staffId, d.staffName);
-    line.sarees += d.sarees;
+    line.sarees += wageQty(d);
     line.amount = round2(line.amount + d.wage);
     const item = line.items.find(i => i.designId === d.designId && i.rate === d.rate)
       || line.items[line.items.push({ designId: d.designId, designNo: d.designNo, designName: d.designName || "", rate: d.rate, sarees: 0, amount: 0 }) - 1];
-    item.sarees += d.sarees;
+    item.sarees += wageQty(d);
     item.amount = round2(item.amount + d.wage);
   }
   for (const x of deductions) {
@@ -771,6 +774,65 @@ app.delete("/api/wages/deductions/:id", (req, res) => {
   res.json({ removed: x.id });
 });
 
+// Manual correction of one staff member's open period: the sarees and rate paid on each unpaid
+// dispatch, and the sarees / amounts of each unpaid deduction. A deduction left with nothing is removed.
+//   { staffId, dispatches: [{ id, sarees, rate }], deductions: [{ id, items: [{ sarees, rate } | { amount }] }] }
+app.post("/api/wages/edit", (req, res) => {
+  const body = req.body || {}, staffId = cleanText(body.staffId);
+  const db = readDb(req.factoryId);
+  const at = new Date().toISOString(), by = actor(req), changes = [];
+  let staffName = db.staff.find(s => s.id === staffId)?.name;
+  for (const e of Array.isArray(body.dispatches) ? body.dispatches : []) {
+    const d = unpaid(db).find(x => x.id === e?.id && x.staffId === staffId);
+    if (!d) return res.status(400).json({ error: "A dispatch was already settled or no longer exists. Reload and try again." });
+    const n = Number(e.sarees), rate = rateField(e.rate);
+    if (!Number.isInteger(n) || n < 0) return res.status(400).json({ error: `Enter a whole number of sarees for the ${d.loomName} dispatch.` });
+    if (rate == null) return res.status(400).json({ error: `Enter the wage per saree for the ${d.loomName} dispatch.` });
+    if (n === wageQty(d) && rate === d.rate) continue;
+    changes.push(`${d.loomName} ${d.createdAt.slice(0, 10)}: ${wageQty(d)} × ${money(d.rate)} → ${n} × ${money(rate)}`);
+    if (n === d.sarees) delete d.wageSarees; else d.wageSarees = n;
+    Object.assign(d, { rate, wage: round2(n * rate), wageEditedBy: by, wageEditedAt: at });
+    staffName = staffName || d.staffName;
+  }
+  for (const e of Array.isArray(body.deductions) ? body.deductions : []) {
+    const x = unpaidDeductions(db).find(y => y.id === e?.id && y.staffId === staffId);
+    if (!x) return res.status(400).json({ error: "A deduction was already settled or no longer exists. Reload and try again." });
+    const edits = Array.isArray(e.items) ? e.items : [];
+    if (edits.length !== x.items.length) return res.status(400).json({ error: "The deduction changed. Reload and try again." });
+    const items = [];
+    for (const [i, it] of x.items.entries()) {
+      const v = edits[i] || {};
+      if (DAMAGE_KINDS[it.kind]) {
+        const n = Number(v.sarees);
+        if (!Number.isInteger(n) || n < 0) return res.status(400).json({ error: `Enter a whole number of sarees for ${it.label.toLowerCase()}.` });
+        if (!n) continue;
+        const rate = rateField(v.rate);
+        if (rate == null) return res.status(400).json({ error: `Enter the amount per saree for ${it.label.toLowerCase()}.` });
+        items.push({ ...it, sarees: n, rate, amount: round2(n * rate) });
+      } else {
+        if (v.amount === "" || v.amount == null || Number(v.amount) === 0) continue;
+        const amount = rateField(v.amount);
+        if (amount == null) return res.status(400).json({ error: `Enter an amount above 0 for ${it.label.toLowerCase()}.` });
+        items.push({ ...it, amount });
+      }
+    }
+    const amount = round2(items.reduce((s, i) => s + i.amount, 0));
+    if (amount === x.amount && items.length === x.items.length && items.every((it, i) => it.sarees === x.items[i].sarees && it.rate === x.items[i].rate)) continue;
+    staffName = staffName || x.staffName;
+    if (!items.length) {
+      db.wageDeductions = db.wageDeductions.filter(y => y !== x);
+      changes.push(`deduction ${money(x.amount)} removed`);
+    } else {
+      changes.push(`deduction ${money(x.amount)} → ${money(amount)}`);
+      Object.assign(x, { items, amount, editedBy: by, editedAt: at });
+    }
+  }
+  if (!changes.length) return res.json({ changed: 0 });
+  logEvent(db, req, "wages", `Wages edited for ${staffName || "staff"} · ${changes.join(" · ")}`);
+  writeDb(req.factoryId, db);
+  res.json({ changed: changes.length });
+});
+
 // Closes the wage period for every staff member, or only for staffIds: their unpaid wages and
 // deductions go into one payout record, kept as history. Other staff keep their open period.
 // Staff with only a carried balance (nothing new) are left out.
@@ -813,7 +875,7 @@ app.post("/api/wages/settle", (req, res) => {
   }
   const payout = {
     id: id("PAY"), from: [...list, ...cuts].reduce((m, d) => d.createdAt < m ? d.createdAt : m, at), to: at,
-    sarees: list.reduce((s, d) => s + d.sarees, 0), earned, deducted, carried: round2(carries.reduce((s, x) => s + x.amount, 0)),
+    sarees: list.reduce((s, d) => s + wageQty(d), 0), earned, deducted, carried: round2(carries.reduce((s, x) => s + x.amount, 0)),
     total: round2(lines.reduce((s, l) => s + l.net, 0)), lines, partial: !!pick && [...due].some(id => !pick.has(id)),
     note: cleanText(req.body?.note), by: actor(req), createdAt: at
   };

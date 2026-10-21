@@ -59,7 +59,7 @@ a.smallbtn{background:var(--grad-soft);border-color:transparent;color:#4b2fc4}
 @media(max-width:600px){.board{grid-template-columns:minmax(0,1fr)}}
 /* ---- Looms, delivery, toast ---- */
 .headbtns{display:flex;gap:10px;flex-wrap:wrap}.boardhead .btn.ghostbtn{background:rgba(255,255,255,.85);color:#4b2fc4;box-shadow:0 6px 16px -10px rgba(76,52,180,.4)}
-.loomgroup{--g1:#6d4aff;--g2:#a646ff;background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.9);border-radius:22px;padding:10px;margin-bottom:16px}.loomgroup[data-group=triple]{--g1:#e0459b;--g2:#f97316}.loomgroup .colhead{background:linear-gradient(135deg,var(--g1),var(--g2));box-shadow:0 10px 20px -12px var(--g1)}.lcard{--c1:#10b981;--c2:#0ea5b7;--t:#04704e}.lcard.idle{--c1:#64748b;--c2:#9aa6b8;--t:#475569}.bar.low i{background:linear-gradient(90deg,#ef4444,#f43f5e)!important}.mini .lowtxt b{color:#dc2626}
+.loomgroup{--g1:#6d4aff;--g2:#a646ff;background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.9);border-radius:22px;padding:10px;margin-bottom:16px}.loomgroup[data-group=triple]{--g1:#e0459b;--g2:#f97316}.loomgroup>.colhead{background:linear-gradient(135deg,var(--g1),var(--g2));box-shadow:0 10px 20px -12px var(--g1)}.lcard{--c1:#10b981;--c2:#0ea5b7;--t:#04704e}.lcard.idle{--c1:#64748b;--c2:#9aa6b8;--t:#475569}.bar.low i{background:linear-gradient(90deg,#ef4444,#f43f5e)!important}.mini .lowtxt b{color:#dc2626}
 .loomgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;align-items:start}.loomgrid .colempty{grid-column:1/-1}
 .lcard{cursor:default}.lcard .lhead{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.lcard h4{padding-right:0;font-size:17px}
 .lbig{display:flex;align-items:baseline;gap:6px;margin-top:8px}.lbig b{font-size:28px;line-height:1.1;background:linear-gradient(135deg,var(--c1),var(--c2));-webkit-background-clip:text;background-clip:text;color:transparent}.lbig span{font-size:12px;color:var(--muted)}
@@ -135,6 +135,9 @@ body.signed-out header,body.signed-out main{display:none}
 .chip.st-fold strong{color:#be185d}
 .stats.stats5{grid-template-columns:repeat(5,1fr)}
 .lcard{cursor:grab}.lhead-r .grip{width:26px;height:28px}
+.lwarp{display:flex;align-items:center;gap:8px;margin-top:9px}.lwarp .saree.mini{margin:0;width:30px;height:14px}.lwarp .wstate{margin:0;min-width:0}
+.lsarees{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.lsarees div{background:#f7f6fd;border-radius:12px;padding:9px 11px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}.lsarees b{display:block;font-size:30px;line-height:1.1;color:var(--ink);letter-spacing:0;margin-top:2px}.lsarees i{display:block;font-style:normal;font-size:12px;font-weight:500;color:var(--muted);text-transform:none;letter-spacing:0}.lsarees .lowtxt{background:#fff0f0}.lsarees .lowtxt b{color:#dc2626}
+.lbar{display:flex;align-items:center;gap:10px;margin-top:10px}.lcard .lbar .bar{flex:1;height:14px;border-radius:7px;margin:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}.lcard .lbar .bar i{border-radius:7px}.lbar span{font-size:13px;font-weight:800;color:var(--t);white-space:nowrap}
 @media(max-width:850px){.stats.stats5{grid-template-columns:repeat(2,1fr)}}
 /* ---- Stock buckets: sent, godown, mai, cleaning, lot, damage; returns and adjustments ---- */
 .stage.sent{--s1:#8b5cf6;--s2:#6d28d9;background:#f3efff}.stage.mai{--s1:#d97706;--s2:#92400e;background:#fdf6e7}.stage.cln{--s1:#38bdf8;--s2:#0369a1;background:#ecf8ff}
@@ -246,6 +249,7 @@ img.dthumb[data-zoom]{cursor:zoom-in}
   .ws-totals .pay,.sheetpage th,.sheetpage tr.tot td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 dialog.widedlg{width:min(720px,calc(100vw - 32px))}
+.wedhead{margin:14px 0 6px;font-size:15px}.wedhead h3{margin:0;font-size:15px}#wageEditForm td input{width:84px;padding:7px 8px;border:1px solid #d5dbe5;border-radius:8px;font:inherit}#wageEditForm td{vertical-align:middle}#wageEditForm tr.changed td{background:#fff8e6}
 .mlrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:11px 2px;border-bottom:1px solid var(--line)}.mlrow:last-child{border-bottom:0}.mlrow>div:first-child{flex:1;min-width:160px}.mlrow .meta{color:var(--muted);font-size:12px;margin-top:2px}
 dialog{border:0;border-radius:24px;padding:0;width:min(460px,calc(100vw - 32px));max-height:calc(100vh - 32px);box-shadow:0 40px 90px -20px rgba(30,20,80,.55);color:var(--ink);overflow:auto}
 dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
@@ -357,11 +361,7 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
       <div class="headbtns"><button class="btn btn-inline ghostbtn" type="button" data-open-loom>+ Add loom</button><button class="btn btn-inline" type="button" id="openWarpForm">+ Add warp</button></div>
     </div>
     <div class="notice" id="warpListNotice"></div>
-    <div class="board" id="warpBoard">
-      <div class="col" data-stage="ordered"><div class="colhead"><div><strong>Ordered</strong><span data-meters></span></div><b data-count>0</b></div><div class="cards"></div></div>
-      <div class="col" data-stage="ready"><div class="colhead"><div><strong>Ready</strong><span data-meters></span></div><b data-count>0</b></div><div class="cards"></div></div>
-      <div class="col" data-stage="running"><div class="colhead"><div><strong>Running</strong><span data-meters></span></div><b data-count>0</b></div><div class="cards"></div></div>
-    </div>
+    <div id="warpBoard"></div>
   </section>
 
   <section id="view-loomlist" hidden>
@@ -375,7 +375,7 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
       <div class="stat s-stk"><small>Running</small><strong id="lmRunning">0</strong></div>
       <div class="stat s-dmg"><small>Stopped</small><strong id="lmStopped">0</strong></div>
     </section>
-    <section class="panel"><div id="loomTable" class="tablewrap"></div></section>
+    <div id="loomTable"></div>
   </section>
 
   <dialog id="manageLoomsDialog" class="widedlg" aria-labelledby="manageLoomsTitle">
@@ -393,11 +393,7 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
       <div class="headbtns"><button class="btn btn-inline" type="button" id="openBobbinForm">+ Add bobbin</button></div>
     </div>
     <div class="notice" id="bobbinListNotice"></div>
-    <div class="board" id="bobbinBoard">
-      <div class="col" data-stage="ordered"><div class="colhead"><div><strong>Ordered</strong><span data-meters></span></div><b data-count>0</b></div><div class="cards"></div></div>
-      <div class="col" data-stage="ready"><div class="colhead"><div><strong>Ready</strong><span data-meters></span></div><b data-count>0</b></div><div class="cards"></div></div>
-      <div class="col" data-stage="running"><div class="colhead"><div><strong>Running</strong><span data-meters></span></div><b data-count>0</b></div><div class="cards"></div></div>
-    </div>
+    <div id="bobbinBoard"></div>
   </section>
 
   <dialog id="bobbinDialog" aria-labelledby="bobbinDialogTitle">
@@ -570,6 +566,19 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
       <div class="notice show ok" id="settlePreview"></div>
       <div class="notice" id="settleNotice"></div>
       <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="settleOk">Settle &amp; start new week</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="wageEditDialog" class="widedlg" aria-labelledby="wageEditTitle">
+    <div class="dlghead"><h2 id="wageEditTitle">Edit wages</h2><p>Correct the sarees and wage per saree paid on each dispatch, and the deductions, for this period. Production and stock counts don't change.</p></div>
+    <form id="wageEditForm" class="dlgbody">
+      <h3 class="wedhead">Dispatches</h3>
+      <div id="wageEditDispatches" class="tablewrap"></div>
+      <div class="sectionhead wedhead"><h3>Deductions</h3><button class="smallbtn" type="button" id="wageEditAddDed">− Add deduction</button></div>
+      <div id="wageEditDeductions" class="tablewrap"></div>
+      <div class="notice show ok" id="wageEditPreview"></div>
+      <div class="notice" id="wageEditNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit">Save changes</button></div>
     </form>
   </dialog>
 
@@ -987,13 +996,12 @@ function loomCard(l, sareesByLoom) {
     <div class="cardact">${action}</div></div>`;
   const q=warpSarees(w);
   return `<div class="${cls}" data-loom="${esc(l.id)}">${head}${total}${stopNote}
-    <div class="wstate">${esc(w.name)}${lowSarees(w)?'<span class="lowtag">LOW</span>':""}<small>${esc(w.bodyColor)} / ${esc(w.borderColor)}${w.startedAt?` · since ${fmtDate(w.startedAt)}`:""}</small></div>
-    ${swatch(w)}
-    ${bar(w.remainingMeters,w.originalMeters,lowSarees(w))}
-    <div class="mini">
-      <div>Woven<b>${fmt(q.usedM)} m</b><i>${plural(q.usedSarees,"saree")}</i></div>
-      <div${warpLow(w)||lowSarees(w)?' class="lowtxt"':""}>Left<b>${fmt(w.remainingMeters)} m</b><i>${plural(q.leftSarees,"saree")}</i></div>
+    <div class="lwarp">${swatch(w).replace('class="saree','class="saree mini')}<div class="wstate">${esc(w.name)}${lowSarees(w)?'<span class="lowtag">LOW</span>':""}<small>${esc(w.bodyColor)} / ${esc(w.borderColor)}${w.startedAt?` · since ${fmtDate(w.startedAt)}`:""}</small></div></div>
+    <div class="lsarees">
+      <div>Woven<b>${fmt(q.usedSarees)}</b><i>${q.usedSarees===1?"saree":"sarees"} · ${fmt(q.usedM)} m</i></div>
+      <div${warpLow(w)||lowSarees(w)?' class="lowtxt"':""}>Left<b>${fmt(q.leftSarees)}</b><i>${q.leftSarees===1?"saree":"sarees"} · ${fmt(w.remainingMeters)} m</i></div>
     </div>
+    <div class="lbar">${bar(w.remainingMeters,w.originalMeters,lowSarees(w))}<span>${w.originalMeters>0?Math.round(Math.max(0,Math.min(1,w.remainingMeters/w.originalMeters))*100):0}% left</span></div>
     ${loomBobbin(l)}
     ${mods().wages?loomSetup(l):""}
     <div class="cardact">${action}</div></div>`;
@@ -1025,7 +1033,7 @@ function renderLooms() {
     // Default order: running, stopped by hand, stopped for want of warp/bobbin (stable, newest first within each).
     const list=byOrder(db.looms.filter(l=>l.widthType===g).sort((a,b)=>loomRank(a)-loomRank(b)));
     const running=list.filter(loomRunning).length, stopped=list.length-running;
-    const el=document.querySelector(`.loomgroup[data-group=${g}]`);
+    const el=document.querySelector(`#view-looms .loomgroup[data-group=${g}]`);
     // A section only appears when the factory has looms of that width.
     el.hidden=!list.length;
     el.querySelector("[data-count]").textContent=list.length;
@@ -1253,17 +1261,33 @@ function warpCard(w, K=BOARDS.warp) {
     ${act?`<div class="cardact">${act}</div>`:""}
   </div>`;
 }
+// Each board has a Single width and a Triple width section (like Production), each with the three stage columns.
+const STAGES=[["ordered","Ordered"],["ready","Ready"],["running","Running"]];
+Object.values(BOARDS).forEach(K=>{
+  $(K.board).innerHTML=["single","triple"].map(g=>`<div class="loomgroup" data-group="${g}"><div class="colhead"><div><strong>${widthLabel(g)} ${K.noun}s</strong><span data-sub></span></div><b data-count>0</b></div>
+    <div class="board">${STAGES.map(([s,t])=>`<div class="col" data-stage="${s}"><div class="colhead"><div><strong>${t}</strong><span data-meters></span></div><b data-count>0</b></div><div class="cards"></div></div>`).join("")}</div></div>`).join("");
+});
 function renderBoard(K) {
   // Completed items are not shown on the board; they remain on Home and in dispatch history.
-  const by={ordered:[],ready:[],running:[],completed:[],discarded:[]};
-  byOrder(db[K.coll]||[]).forEach(w=>by[warpState(w).key].push(w));
-  const active=by.ordered.length+by.ready.length+by.running.length;
-  $(K.count).textContent=`${active} active ${K.noun}${active===1?"":"s"}${by.completed.length?` · ${by.completed.length} completed`:""}`;
-  document.querySelectorAll(`#${K.board} .col`).forEach(col=>{
-    const list=by[col.dataset.stage];
-    col.querySelector("[data-count]").textContent=list.length;
-    col.querySelector("[data-meters]").textContent=`${fmt(list.reduce((s,w)=>s+w.remainingMeters,0))} m`;
-    col.querySelector(".cards").innerHTML=list.length?list.map(w=>warpCard(w,K)).join(""):`<div class="colempty">${stageEmpty(K,col.dataset.stage)}</div>`;
+  const all=byOrder(db[K.coll]||[]), states=all.map(w=>warpState(w).key);
+  const active=states.filter(k=>k==="ordered"||k==="ready"||k==="running").length, completed=states.filter(k=>k==="completed").length;
+  $(K.count).textContent=`${active} active ${K.noun}${active===1?"":"s"}${completed?` · ${completed} completed`:""}`;
+  // A section shows when the factory has looms or active items of that width; with neither, Single still shows so + Add has a place.
+  const shown=g=>db.looms.some(l=>l.widthType===g)||all.some((w,i)=>w.widthType===g&&states[i]!=="completed"&&states[i]!=="discarded");
+  const anyShown=shown("single")||shown("triple");
+  document.querySelectorAll(`#${K.board} .loomgroup`).forEach(el=>{
+    const g=el.dataset.group, by={ordered:[],ready:[],running:[],completed:[],discarded:[]};
+    all.forEach((w,i)=>{ if(w.widthType===g) by[states[i]].push(w); });
+    const n=by.ordered.length+by.ready.length+by.running.length;
+    el.hidden=anyShown?!shown(g):g!=="single";
+    el.querySelector(":scope>.colhead [data-count]").textContent=n;
+    el.querySelector(":scope>.colhead [data-sub]").textContent=`${by.ordered.length} ordered · ${by.ready.length} ready · ${by.running.length} running`;
+    el.querySelectorAll(".col").forEach(col=>{
+      const list=by[col.dataset.stage];
+      col.querySelector("[data-count]").textContent=list.length;
+      col.querySelector("[data-meters]").textContent=`${fmt(list.reduce((s,w)=>s+w.remainingMeters,0))} m`;
+      col.querySelector(".cards").innerHTML=list.length?list.map(w=>warpCard(w,K)).join(""):`<div class="colempty">${stageEmpty(K,col.dataset.stage)}</div>`;
+    });
   });
 }
 function renderWarps() { renderBoard(BOARDS.warp); renderBoard(BOARDS.bobbin); }
@@ -1353,7 +1377,8 @@ async function saveOrder(kind, container) {
   catch(err){ toast(err.message); await refresh(); }
 }
 Object.values(BOARDS).forEach(K=>{
-  const boardEl=$(K.board), cols=()=>boardEl.querySelectorAll(".col");
+  // Drops only go to columns of the card's own width section.
+  const boardEl=$(K.board), cols=()=>drag.card.closest(".loomgroup").querySelectorAll(".col");
   boardEl.addEventListener("pointerdown",e=>{
     const card=e.target.closest(".wcard");
     if(!card||e.button>0||e.target.closest("button,a,select")) return;
@@ -1380,7 +1405,8 @@ Object.values(BOARDS).forEach(K=>{
     }
     drag.ghost.style.left=(e.clientX-drag.ox)+"px"; drag.ghost.style.top=(e.clientY-drag.oy)+"px";
     drag.vy=e.clientY<70?-12:e.clientY>innerHeight-70?12:0;
-    const col=document.elementFromPoint(e.clientX,e.clientY)?.closest(`#${K.board} .col`)||null;
+    let col=document.elementFromPoint(e.clientX,e.clientY)?.closest(`#${K.board} .col`)||null;
+    if(col&&col.closest(".loomgroup")!==drag.card.closest(".loomgroup")) col=null;
     const target=col&&col.dataset.stage!==drag.from?col:null;
     cols().forEach(c=>c.classList.toggle("over",c===target));
     drag.over=target;
@@ -1544,14 +1570,20 @@ function renderLoomList() {
   const running=list.filter(loomRunning).length, wages=mods().wages;
   $("lmTotal").textContent=list.length; $("lmRunning").textContent=running; $("lmStopped").textContent=list.length-running;
   const itemCell=(x,low)=>x?`<strong>${esc(x.name)}</strong>${low?'<span class="lowtag">LOW</span>':""}<br><span style="color:var(--muted)">${fmt(x.remainingMeters)} m · ${plural(warpSarees(x).leftSarees,"saree")}</span>`:'<span style="color:var(--muted)">—</span>';
-  $("loomTable").innerHTML=list.length?`<table><thead><tr><th>Loom</th><th>Runs on</th><th>State</th><th>Warp</th><th>Bobbin</th>${wages?"<th>Design / staff</th>":""}</tr></thead><tbody>${list.map(l=>{
+  // One section per width (like Production); a section only appears when the factory has looms of that width.
+  const table=rows=>`<div class="panel tablewrap"><table><thead><tr><th>Loom</th><th>Runs on</th><th>State</th><th>Warp</th><th>Bobbin</th>${wages?"<th>Design / staff</th>":""}</tr></thead><tbody>${rows.map(l=>{
     const st=loomState(l), w=db.warps.find(x=>x.id===l.warpId), b=bobbinOf(l), d=designById(l.designId), sf=staffById(l.staffId);
-    return `<tr data-id="${esc(l.id)}"${flashIds.has(l.id)?' class="flashrow"':""}><td><strong>${esc(l.name)}</strong><br><span style="color:var(--muted)">${widthLabel(l.widthType)}</span></td>
+    return `<tr data-id="${esc(l.id)}"${flashIds.has(l.id)?' class="flashrow"':""}><td><strong>${esc(l.name)}</strong></td>
       <td>${l.needsBobbin?"Warp + bobbin":"Warp only"}</td>
       <td class="why">${loomPill(l)}${st.running?"":`<br><span style="color:var(--muted)">${esc(st.reason)}${st.manual?` · since ${fmtDate(l.stoppedAt)}`:""}</span>`}</td>
       <td>${itemCell(w,w&&lowSarees(w))}</td><td>${l.needsBobbin?itemCell(b,b&&lowSarees(b)):'<span style="color:var(--muted)">Not used</span>'}</td>
       ${wages?`<td>${d?`<strong>${esc(d.number)}</strong> · ${money(d.rate)}`:'<span style="color:var(--muted)">No design</span>'}<br><span style="color:var(--muted)">👤 ${sf?esc(sf.name):"No staff"}</span></td>`:""}</tr>`;
-  }).join("")}</tbody></table>`:'<div class="empty">No looms yet. Use + Add loom.</div>';
+  }).join("")}</tbody></table></div>`;
+  $("loomTable").innerHTML=list.length?["single","triple"].map(g=>{
+    const rows=list.filter(l=>l.widthType===g); if(!rows.length) return "";
+    const run=rows.filter(loomRunning).length;
+    return `<div class="loomgroup" data-group="${g}"><div class="colhead"><div><strong>${widthLabel(g)} looms</strong><span>${run} running · ${rows.length-run} stopped</span></div><b>${rows.length}</b></div>${table(rows)}</div>`;
+  }).join(""):'<section class="panel"><div class="empty">No looms yet. Use + Add loom.</div></section>';
 }
 // Manage looms (from the Looms page): every loom with its edit actions. Re-rendered after each change.
 function renderManageLooms() {
@@ -1891,16 +1923,18 @@ const designById=id=>(db.designs||[]).find(d=>d.id===id)||null;
 const unpaidWages=()=>db.deliveries.filter(d=>d.wage!=null&&!d.payoutId);
 const unpaidDeductions=()=>(db.wageDeductions||[]).filter(x=>!x.payoutId);
 const r2=n=>Math.round(n*100)/100;
+// Sarees paid for on a dispatch (server wageQty()): edited on the Wages page, else the dispatched count.
+const wageQty=d=>d.wageSarees??d.sarees;
 // Mirrors server wageLines(): per staff, earnings split by design and rate, minus damage deductions; biggest net first.
 function wageLines(list, cuts=[]) {
   const by=new Map();
   const lineOf=(id,name)=>by.get(id)||by.set(id,{staffId:id,staffName:name,sarees:0,amount:0,items:[],deducted:0,deductions:[],net:0}).get(id);
   list.forEach(d=>{
     const line=lineOf(d.staffId,d.staffName);
-    line.sarees+=d.sarees; line.amount=r2(line.amount+d.wage);
+    line.sarees+=wageQty(d); line.amount=r2(line.amount+d.wage);
     let it=line.items.find(i=>i.designId===d.designId&&i.rate===d.rate);
     if(!it) line.items.push(it={designId:d.designId,designNo:d.designNo,designName:d.designName||"",rate:d.rate,sarees:0,amount:0});
-    it.sarees+=d.sarees; it.amount=r2(it.amount+d.wage);
+    it.sarees+=wageQty(d); it.amount=r2(it.amount+d.wage);
   });
   cuts.forEach(x=>{ const line=lineOf(x.staffId,x.staffName); line.deducted=r2(line.deducted+x.amount); x.items.forEach(i=>line.deductions.push({...i,note:x.note||"",at:x.createdAt})); });
   by.forEach(l=>l.net=r2(l.amount-l.deducted));
@@ -1956,7 +1990,7 @@ function renderWages() {
   const list=unpaidWages(), cuts=unpaidDeductions(), lines=wageLines(list,cuts);
   // Each staff member's open period starts at their oldest unpaid item (staff can be settled separately).
   lines.forEach(l=>{ l.since=[...list,...cuts].filter(x=>x.staffId===l.staffId).reduce((m,x)=>!m||x.createdAt<m?x.createdAt:m,null); });
-  const earned=r2(list.reduce((s,d)=>s+d.wage,0)), deducted=r2(cuts.reduce((s,x)=>s+x.amount,0)), sarees=list.reduce((s,d)=>s+d.sarees,0);
+  const earned=r2(list.reduce((s,d)=>s+d.wage,0)), deducted=r2(cuts.reduce((s,x)=>s+x.amount,0)), sarees=list.reduce((s,d)=>s+wageQty(d),0);
   const pays=db.wagePayouts||[], last=pays[0], since=periodStart();
   $("wgTotal").textContent=money(earned-deducted);
   $("wgSince").textContent=since?`${plural(lines.length,"staff").replace(/staffs$/,"staff")} · since ${fmtDate(since)}`:"";
@@ -1973,7 +2007,7 @@ function renderWages() {
   $("wageTable").innerHTML=lines.length?`<table><thead><tr><th>Staff</th><th>Looms</th><th>Sarees</th><th>Earned</th><th>Deductions</th><th>Net pay</th><th></th></tr></thead><tbody>${lines.map(l=>{
     const looms=db.looms.filter(x=>x.staffId===l.staffId).map(x=>x.name).join(", ");
     const items=[...l.items.map(i=>`${esc(i.designNo)}: ${fmt(i.sarees)} × ${money(i.rate)} = ${money(i.amount)}`),...l.deductions.map(i=>`<span class="neg">− ${esc(dedItem(i))} = ${money(i.amount)}</span>`)];
-    return `<tr><td><div style="display:flex;gap:8px;align-items:flex-start">${staffPhoto(staffById(l.staffId)||{name:l.staffName},"sphoto sm")}<div><strong>${esc(l.staffName)}</strong><div class="wageitems">${items.join("<br>")}</div></div></div></td><td>${esc(looms||"—")}</td><td>${fmt(l.sarees)}</td><td>${money(l.amount)}</td><td>${l.deducted?`<span class="neg">− ${money(l.deducted)}</span>`:"—"}</td><td><strong>${signed(l.net)}</strong>${l.since?`<br><span style="color:var(--muted)">since ${fmtDate(l.since)}</span>`:""}</td><td class="rowacts">${settleDue().has(l.staffId)?`<button class="smallbtn" type="button" data-settle-staff="${esc(l.staffId)}">Settle</button>`:""}</td></tr>`;
+    return `<tr><td><div style="display:flex;gap:8px;align-items:flex-start">${staffPhoto(staffById(l.staffId)||{name:l.staffName},"sphoto sm")}<div><strong>${esc(l.staffName)}</strong><div class="wageitems">${items.join("<br>")}</div></div></div></td><td>${esc(looms||"—")}</td><td>${fmt(l.sarees)}</td><td>${money(l.amount)}</td><td>${l.deducted?`<span class="neg">− ${money(l.deducted)}</span>`:"—"}</td><td><strong>${signed(l.net)}</strong>${l.since?`<br><span style="color:var(--muted)">since ${fmtDate(l.since)}</span>`:""}</td><td class="rowacts"><button class="smallbtn" type="button" data-edit-wages="${esc(l.staffId)}">✎ Edit</button>${settleDue().has(l.staffId)?`<button class="smallbtn" type="button" data-settle-staff="${esc(l.staffId)}">Settle</button>`:""}</td></tr>`;
   }).join("")}<tr><td><strong>Total</strong></td><td></td><td><strong>${fmt(sarees)}</strong></td><td><strong>${money(earned)}</strong></td><td><strong>${deducted?`<span class="neg">− ${money(deducted)}</span>`:"—"}</strong></td><td><strong>${signed(r2(earned-deducted))}</strong></td><td></td></tr></tbody></table>`
     :'<div class="empty">No unpaid wages. Wages are added when sarees are dispatched from a loom that has a design and staff set.</div>';
   const neg=lines.filter(l=>l.net<0);
@@ -1982,7 +2016,7 @@ function renderWages() {
   $("wageMissing").textContent=[missing.length?`⚠ ${missing.map(l=>l.name).join(", ")} ${missing.length===1?"has":"have"} no design or staff set, so ${missing.length===1?"its":"their"} dispatches earn no wage. Set them on the Production page.`:"",
     neg.length?`⚠ Deductions are more than the wages earned for ${neg.map(l=>l.staffName).join(", ")}. On settling they are paid ₹0 and the rest is carried to next week.`:""].filter(Boolean).join(" ");
   $("deductionList").innerHTML=cuts.length?cuts.map(x=>`<div class="wrow" data-deduction="${esc(x.id)}"><div><strong>${esc(x.staffName)}</strong><div class="meta">${x.items.map(i=>esc(dedItem(i))).join(" · ")}${x.note?` · ${esc(x.note)}`:""}<br>${fmtDate(x.createdAt)}${x.by?` · ${esc(x.by)}`:""}</div></div><div class="num2"><b class="neg">− ${money(x.amount)}</b></div>
-    <div class="rowacts"><button class="smallbtn danger" type="button" data-del-deduction title="Remove">${TRASH_ICON}</button></div></div>`).join("")
+    <div class="rowacts"><button class="smallbtn" type="button" data-edit-deduction>✎ Edit</button><button class="smallbtn danger" type="button" data-del-deduction title="Remove">${TRASH_ICON}</button></div></div>`).join("")
     :'<div class="empty">No deductions this period.</div>';
   $("payoutCount").textContent=pays.length?plural(pays.length,"payout"):"";
   $("payoutTable").innerHTML=pays.length?`<table><thead><tr><th>Settled on</th><th>Period</th><th>Staff</th><th>Sarees</th><th>Earned</th><th>Deductions</th><th>Paid</th><th>By</th><th></th></tr></thead><tbody>${pays.map(p=>`<tr><td>${fmtDate(p.createdAt)}</td><td>${fmtDate(p.from)} – ${fmtDate(p.to)}</td><td>${p.partial||p.lines.length<=3?esc(p.lines.map(l=>l.staffName).join(", ")):fmt(p.lines.length)}</td><td>${fmt(p.sarees)}</td><td>${money(p.earned??p.total)}</td><td>${p.deducted?`<span class="neg">− ${money(p.deducted)}</span>`:"—"}</td><td><strong>${money(p.total)}</strong>${p.note?`<br><span style="color:var(--muted)">${esc(p.note)}</span>`:""}</td><td>${esc(p.by||"—")}</td><td class="rowacts"><button class="smallbtn" type="button" data-payout="${esc(p.id)}">🧾 Wage sheet</button></td></tr>`).join("")}</tbody></table>`
@@ -2117,7 +2151,10 @@ $("settleStaff").addEventListener("change",settlePreview);
 $("settleStaff").addEventListener("input",settlePreview);
 $("settleAll").addEventListener("change",e=>{ $("settleStaff").querySelectorAll("input").forEach(i=>i.checked=e.target.checked); settlePreview(); });
 $("wageSettle").addEventListener("click",()=>openSettle());
-$("wageTable").addEventListener("click",e=>{ const b=e.target.closest("[data-settle-staff]"); if(b) openSettle(b.dataset.settleStaff); });
+$("wageTable").addEventListener("click",e=>{
+  const b=e.target.closest("[data-settle-staff]"); if(b) openSettle(b.dataset.settleStaff);
+  const ed=e.target.closest("[data-edit-wages]"); if(ed) openWageEdit(ed.dataset.editWages);
+});
 $("settleForm").addEventListener("submit",async e=>{
   e.preventDefault(); hideNotice("settleNotice");
   const ids=settlePicked(), all=ids.length===settleLines.length;
@@ -2141,18 +2178,19 @@ function dedPreview() {
   const parts=[["minor damage",t.minor],["heavy damage",t.heavy]].filter(([,x])=>x.n).map(([k,x])=>`${fmt(x.n)} ${k} × ${money(x.r)} = ${money(x.a)}`);
   $("dedPreview").textContent=parts.length?`${parts.join(" + ")} → ${money(total)} taken off${s?` ${s.name}'s`:""} wages.`:"Enter the number of sarees with minor and/or heavy damage.";
 }
-function openDeduction() {
+function openDeduction(staffId) {
   if(!(db.staff||[]).length) return notice("wageNotice","Add staff first.");
   $("deductionForm").reset(); hideNotice("deductionNotice");
   // Staff with wages this period first.
   const owed=new Set(unpaidWages().map(d=>d.staffId));
   const staff=[...db.staff].sort((a,b)=>owed.has(b.id)-owed.has(a.id));
   $("dedStaff").innerHTML=staff.map(s=>`<option value="${esc(s.id)}">${esc(s.name)}</option>`).join("");
+  if(typeof staffId==="string"&&staffById(staffId)) $("dedStaff").value=staffId;
   const rates=db.deductionRates||{};
   $("dedMinorRate").value=rates.minor??""; $("dedHeavyRate").value=rates.heavy??"";
   dedPreview(); $("deductionDialog").showModal(); $("dedMinorSarees").focus();
 }
-document.querySelectorAll("[data-open-deduction]").forEach(b=>b.addEventListener("click",openDeduction));
+document.querySelectorAll("[data-open-deduction]").forEach(b=>b.addEventListener("click",()=>openDeduction()));
 $("deductionForm").addEventListener("input",dedPreview);
 $("deductionForm").addEventListener("submit",async e=>{
   e.preventDefault(); hideNotice("deductionNotice");
@@ -2160,12 +2198,76 @@ $("deductionForm").addEventListener("submit",async e=>{
   try{
     const x=await api("/api/wages/deductions",{method:"POST",body:JSON.stringify(body)});
     $("deductionDialog").close(); toast(`${money(x.amount)} deducted from ${x.staffName}.`); await refresh();
+    if($("wageEditDialog").open&&wageEditStaff===x.staffId) fillWageEdit();
   }catch(err){notice("deductionNotice",err.message)}
 });
 $("deductionList").addEventListener("click",e=>{
-  const row=e.target.closest("[data-deduction]"); if(!row||!e.target.closest("[data-del-deduction]")) return;
+  const row=e.target.closest("[data-deduction]"); if(!row) return;
   const x=(db.wageDeductions||[]).find(d=>d.id===row.dataset.deduction); if(!x) return;
+  if(e.target.closest("[data-edit-deduction]")) return openWageEdit(x.staffId);
+  if(!e.target.closest("[data-del-deduction]")) return;
   removeItem(`/api/wages/deductions/${encodeURIComponent(x.id)}`,`Remove the ${money(x.amount)} deduction for ${x.staffName}?`,"The amount is added back to this period's wages.","Deduction removed.");
+});
+// Edit wages (per staff, open period): sarees and rate on each unpaid dispatch, and each unpaid deduction's
+// sarees / amounts. Only changed rows are sent (POST /api/wages/edit); 0 sarees on a deduction drops that part.
+let wageEditStaff=null;
+function openWageEdit(staffId) {
+  wageEditStaff=staffId; hideNotice("wageEditNotice");
+  const name=staffById(staffId)?.name||[...unpaidWages(),...unpaidDeductions()].find(x=>x.staffId===staffId)?.staffName||"staff";
+  $("wageEditTitle").textContent=`Edit wages · ${name}`;
+  $("wageEditAddDed").hidden=!staffById(staffId);
+  fillWageEdit(); $("wageEditDialog").showModal();
+}
+function fillWageEdit() {
+  const list=unpaidWages().filter(d=>d.staffId===wageEditStaff), cuts=unpaidDeductions().filter(x=>x.staffId===wageEditStaff);
+  const num=(f,v,step,min)=>`<input type="number" data-f="${f}" value="${v}" min="${min}" step="${step}" inputmode="${step==="1"?"numeric":"decimal"}">`;
+  $("wageEditDispatches").innerHTML=list.length?`<table><thead><tr><th>Date</th><th>Loom</th><th>Design</th><th>Sarees</th><th>₹ per saree</th><th>Wage</th></tr></thead><tbody>${list.map(d=>`<tr data-wd="${esc(d.id)}"><td>${fmtDate(d.createdAt)}</td><td>${esc(d.loomName||"—")}</td><td>${esc(d.designNo||"—")}</td>
+    <td>${num("sarees",wageQty(d),"1","0")}${wageQty(d)!==d.sarees?`<br><small style="color:var(--muted)">dispatched ${fmt(d.sarees)}</small>`:""}</td><td>${num("rate",d.rate,"0.01","0.01")}</td><td data-amt></td></tr>`).join("")}</tbody></table>`
+    :'<div class="empty">No unpaid dispatches.</div>';
+  $("wageEditDeductions").innerHTML=cuts.length?`<table><thead><tr><th>Date</th><th>Deduction</th><th>Sarees</th><th>₹ per saree</th><th>Amount</th></tr></thead><tbody>${cuts.map(x=>x.items.map((i,k)=>`<tr data-wx="${esc(x.id)}" data-k="${k}"><td>${k?"":fmtDate(x.createdAt)}</td><td>${esc(i.label)}${!k&&x.note?`<br><small style="color:var(--muted)">${esc(x.note)}</small>`:""}</td>
+    ${i.kind==="minor"||i.kind==="heavy"?`<td>${num("sarees",i.sarees,"1","0")}</td><td>${num("rate",i.rate,"0.01","0.01")}</td><td data-amt></td>`:`<td>—</td><td>—</td><td>${num("amount",i.amount,"0.01","0")}</td>`}</tr>`).join("")).join("")}</tbody></table>`
+    :'<div class="empty">No deductions this period.</div>';
+  wageEditPreview();
+}
+// Reads the form: per dispatch {id,sarees,rate}, per deduction {id,items}; flags rows that differ from the saved values.
+function wageEditRead() {
+  const val=(tr,f)=>{ const i=tr.querySelector(`[data-f=${f}]`); return i?i.value:undefined; };
+  const dispatches=[], deductions=new Map(); let earned=0, deducted=0;
+  document.querySelectorAll("#wageEditDispatches tr[data-wd]").forEach(tr=>{
+    const d=db.deliveries.find(x=>x.id===tr.dataset.wd); if(!d) return;
+    const n=Number(val(tr,"sarees")), r=Number(val(tr,"rate")), amt=r2((n||0)*(r||0));
+    tr.querySelector("[data-amt]").textContent=money(amt); earned+=amt;
+    const changed=n!==wageQty(d)||r!==d.rate; tr.classList.toggle("changed",changed);
+    if(changed) dispatches.push({id:d.id,sarees:val(tr,"sarees"),rate:val(tr,"rate")});
+  });
+  document.querySelectorAll("#wageEditDeductions tr[data-wx]").forEach(tr=>{
+    const x=(db.wageDeductions||[]).find(y=>y.id===tr.dataset.wx); if(!x) return;
+    const i=x.items[+tr.dataset.k], amtIn=val(tr,"amount");
+    const item=amtIn!==undefined?{amount:amtIn}:{sarees:val(tr,"sarees"),rate:val(tr,"rate")};
+    const amt=amtIn!==undefined?r2(Number(amtIn)||0):r2((Number(item.sarees)||0)*(Number(item.rate)||0));
+    if(amtIn===undefined) tr.querySelector("[data-amt]").textContent=money(amt);
+    deducted+=amt;
+    const changed=amtIn!==undefined?amt!==i.amount:Number(item.sarees)!==i.sarees||Number(item.rate)!==i.rate;
+    tr.classList.toggle("changed",changed);
+    const e=deductions.get(x.id)||deductions.set(x.id,{id:x.id,items:[],changed:false}).get(x.id);
+    e.items.push(item); e.changed=e.changed||changed;
+  });
+  return {dispatches,deductions:[...deductions.values()].filter(e=>e.changed).map(({id,items})=>({id,items})),earned:r2(earned),deducted:r2(deducted)};
+}
+function wageEditPreview() {
+  const r=wageEditRead(), n=r.dispatches.length+r.deductions.length;
+  $("wageEditPreview").textContent=`Earned ${money(r.earned)} − deductions ${money(r.deducted)} = net ${money(r2(r.earned-r.deducted))}${n?` · ${plural(n,"change")} not saved yet`:""}`;
+}
+$("wageEditForm").addEventListener("input",wageEditPreview);
+$("wageEditAddDed").addEventListener("click",()=>openDeduction(wageEditStaff));
+$("wageEditForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("wageEditNotice");
+  const {dispatches,deductions}=wageEditRead();
+  if(!dispatches.length&&!deductions.length){ $("wageEditDialog").close(); return; }
+  try{
+    await api("/api/wages/edit",{method:"POST",body:JSON.stringify({staffId:wageEditStaff,dispatches,deductions})});
+    $("wageEditDialog").close(); toast("Wages updated."); await refresh();
+  }catch(err){notice("wageEditNotice",err.message)}
 });
 // Staff form (add / edit).
 let staffEditId=null;
