@@ -73,7 +73,7 @@ a.smallbtn{background:var(--grad-soft);border-color:transparent;color:#4b2fc4}
 @media(max-width:600px){.headbtns{width:100%}.headbtns .btn-inline{flex:1}}
 /* ---- Card tools, colours, stop, stock ---- */
 .cardtools{position:absolute;top:6px;right:6px;display:flex;align-items:center;gap:2px}
-.iconbtn{width:30px;height:30px;display:grid;place-items:center;border:0;border-radius:9px;background:transparent;color:#a5a2c2;cursor:pointer;font:inherit;font-size:14px;line-height:1}.iconbtn:hover{background:#fdecec;color:#dc2626}.iconbtn.stop:hover{background:#fff1e6;color:#c2410c}
+.iconbtn{width:30px;height:30px;display:grid;place-items:center;border:0;border-radius:9px;background:transparent;color:#a5a2c2;cursor:pointer;font:inherit;font-size:14px;line-height:1}.iconbtn:hover{background:#fdecec;color:#dc2626}.iconbtn[data-edit-loom]:hover,.iconbtn[data-edit-warp]:hover{background:#eef0ff;color:var(--brand)}.iconbtn.stop:hover{background:#fff1e6;color:#c2410c}
 .lhead-r{display:flex;align-items:center;gap:2px;margin:-4px -6px 0 0}
 .lcard.stopped{--c1:#ef4444;--c2:#f97316;--t:#b91c1c}.pill.red{background:#fde8e8;color:#b91c1c}
 .btn.danger{background:linear-gradient(135deg,#ef4444,#e11d48);box-shadow:0 10px 22px -10px rgba(225,29,72,.6)}
@@ -307,6 +307,20 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
       <div class="headbtns"><button class="btn btn-inline ghostbtn" type="button" id="dlDashboard">⬇ Download</button><button class="btn btn-inline wa" type="button" id="waDashboard">Share on WhatsApp</button></div>
     </div>
     <div id="homeReport">
+      <section class="panel homepanel" id="homeStockPanel">
+        <div class="sectionhead"><h2>Stock</h2><a class="smallbtn" href="#stock">Open stock →</a></div>
+        <div class="chips">
+          <div class="chip st-sent"><strong id="hsSent">0</strong>Dispatched</div>
+          <div class="chip st-del"><strong id="hsDelivered">0</strong>At godown</div>
+          <div class="chip st-proc"><strong id="hsProcess">0</strong>In process</div>
+          <div class="chip st-fold"><strong id="hsFolding">0</strong>In folding</div>
+          <div class="chip st-stk"><strong id="hsStock">0</strong>In stock</div>
+          <div class="chip st-mai"><strong id="hsMai">0</strong>Mai</div>
+          <div class="chip st-lot"><strong id="hsLot">0</strong>Lot</div>
+          <div class="chip st-dmg"><strong id="hsDamage">0</strong>Damage</div>
+        </div>
+        <div id="homeStockTable" class="tablewrap"></div>
+      </section>
       <section class="stats">
         <div class="stat"><small>Total looms</small><strong id="statLooms">0</strong></div>
         <div class="stat"><small>Running looms</small><strong id="statRunning">0</strong></div>
@@ -337,20 +351,6 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
           <div class="chip"><strong id="warpDone">0</strong>Done</div>
         </div>
         <div id="homeWarpTables"></div>
-      </section>
-      <section class="panel homepanel" id="homeStockPanel">
-        <div class="sectionhead"><h2>Stock</h2><a class="smallbtn" href="#stock">Open stock →</a></div>
-        <div class="chips">
-          <div class="chip st-sent"><strong id="hsSent">0</strong>Dispatched</div>
-          <div class="chip st-del"><strong id="hsDelivered">0</strong>At godown</div>
-          <div class="chip st-proc"><strong id="hsProcess">0</strong>In process</div>
-          <div class="chip st-fold"><strong id="hsFolding">0</strong>In folding</div>
-          <div class="chip st-stk"><strong id="hsStock">0</strong>In stock</div>
-          <div class="chip st-mai"><strong id="hsMai">0</strong>Mai</div>
-          <div class="chip st-lot"><strong id="hsLot">0</strong>Lot</div>
-          <div class="chip st-dmg"><strong id="hsDamage">0</strong>Damage</div>
-        </div>
-        <div id="homeStockTable" class="tablewrap"></div>
       </section>
     </div>
   </div>
@@ -491,6 +491,29 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
       <div id="deliveryPreview" class="notice show ok"></div>
       <div class="notice" id="deliveryNotice"></div>
       <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit">Save dispatch</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="balanceDialog" aria-labelledby="balanceTitle">
+    <div class="dlghead"><h2 id="balanceTitle">Edit sarees</h2><p id="balanceSub"></p></div>
+    <form id="balanceForm" class="dlgbody">
+      <div class="field"><label for="balWoven">Woven sarees</label><input id="balWoven" type="number" min="0" step="1" inputmode="numeric"></div>
+      <div class="field"><label for="balLeft">Left sarees</label><input id="balLeft" type="number" min="0" step="1" inputmode="numeric"></div>
+      <div id="balHint" class="notice show ok"></div>
+      <div class="notice" id="balanceNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" id="balDispatch">Edit a dispatch…</button><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="balSave">Save</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="procEditDialog" aria-labelledby="procEditTitle">
+    <div class="dlghead"><h2 id="procEditTitle">Edit sarees</h2><p id="procEditSub">Enter the correct count for each step. Differences are recorded in the log.</p></div>
+    <form id="procEditForm" class="dlgbody">
+      <div class="field"><label for="peDelivered">Delivered (godown)</label><input id="peDelivered" type="number" min="0" step="1" inputmode="numeric" required></div>
+      <div class="field"><label for="peProcess">In process</label><input id="peProcess" type="number" min="0" step="1" inputmode="numeric" required></div>
+      <div class="field"><label for="peFolding">In folding</label><input id="peFolding" type="number" min="0" step="1" inputmode="numeric" required></div>
+      <div class="field"><label for="peNote">Note (optional)</label><input id="peNote" placeholder="e.g. Physical count"></div>
+      <div class="notice" id="procEditNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit">Save</button></div>
     </form>
   </dialog>
 
@@ -980,7 +1003,8 @@ function loomCard(l, sareesByLoom) {
   const last=db.deliveries.find(d=>d.loomId===l.id), flash=flashIds.has(l.id)?" flash":"";
   const tools=(st.manual?"":`<button class="iconbtn stop" data-stop title="Stop loom" aria-label="Stop ${esc(l.name)}">⏸</button>`)
     +(!st.running&&isAdmin()?`<button class="iconbtn" data-remove title="Remove loom" aria-label="Remove ${esc(l.name)}">${TRASH_ICON}</button>`:"");
-  const head=`<div class="lhead"><div><h4>${esc(l.name)}</h4><div class="meta">${widthLabel(l.widthType)} · ${l.needsBobbin?"warp + bobbin":"warp only"}</div></div><div class="lhead-r">${loomPill(l)}${tools}<span class="grip" title="Drag to rearrange" aria-hidden="true">⠿</span></div></div>`;
+  const edit=w||db.deliveries.some(d=>d.loomId===l.id)?`<button class="iconbtn" data-edit-loom title="Edit sarees" aria-label="Edit sarees on ${esc(l.name)}">✎</button>`:"";
+  const head=`<div class="lhead"><div><h4>${esc(l.name)}</h4><div class="meta">${widthLabel(l.widthType)} · ${l.needsBobbin?"warp + bobbin":"warp only"}</div></div><div class="lhead-r">${loomPill(l)}${edit}${tools}<span class="grip" title="Drag to rearrange" aria-hidden="true">⠿</span></div></div>`;
   const pc=(PS||prodStats()).loom(l.id);
   const total=`<div class="lbig"><b>${fmt(delivered)}</b><span>${delivered===1?"saree":"sarees"} dispatched${last?` · last ${fmtDate(last.createdAt)}`:""}</span></div>
     <div class="lprod"><span><b>${fmt(pc.today)}</b>Today</span><span><b>${fmt(pc.d7)}</b>7 days</span><span><b>${fmt(pc.d30)}</b>30 days</span></div>`;
@@ -1153,14 +1177,14 @@ function reportHtml() {
     return `<div class="mr-row">${warpLine(w)}<div class="mr-meta">${parts.map(([k,n])=>`${k} <b>${fmt(n)}</b>`).join(" · ")}</div></div>`;
   }).join("");
   return `<div class="mr-head"><span class="logocard"><img src="img/thari-logo-640.png" alt=""></span><div><h1>${esc(f?f.name:"My Thari")}</h1><p>${f?.location?`${esc(f.location)} · `:""}${esc(stamp)}</p></div></div>
-    <div class="mr-stats">${statCard("Looms",db.looms.length,`${running} running`)}${statCard("Active warp meters",meters)}${statCard("Sarees dispatched",db.deliveries.reduce((s,d)=>s+d.sarees,0),`today ${fmt(todayN)}`)}${mods().stock?statCard("In stock",sumSt("stock")):statCard("Running looms",running)}</div>
-    ${lowItems().length?`<div class="mr-sec" style="border:2px solid #fecaca"><h2>⚠ Running low <span>under ${LOW_SAREES} sarees</span></h2>${lowItems().map(x=>`<div class="mr-row"><div class="mr-top"><strong>${esc(x.loom.name)}</strong><span class="lowtag">${plural(x.left,"saree")} left</span></div><div class="mr-meta">${x.kind} ${esc(x.item.name)} · ${fmt(x.item.remainingMeters)} m</div></div>`).join("")}</div>`:""}
-    <div class="mr-sec"><h2>Looms <span>${plural(db.looms.length,"loom")}</span></h2>${looms}</div>
-    ${waiting.length?`<div class="mr-sec"><h2>Warps waiting <span>${plural(waiting.length,"warp")}</span></h2>${warps}</div>`:""}
     ${!mods().stock?"":`<div class="mr-sec"><h2>Stock</h2>
       <div class="mr-sub">On the way</div><div class="mr-chips">${chip("Dispatched",sumSt("sent"))}${chip("Godown",sumSt("delivered"))}${chip("Process",sumSt("process"))}${chip("Folding",sumSt("folding"))}</div>
       <div class="mr-sub">In hand</div><div class="mr-chips">${chip("Stock",sumSt("stock"))}${chip("Mai",sumSt("mai")+sumSt("cleaning"))}${chip("Lot",sumSt("lot"))}${chip("Damage",sumSt("damage"))}</div>
       ${stockList?`<div class="mr-sub">On the way by warp</div>${stockList}`:""}</div>`}
+    <div class="mr-stats">${statCard("Looms",db.looms.length,`${running} running`)}${statCard("Active warp meters",meters)}${statCard("Sarees dispatched",db.deliveries.reduce((s,d)=>s+d.sarees,0),`today ${fmt(todayN)}`)}${mods().stock?statCard("In stock",sumSt("stock")):statCard("Running looms",running)}</div>
+    ${lowItems().length?`<div class="mr-sec" style="border:2px solid #fecaca"><h2>⚠ Running low <span>under ${LOW_SAREES} sarees</span></h2>${lowItems().map(x=>`<div class="mr-row"><div class="mr-top"><strong>${esc(x.loom.name)}</strong><span class="lowtag">${plural(x.left,"saree")} left</span></div><div class="mr-meta">${x.kind} ${esc(x.item.name)} · ${fmt(x.item.remainingMeters)} m</div></div>`).join("")}</div>`:""}
+    <div class="mr-sec"><h2>Looms <span>${plural(db.looms.length,"loom")}</span></h2>${looms}</div>
+    ${waiting.length?`<div class="mr-sec"><h2>Warps waiting <span>${plural(waiting.length,"warp")}</span></h2>${warps}</div>`:""}
     <div class="mr-foot">My Thari · Track all my loom production</div>`;
 }
 async function dashboardBlob() {
@@ -1653,6 +1677,7 @@ $("view-looms").addEventListener("click",async e=>{
   if(setup) return openSetup(setup.dataset.setup);
   const del=e.target.closest("button[data-deliver]");
   if(del) return openDelivery(del.dataset.deliver);
+  if(bl&&e.target.closest("[data-edit-loom]")) return openLoomSarees(bl);
   const card=e.target.closest(".lcard"), lm=card&&db.looms.find(x=>x.id===card.dataset.loom);
   if(lm&&e.target.closest("[data-stop]")) return stopLoom(lm,"loomListNotice");
   if(lm&&e.target.closest("[data-remove]")) return removeLoom(lm,"loomListNotice");
@@ -1671,6 +1696,47 @@ $("view-looms").addEventListener("click",async e=>{
     if(mods().wages) openSetup(l.id,true);
   }catch(err){notice("loomListNotice",err.message)}
 });
+// Top-right ✎ on a loom card: correct the woven / left sarees of its warp (woven + left stays the warp's total).
+let balLoom=null, balTotal=0;
+function openLoomSarees(l) {
+  balLoom=l; const w=db.warps.find(x=>x.id===l.warpId), has=db.deliveries.some(d=>d.loomId===l.id);
+  hideNotice("balanceNotice"); $("balDispatch").hidden=!has;
+  $("balanceTitle").textContent=`Edit sarees · ${l.name}`;
+  for(const id of ["balWoven","balLeft"]) $(id).closest(".field").hidden=!w;
+  $("balSave").hidden=!w;
+  if(w){
+    const q=warpSarees(w), step=l.widthType==="triple"?3:1; balTotal=q.usedSarees+q.leftSarees;
+    $("balanceSub").textContent=`${w.name} · ${plural(balTotal,"saree")} in total. Change woven or left and the other follows.${step===3?" Triple width: multiples of 3.":""}`;
+    $("balWoven").value=q.usedSarees; $("balLeft").value=q.leftSarees; $("balWoven").step=$("balLeft").step=step;
+    $("balHint").hidden=true;
+  } else { $("balanceSub").textContent="This loom has no warp running. You can still correct a past dispatch."; $("balHint").hidden=true; }
+  $("balanceDialog").showModal();
+}
+$("balWoven").addEventListener("input",()=>{ $("balLeft").value=Math.max(0,balTotal-(Number($("balWoven").value)||0)); });
+$("balLeft").addEventListener("input",()=>{ $("balWoven").value=Math.max(0,balTotal-(Number($("balLeft").value)||0)); });
+$("balDispatch").addEventListener("click",()=>{ $("balanceDialog").close(); editDispatch(balLoom); });
+$("balanceForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("balanceNotice");
+  const w=db.warps.find(x=>x.id===balLoom.warpId); if(!w) return;
+  try{
+    const r=await api(`/api/warps/${encodeURIComponent(w.id)}/balance`,{method:"PUT",body:JSON.stringify({leftSarees:Number($("balLeft").value)})});
+    $("balanceDialog").close(); flashIds=new Set([balLoom.id,w.id]); toast(r.changed?`${w.name} updated: ${plural(Number($("balLeft").value),"saree")} left.`:"No change."); await refresh();
+  }catch(err){notice("balanceNotice",err.message)}
+});
+// Correct a dispatch: pick one of the loom's latest, then set the right number of sarees.
+async function editDispatch(loom) {
+  hideNotice("loomListNotice");
+  const list=db.deliveries.filter(d=>d.loomId===loom.id).slice(0,20);
+  const id=await ask({title:`Edit a dispatch · ${loom.name}`,text:"Pick the dispatch to correct (latest first).",options:list.map(d=>[d.id,`${fmtDate(d.createdAt)} · ${plural(d.sarees,"saree")} · ${d.warpName}${d.lrNumber?` · LR ${d.lrNumber}`:""}${d.payoutId?" · wages settled":""}`]),ok:"Next",label:"Dispatch"});
+  if(!id) return;
+  const d=list.find(x=>x.id===id), step=loom.widthType==="triple"?3:1;
+  const qty=await ask({title:`Edit dispatch · ${loom.name}`,text:`${fmtDate(d.createdAt)} · currently ${plural(d.sarees,"saree")}. The warp${d.bobbinId?", bobbin":""}${d.wage!=null&&!d.payoutId?" and wage":""} are adjusted to match.${step===3?" Triple width: multiples of 3.":""}`,input:{type:"number",label:"Correct number of sarees",min:step,value:d.sarees,required:true},ok:"Save"});
+  if(qty===null) return;
+  try{
+    const r=await api(`/api/deliveries/${encodeURIComponent(id)}`,{method:"PUT",body:JSON.stringify({sarees:Number(qty)})});
+    flashIds=new Set([loom.id]); toast(r.changed?`Dispatch updated to ${plural(Number(qty),"saree")}.`:"No change."); await refresh();
+  }catch(err){notice("loomListNotice",err.message)}
+}
 // Opens the delivery popup; with a loomId it is locked to that loom, otherwise a loom picker is shown.
 function openDelivery(loomId) {
   if(!loomId&&!db.looms.some(loomRunning)) return toast("No loom is running. A loom needs a warp (and a bobbin, if it uses one).");
@@ -1759,7 +1825,7 @@ function renderProcess() {
   $("stockGrid").innerHTML=rows.length?rows.map(({w,st})=>{
     const added=st.stock+st.mai+st.lot+st.damage+st.cleaning+st.dispatched+st.returned;
     return `<div class="wcard scard${flashIds.has(w.id)?" flash":""}" data-warp="${esc(w.id)}">
-      <div class="lhead"><div><h4>${esc(w.name)}</h4><div class="meta">${widthLabel(w.widthType)} · ${esc(w.bodyColor)} / ${esc(w.borderColor)} · ${plural(st.total,"saree")} woven</div></div></div>
+      <div class="lhead"><div><h4>${esc(w.name)}</h4><div class="meta">${widthLabel(w.widthType)} · ${esc(w.bodyColor)} / ${esc(w.borderColor)} · ${plural(st.total,"saree")} woven</div></div><div class="lhead-r"><button class="iconbtn" type="button" data-edit-warp title="Edit sarees" aria-label="Edit sarees of ${esc(w.name)}">✎</button></div></div>
       ${swatch(w)}
       <div class="stages">
         ${stage("sent","Sarees dispatched",st.sent,mv("sent>delivered",st.sent,"Receive at godown →"))}
@@ -1805,12 +1871,32 @@ $("stockGrid").addEventListener("click",async e=>{
   const w=db.warps.find(x=>x.id===card.dataset.warp), st=stockOf(w.id);
   hideNotice("processNotice");
   if(btn.dataset.sort) return openSort(w,btn.dataset.sort);
+  if(btn.dataset.editWarp!==undefined) return openProcessEdit(w);
   const key=btn.dataset.move, step=STOCK_STEP[key]; if(!step) return;
   const [from,to]=key.split(">"), avail=st[from];
   const qty=await ask({title:`${step.title} · ${w.name}`,text:`${plural(avail,"saree")} ${step.what}.`,input:{type:"number",label:"Number of sarees",min:1,max:avail,value:avail,required:true},ok:step.title});
   if(qty===null) return;
   try{ await stockPost("/api/stock/move",{warpId:w.id,from,to,qty:Number(qty)},`${plural(Number(qty),"saree")} of ${w.name} ${step.verb}.`,w.id); }
   catch(err){notice("processNotice",err.message)}
+});
+// Top-right ✎ on a Process card: correct the godown / process / folding counts of one warp.
+let procEditWarp=null;
+const PE_FIELDS={delivered:"peDelivered",process:"peProcess",folding:"peFolding"};
+function openProcessEdit(w) {
+  procEditWarp=w; const st=stockOf(w.id); hideNotice("procEditNotice");
+  $("procEditTitle").textContent=`Edit sarees · ${w.name}`;
+  for(const [b,id] of Object.entries(PE_FIELDS)) $(id).value=st[b];
+  $("peNote").value=""; $("procEditDialog").showModal();
+}
+$("procEditForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("procEditNotice");
+  const w=procEditWarp, st=stockOf(w.id);
+  const changes=Object.entries(PE_FIELDS).map(([b,id])=>[b,Number($(id).value)]).filter(([b,n])=>n!==st[b]);
+  if(!changes.length){ $("procEditDialog").close(); return toast("No change."); }
+  try{
+    for(const [bucket,count] of changes) await api("/api/stock/adjust",{method:"POST",body:JSON.stringify({warpId:w.id,bucket,count,note:$("peNote").value})});
+    $("procEditDialog").close(); flashIds=new Set([w.id]); toast(`${w.name} sarees updated.`); await refresh();
+  }catch(err){ notice("procEditNotice",err.message); await refresh(); }
 });
 // Splitting one warp's sarees: checking at the godown (before process) or Add to stock (after folding).
 // Greese and damage found at either step go straight to the Stock page.

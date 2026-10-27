@@ -135,7 +135,7 @@ function moveType(m) {
 function moveText(m) {
   const of = m.warpName ? ` of ${m.warpName}` : "";
   const why = m.note ? ` · ${m.note}` : "";
-  if (m.type === "adjust") return `${STOCK_NAME[m.to] || m.to} adjusted ${m.qty > 0 ? "+" : ""}${m.qty}${m.count != null ? ` (now ${m.count})` : ""}${why}`;
+  if (m.type === "adjust") return `${STOCK_NAME[m.to] || m.to}${of} adjusted ${m.qty > 0 ? "+" : ""}${m.qty}${m.count != null ? ` (now ${m.count})` : ""}${why}`;
   const text = {
     "sent>delivered": `${sarees(m.qty)}${of} received at the godown`,
     "delivered>process": `${sarees(m.qty)}${of} sent to process`,
@@ -155,7 +155,7 @@ function moveText(m) {
   }[`${m.from}>${m.to}`];
   return (text || `${sarees(m.qty)} moved ${m.from} → ${m.to}`) + why;
 }
-const STOCK_NAME = { process: "Process", stock: "Stock", mai: "Greese (mai)", lot: "Lot", damage: "Damage" };
+const STOCK_NAME = { delivered: "Godown", folding: "Folding", process: "Process", stock: "Stock", mai: "Greese (mai)", lot: "Lot", damage: "Damage" };
 function id(prefix) {
   return `${prefix}-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
 }
@@ -370,6 +370,77 @@ app.post("/api/deliveries", (req, res) => {
   logEvent(db, req, "dispatch", `${sarees(quantity)} dispatched from ${loom.name} (${warp.name}) · ${delivery.metersReduced} m used, ${warp.remainingMeters} m left${lrNumber ? ` · LR ${lrNumber}` : ""}${bobbin ? ` · bobbin ${bobbin.name} ${bobbin.remainingMeters} m left` : ""}${wageText}${warp.status === "Completed" ? ` · ${warp.name} completed, ${loom.name} free` : ""}${bobbin && bobbin.status === "Completed" ? ` · bobbin ${bobbin.name} completed` : ""}${loomState(db, loom).running ? "" : ` · ${loom.name} stopped: ${loomState(db, loom).reason}`}`);
   writeDb(req.factoryId, db);
   res.status(201).json({ delivery, loom, warp, bobbin });
+});
+
+// Corrects the sarees left on a warp that is on a loom (woven = the rest of the original length).
+// The offcut under one saree length is kept. { leftSarees }
+app.put("/api/warps/:id/balance", (req, res) => {
+  const db = readDb(req.factoryId);
+  const warp = db.warps.find(w => w.id === req.params.id);
+  if (!warp) return res.status(404).json({ error: "Warp not found." });
+  if (!warp.assignedLoomId || warp.status !== "In Use") return res.status(409).json({ error: "Only a warp running on a loom can be corrected." });
+  const left = Number(req.body?.leftSarees), per = warp.widthType === "triple" ? 3 : 1;
+  if (!Number.isInteger(left) || left < 0) return res.status(400).json({ error: "Enter the sarees left as a whole number (0 or more)." });
+  if (left % per) return res.status(400).json({ error: "For a triple-width warp, enter the sarees in multiples of 3." });
+  const offcut = round2(warp.remainingMeters - Math.floor((warp.remainingMeters + 1e-9) / SAREE_M) * SAREE_M);
+  const next = round2(left / per * SAREE_M + Math.max(0, offcut));
+  if (next > warp.originalMeters + 1e-9) return res.status(400).json({ error: `${warp.name} was only ${warp.originalMeters} m long. At most ${Math.floor(warp.originalMeters / SAREE_M) * per} sarees can be left.` });
+  if (Math.abs(next - warp.remainingMeters) < 1e-9) return res.json({ warp, changed: 0 });
+  const loom = db.looms.find(l => l.id === warp.assignedLoomId), was = warp.remainingMeters;
+  if (loom) loom.wovenMeters = Math.max(0, round2(loom.wovenMeters + was - next));
+  warp.remainingMeters = Math.max(0, next);
+  const q = m => Math.floor((m + 1e-9) / SAREE_M) * per;
+  logEvent(db, req, "warp", `${warp.name} balance corrected on ${loom ? loom.name : "loom"} · ${q(was)} → ${q(next)} sarees left (${was} → ${next} m)${warp.remainingMeters < SAREE_M - 1e-9 ? ` · ${warp.name} completed` : ""}`);
+  settleSpentWarps(db);
+  writeDb(req.factoryId, db);
+  res.json({ warp, changed: 1 });
+});
+
+// Corrects a dispatch: sarees (warp, bobbin, loom and unpaid wage follow) and/or LR number and note.
+//   { sarees?, lrNumber?, note? }
+app.put("/api/deliveries/:id", (req, res) => {
+  const body = req.body || {};
+  const db = readDb(req.factoryId);
+  const d = db.deliveries.find(x => x.id === req.params.id);
+  if (!d) return res.status(404).json({ error: "Dispatch not found." });
+  const n = body.sarees == null || body.sarees === "" ? d.sarees : Number(body.sarees);
+  if (!Number.isInteger(n) || n <= 0) return res.status(400).json({ error: "Number of sarees must be a positive whole number." });
+  const triple = d.widthType === "triple";
+  if (triple && n % 3 !== 0) return res.status(400).json({ error: "For a triple-width loom, enter the total sarees in multiples of 3." });
+  const changes = [];
+  if (n !== d.sarees) {
+    if (d.payoutId) return res.status(409).json({ error: "The wages for this dispatch are already settled, so its sarees can't be changed." });
+    const warp = db.warps.find(w => w.id === d.warpId);
+    if (!warp || !["In Use", "Ready"].includes(warp.status)) return res.status(409).json({ error: "This dispatch's warp is completed or removed, so its sarees can't be changed." });
+    const bobbin = d.bobbinId ? db.bobbins.find(b => b.id === d.bobbinId) : null;
+    if (d.bobbinId && (!bobbin || !["In Use", "Ready"].includes(bobbin.status))) return res.status(409).json({ error: "This dispatch's bobbin is completed or removed, so its sarees can't be changed." });
+    const delta = (n - d.sarees) * SAREE_M / (triple ? 3 : 1);
+    if (delta > warp.remainingMeters + 1e-9) return res.status(400).json({ error: `Not enough warp meters on ${warp.name}. Available: ${warp.remainingMeters.toFixed(2)} m; extra needed: ${delta.toFixed(2)} m.` });
+    if (bobbin && delta > bobbin.remainingMeters + 1e-9) return res.status(400).json({ error: `Not enough bobbin ${bobbin.name}. Available: ${bobbin.remainingMeters.toFixed(2)} m; extra needed: ${delta.toFixed(2)} m.` });
+    const moved = { ...d, sarees: n };
+    const left = stockFor({ deliveries: db.deliveries.map(x => x === d ? moved : x), stockMoves: db.stockMoves }, d.warpId).sent;
+    if (left < 0) return res.status(409).json({ error: `Sarees from this dispatch have already moved on in Process. It can't go below ${sarees(n - left)}; correct the Process counts first to go lower.` });
+    const fix = v => Math.max(0, Number(v.toFixed(2)));
+    warp.remainingMeters = fix(warp.remainingMeters - delta);
+    const loom = db.looms.find(l => l.id === d.loomId);
+    if (loom) loom.wovenMeters = fix(loom.wovenMeters + delta);
+    if (bobbin) { bobbin.remainingMeters = fix(bobbin.remainingMeters - delta); d.bobbinRemaining = fix(d.bobbinRemaining - delta); }
+    d.remainingMeters = fix(d.remainingMeters - delta);
+    d.metersReduced = fix(d.metersReduced + delta);
+    changes.push(`${d.sarees} → ${n} sarees`);
+    d.sarees = n;
+    if (d.wage != null) { delete d.wageSarees; d.wage = round2(n * d.rate); }
+    settleSpentWarps(db);
+  }
+  const lr = body.lrNumber == null ? d.lrNumber : cleanText(body.lrNumber);
+  const note = body.note == null ? d.note : cleanText(body.note);
+  if ((lr || "") !== (d.lrNumber || "")) { changes.push(`LR ${lr || "removed"}`); d.lrNumber = lr; }
+  if ((note || "") !== (d.note || "")) { changes.push("note changed"); d.note = note; }
+  if (!changes.length) return res.json({ delivery: d, changed: 0 });
+  Object.assign(d, { editedBy: actor(req), editedAt: new Date().toISOString() });
+  logEvent(db, req, "dispatch", `Dispatch from ${d.loomName} (${d.warpName}) on ${d.createdAt.slice(0, 10)} edited · ${changes.join(", ")}`);
+  writeDb(req.factoryId, db);
+  res.json({ delivery: d, changed: changes.length });
 });
 
 // Moves a warp or bobbin between board stages: ordered <-> ready <-> running. "Done" is reached
@@ -902,6 +973,7 @@ const POOL_MOVES = new Set(["mai>cleaning", "cleaning>stock", "stock>damage", "s
 // Splits: checking at the godown (before process) and Add to stock (after folding).
 const SORTS = { delivered: ["process", "mai", "damage"], folding: ["stock", "mai", "lot", "damage"] };
 const ADJUSTABLE = ["stock", "mai", "lot", "damage"];
+const WARP_ADJUSTABLE = ["delivered", "process", "folding"];
 const STOCK_LABEL = { sent: "sent from looms and not yet received", delivered: "at the godown", process: "in process", folding: "in folding",
   stock: "in stock", mai: "with greese (mai)", cleaning: "at cleaning", lot: "in lot", damage: "in damage" };
 // warpId given: that warp's buckets. No warpId: every warp together (the stock pool).
@@ -1017,12 +1089,16 @@ app.post("/api/stock/adjust", (req, res) => {
   const body = req.body || {};
   const bucket = body.bucket;
   const count = Number(body.count);
-  if (!ADJUSTABLE.includes(bucket)) return res.status(400).json({ error: "Only stock, mai, lot and damage can be adjusted." });
-  if (!Number.isInteger(count) || count < 0) return res.status(400).json({ error: "Enter the correct count as a whole number (0 or more)." });
   const db = readDb(req.factoryId);
-  const delta = count - stockFor(db)[bucket];
+  // With a warpId: correct one Process stage of that warp. Without: the pooled stock/mai/lot/damage.
+  const warp = body.warpId ? db.warps.find(w => w.id === cleanText(body.warpId)) : null;
+  if (body.warpId && !warp) return res.status(404).json({ error: "Warp not found." });
+  if (!(warp ? WARP_ADJUSTABLE : ADJUSTABLE).includes(bucket)) return res.status(400).json({ error: warp ? "Only the godown, process and folding counts can be corrected here." : "Only stock, mai, lot and damage can be adjusted." });
+  if (!Number.isInteger(count) || count < 0) return res.status(400).json({ error: "Enter the correct count as a whole number (0 or more)." });
+  const delta = count - stockFor(db, warp?.id)[bucket];
   if (!delta) return res.status(400).json({ error: `The count is already ${count}.` });
-  const move = { id: id("ADJ"), type: "adjust", to: bucket, qty: delta, count, note: cleanText(body.note), by: actor(req), createdAt: new Date().toISOString() };
+  const move = { id: id("ADJ"), type: "adjust", to: bucket, qty: delta, count, note: cleanText(body.note), by: actor(req), createdAt: new Date().toISOString(),
+    ...(warp ? { warpId: warp.id, warpName: warp.name } : {}) };
   db.stockMoves.unshift(move);
   logEvent(db, req, "stock", moveText(move));
   writeDb(req.factoryId, db);
