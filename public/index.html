@@ -183,6 +183,16 @@ body.signed-out header,body.signed-out main{display:none}
 .mr-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:4px 0 6px}.mr-chip{background:#f4f1ff;border-radius:10px;padding:6px 4px;text-align:center;font-size:11px;color:#6c6a8a}.mr-chip b{display:block;font-size:19px;color:#1c1838}
 .mr-foot{text-align:center;font-size:11px;color:#6c6a8a;padding:4px 0 2px}
 /* ---- Wages, staff, designs ---- */
+.partyrates{display:grid;gap:6px;max-height:260px;overflow:auto;border:1px solid #dcd8ef;border-radius:12px;padding:8px}.partyrates .prow{display:grid;grid-template-columns:1fr 120px;gap:8px;align-items:center;font-size:14px;padding:4px 6px;border-radius:10px}.partyrates .prow.on{background:#f3f0ff}.partyrates .prowlabel{display:flex;align-items:center;gap:9px;margin:0;font-weight:500;cursor:pointer}.partyrates .prowlabel input{width:17px;height:17px;accent-color:var(--brand);flex:none}.partyrates input:disabled{background:#f4f4f8;opacity:.6}.partyrates .prow small{display:block;color:var(--muted)}.partyrates input{width:100%;padding:8px 9px;border:1px solid #d5dbe5;border-radius:8px;font:inherit}
+.pcard .prates{display:grid;gap:3px;font-size:13px}.pcard .prates div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding:2px 0}.pcard .pnone{color:var(--muted);font-size:12.5px}
+.shiftrows{display:grid;gap:8px;margin-bottom:8px}.shiftrow{display:grid;grid-template-columns:1.1fr 1.2fr .7fr 1.3fr auto;gap:6px;align-items:end;padding:8px;border:1px solid var(--line);border-radius:12px;background:#faf9ff}.shiftrow label{font-size:11px;color:var(--muted);font-weight:650;margin:0 0 3px;display:block}.shiftrow input{width:100%;padding:8px 9px;border:1px solid #d5dbe5;border-radius:8px;font:inherit}.shiftrow .smallbtn{height:36px}
+.field.off{opacity:.5;pointer-events:none}.field.off .hint{opacity:1}
+@media(max-width:560px){.shiftrow{grid-template-columns:1fr 1fr}.shiftrow .smallbtn{grid-column:1/-1}}
+.lsetup2{margin-top:10px;border:1px solid var(--line);border-radius:14px;background:#faf9ff;padding:9px;display:grid;gap:8px}.lsetup2.unset{background:#fff8ee;border-color:#f3d9ae}
+.lweaver{display:flex;align-items:center;gap:10px}.lweaver>div{min-width:0;display:grid;line-height:1.25}.lweaver small,.ldhead span{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}.lweaver b{font-size:15px}.lweaver span{font-size:12px;color:var(--muted)}.lweaver.unset b{color:#92400e}
+.ldhead{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px dashed var(--line);padding-top:8px}.ldhead .smallbtn{padding:4px 9px;font-size:12px}
+.ldesigns{display:grid;gap:6px}.ldesign{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:10px;background:#fff;border:1px solid var(--line);font-size:13px}.ldesign>div{flex:1;min-width:0;line-height:1.3}.ldesign small{display:block;color:var(--muted);font-size:11.5px}.ldesign.now{border-color:#10b981;background:#effcf6}.ldesign em{display:inline-block;margin-top:3px;font-style:normal;font-size:10.5px;font-weight:750;color:#047857;background:#d1fae5;border-radius:999px;padding:3px 8px;white-space:nowrap}.ldesign.none{color:#92400e;background:transparent;border-style:dashed}
+.lwarn{font-size:12px;color:#92400e}
 .lsetup{display:flex;align-items:center;gap:8px;margin-top:9px;padding:7px 8px;border-radius:10px;background:#f7f6fd;font-size:12px;cursor:pointer;border:0;width:100%;text-align:left;font-family:inherit;color:var(--ink)}.lsetup:hover{background:#efecfb}
 .lsetup>span:not(.dthumb){flex:1;min-width:0;line-height:1.35}.lsetup small{display:block;color:var(--muted)}.lsetup.unset{background:#fff6e9;color:#92400e}
 .dthumb{flex:none;width:38px;height:38px;border-radius:8px;object-fit:cover;background:#ece9f8;display:block}.dthumb.ph{display:grid;place-items:center;font-size:16px}
@@ -293,11 +303,13 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
     <a class="tab" href="#warps">Warp</a>
     <a class="tab" href="#bobbins">Bobbin</a>
     <a class="tab" href="#looms">Production</a>
-    <a class="tab" href="#process" data-mod="stock">Process</a>
+    <a class="tab" href="#process" data-mod="stock" data-direct-hide>Process</a>
     <a class="tab" href="#stock" data-mod="stock">Stock</a>
+    <a class="tab" href="#parties" data-mod="stock">Parties</a>
     <a class="tab" href="#designs" data-mod="wages">Designs</a>
-    <a class="tab" href="#staff" data-mod="wages">Staff</a>
+    <a class="tab" href="#staff" data-mod="wages">Weavers</a>
     <a class="tab" href="#wages" data-mod="wages">Wages</a>
+    <a class="tab" href="#expenses" data-mod="wages">Expenses</a>
     <a class="tab" href="#log">Log</a>
   </nav>
 
@@ -310,10 +322,10 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
       <section class="panel homepanel" id="homeStockPanel">
         <div class="sectionhead"><h2>Stock</h2><a class="smallbtn" href="#stock">Open stock →</a></div>
         <div class="chips">
-          <div class="chip st-sent"><strong id="hsSent">0</strong>Dispatched</div>
-          <div class="chip st-del"><strong id="hsDelivered">0</strong>At godown</div>
-          <div class="chip st-proc"><strong id="hsProcess">0</strong>In process</div>
-          <div class="chip st-fold"><strong id="hsFolding">0</strong>In folding</div>
+          <div class="chip st-sent" data-direct-hide><strong id="hsSent">0</strong>Dispatched</div>
+          <div class="chip st-del" data-direct-hide><strong id="hsDelivered">0</strong>At godown</div>
+          <div class="chip st-proc" data-direct-hide><strong id="hsProcess">0</strong>In process</div>
+          <div class="chip st-fold" data-direct-hide><strong id="hsFolding">0</strong>In folding</div>
           <div class="chip st-stk"><strong id="hsStock">0</strong>In stock</div>
           <div class="chip st-mai"><strong id="hsMai">0</strong>Mai</div>
           <div class="chip st-lot"><strong id="hsLot">0</strong>Lot</div>
@@ -379,7 +391,7 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
   </section>
 
   <dialog id="manageLoomsDialog" class="widedlg" aria-labelledby="manageLoomsTitle">
-    <div class="dlghead"><h2 id="manageLoomsTitle">Manage looms</h2><p>Edit a loom's number, width and whether it needs a bobbin, stop or resume it, set its design and staff, or remove it.</p></div>
+    <div class="dlghead"><h2 id="manageLoomsTitle">Manage looms</h2><p>Edit a loom's number, width and whether it needs a bobbin, stop or resume it, set its designs and weaver, or remove it.</p></div>
     <div class="dlgbody">
       <div class="notice" id="manageLoomsNotice"></div>
       <div id="manageLoomsList"></div>
@@ -487,6 +499,7 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
     <form id="deliveryForm" class="dlgbody">
       <div class="field" id="deliveryLoomField"><label for="deliveryLoom">Loom *</label><select id="deliveryLoom"></select></div>
       <div class="field"><label for="deliverySarees">Number of sarees *</label><input id="deliverySarees" required type="number" min="1" step="1" inputmode="numeric" placeholder="e.g. 30"></div>
+      <div class="field" id="deliveryDesignField" hidden><label for="deliveryDesign">Design woven *</label><select id="deliveryDesign"></select></div>
       <div class="field"><label for="deliveryLr">LR number (optional)</label><input id="deliveryLr" placeholder="Lorry receipt number"></div>
       <div id="deliveryPreview" class="notice show ok"></div>
       <div class="notice" id="deliveryNotice"></div>
@@ -534,19 +547,28 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
 
   <section id="view-stock" hidden>
     <div class="boardhead">
-      <div><h2>Stock</h2><p class="sub">Sarees from all warps after checking and <b>Add to stock</b> on the Process page. Only stock is delivered to parties.</p></div>
-      <div class="headbtns"><button class="btn btn-inline" type="button" data-open-client>+ Add party</button></div>
+      <div><h2>Stock</h2><p class="sub" id="stockSub">Sarees from all warps after checking and <b>Add to stock</b> on the Process page. Only stock is delivered to parties.</p></div>
+      <div class="headbtns"><a class="btn btn-inline ghostbtn" href="#parties" style="text-decoration:none;text-align:center">Parties &amp; rates →</a></div>
     </div>
     <div class="notice" id="stockNotice"></div>
     <div class="buckets" id="stockBuckets"></div>
     <section class="panel homepanel"><div class="sectionhead"><h2>Cleaning</h2><span id="cleaningCount"></span></div><div id="cleaningTable" class="tablewrap"></div></section>
-    <section class="panel homepanel"><div class="sectionhead"><h2>Parties</h2><button class="smallbtn" type="button" data-open-client>+ Add party</button></div><div id="clientList"></div></section>
+  </section>
+
+  <section id="view-parties" hidden>
+    <div class="boardhead">
+      <div><h2>Parties</h2><p class="sub" id="partySub">The parties you deliver sarees to. Set the rate per saree for each design; a delivery can then be priced. <span id="partyCount"></span></p></div>
+      <div class="headbtns"><button class="btn btn-inline" type="button" data-open-client>+ Add party</button></div>
+    </div>
+    <div class="notice" id="partyNotice"></div>
+    <div class="logbar"><input id="partySearch" type="search" placeholder="Search party name or address" aria-label="Search parties"></div>
+    <div class="staffgrid" id="partyGrid"></div>
   </section>
 
   <section id="view-wages" hidden>
     <div class="boardhead">
-      <div><h2>Wages</h2><p class="sub">Each loom runs a design (wage per saree) and is run by a staff member. Every dispatch adds sarees × wage to that staff member. Settle each week to pay and start fresh.</p></div>
-      <div class="headbtns"><button class="btn btn-inline ghostbtn" type="button" data-open-deduction>− Deduction</button><button class="btn btn-inline ghostbtn" type="button" id="wageDownload">🧾 Wage sheet</button><button class="btn btn-inline" type="button" id="wageSettle">Settle &amp; start new week</button></div>
+      <div><h2>Wages</h2><p class="sub" id="wageSub">Each loom runs a design (wage per saree) and is run by a weaver. Every dispatch adds sarees × wage to that weaver. Settle each week to pay and start fresh.</p></div>
+      <div class="headbtns"><button class="btn btn-inline" type="button" id="shiftAdd" hidden>+ Shifts</button><button class="btn btn-inline ghostbtn" type="button" data-open-deduction>− Deduction</button><button class="btn btn-inline ghostbtn" type="button" id="wageDownload">🧾 Wage sheet</button><button class="btn btn-inline" type="button" id="wageSettle">Settle &amp; start new week</button></div>
     </div>
     <div class="notice" id="wageNotice"></div>
     <section class="stats">
@@ -556,19 +578,77 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
       <div class="stat"><small>Last settled</small><strong id="wgLast">—</strong><span class="statnote" id="wgLastAmt"></span></div>
     </section>
     <section class="panel homepanel"><div class="sectionhead"><h2>This period</h2><span id="wgPeriod"></span></div><div id="wageTable" class="tablewrap"></div><p class="hint" id="wageMissing"></p></section>
+    <section class="panel homepanel" id="shiftPanel" hidden><div class="sectionhead"><h2>Shifts this period</h2><button class="smallbtn" type="button" data-open-shift>+ Add shifts</button></div><div id="shiftList"></div></section>
     <section class="panel homepanel"><div class="sectionhead"><h2>Damage deductions</h2><button class="smallbtn" type="button" data-open-deduction>− Add deduction</button></div><div id="deductionList"></div></section>
     <section class="panel homepanel"><div class="sectionhead"><h2>Past payouts</h2><span id="payoutCount"></span></div><div id="payoutTable" class="tablewrap"></div></section>
   </section>
 
   <section id="view-staff" hidden>
     <div class="boardhead">
-      <div><h2>Staff</h2><p class="sub">The people who run your looms. One person can run several looms; set who runs each loom from the Looms or Production page. <span id="staffCount"></span></p></div>
-      <div class="headbtns"><button class="btn btn-inline" type="button" data-open-staff>+ Add staff</button></div>
+      <div><h2>Weavers</h2><p class="sub">The people who run your looms. One person can run several looms; set who runs each loom from the Looms or Production page. <span id="staffCount"></span></p></div>
+      <div class="headbtns"><button class="btn btn-inline" type="button" data-open-staff>+ Add weaver</button></div>
     </div>
     <div class="notice" id="staffListNotice"></div>
-    <div class="logbar"><input id="staffSearch" type="search" placeholder="Search name or phone" aria-label="Search staff"></div>
+    <div class="logbar"><input id="staffSearch" type="search" placeholder="Search name or phone" aria-label="Search weavers"></div>
     <div class="staffgrid" id="staffList"></div>
   </section>
+
+  <section id="view-expenses" hidden>
+    <div class="boardhead">
+      <div><h2>Expenses</h2><p class="sub">What each loom costs you: warp joining, bobbin joining, spares and maintenance. <span id="expenseCount"></span></p></div>
+      <div class="headbtns"><button class="btn btn-inline ghostbtn" type="button" id="expReportBtn">📄 Report</button><button class="btn btn-inline" type="button" data-open-expense>+ Add expense</button></div>
+    </div>
+    <div class="notice" id="expenseListNotice"></div>
+    <div class="stats stats5" id="expenseStats"></div>
+    <section class="panel homepanel"><div class="sectionhead"><h2>By loom</h2></div><div id="expenseByLoom" class="tablewrap"></div></section>
+    <div class="logbar">
+      <select id="expLoomFilter" aria-label="Loom"></select>
+      <select id="expKindFilter" aria-label="Expense type"><option value="">All types</option><option value="warp_join">Warp join</option><option value="bobbin_join">Bobbin join</option><option value="spares">Spares</option><option value="maintenance">Maintenance</option></select>
+      <input id="expSearch" type="search" placeholder="Search item, paid to, bill no., note" aria-label="Search expenses">
+    </div>
+    <section class="panel homepanel"><div id="expenseTable" class="tablewrap"></div></section>
+  </section>
+
+  <dialog id="expReportDialog" aria-labelledby="expReportTitle">
+    <div class="dlghead"><h2 id="expReportTitle">Expense report</h2><p>A weekly (Monday to Sunday) or monthly summary you can print, save as PDF or open in Excel.</p></div>
+    <form id="expReportForm" class="dlgbody">
+      <div class="two">
+        <div class="field"><label for="expRepPeriod">Report</label><select id="expRepPeriod"><option value="week">Weekly</option><option value="month">Monthly</option></select></div>
+        <div class="field"><label for="expRepLoom">Loom</label><select id="expRepLoom"></select></div>
+      </div>
+      <div class="field" id="expRepWeekBox"><label for="expRepDay">Any day in the week</label><input id="expRepDay" type="date"></div>
+      <div class="field" id="expRepMonthBox"><label for="expRepMonth">Month</label><input id="expRepMonth" type="month"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit">Generate report</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="expenseDialog" aria-labelledby="expenseDialogTitle">
+    <div class="dlghead"><h2 id="expenseDialogTitle">Add expense</h2><p>Record money spent on one loom.</p></div>
+    <form id="expenseForm" class="dlgbody">
+      <div class="two">
+        <div class="field"><label for="expLoom">Loom *</label><select id="expLoom" required></select></div>
+        <div class="field"><label for="expKind">Type *</label><select id="expKind"><option value="warp_join">Warp join</option><option value="bobbin_join">Bobbin join</option><option value="spares">Spares</option><option value="maintenance">Maintenance</option></select></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="expAmount">Amount (₹) *</label><input id="expAmount" required type="number" min="0.01" step="0.01" inputmode="decimal"></div>
+        <div class="field"><label for="expDate">Date *</label><input id="expDate" required type="date"></div>
+      </div>
+      <div class="field" id="expWarpBox"><label for="expWarp">Warp joined (optional)</label><select id="expWarp"></select></div>
+      <div class="field" id="expBobbinBox"><label for="expBobbin">Bobbin joined (optional)</label><select id="expBobbin"></select></div>
+      <div class="field" id="expSubtypeBox"><label for="expSubtype">Kind of maintenance</label><select id="expSubtype"></select></div>
+      <div class="two">
+        <div class="field" id="expItemBox"><label for="expItem" id="expItemLabel">Item</label><input id="expItem" maxlength="120"></div>
+        <div class="field" id="expQtyBox"><label for="expQty">Quantity (optional)</label><input id="expQty" type="number" min="0.01" step="any" inputmode="decimal"></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="expVendor" id="expVendorLabel">Paid to (optional)</label><input id="expVendor" maxlength="120"></div>
+        <div class="field"><label for="expBill">Bill / receipt no. (optional)</label><input id="expBill" maxlength="60"></div>
+      </div>
+      <div class="field"><label for="expNote">Notes (optional)</label><textarea id="expNote" rows="2" maxlength="500"></textarea></div>
+      <div class="notice" id="expenseNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="expenseSubmit">Add expense</button></div>
+    </form>
+  </dialog>
 
   <section id="view-designs" hidden>
     <div class="boardhead">
@@ -581,9 +661,9 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
   </section>
 
   <dialog id="settleDialog" aria-labelledby="settleDialogTitle">
-    <div class="dlghead"><h2 id="settleDialogTitle">Settle wages</h2><p>Pay the selected staff and start their new week. Staff not selected keep their wages running. Add any other deduction (advance, loan…) before settling.</p></div>
+    <div class="dlghead"><h2 id="settleDialogTitle">Settle wages</h2><p>Pay the selected weavers and start their new week. Weavers not selected keep their wages running. Add any other deduction (advance, loan…) before settling.</p></div>
     <form id="settleForm" class="dlgbody">
-      <label class="check"><input type="checkbox" id="settleAll"> All staff</label>
+      <label class="check"><input type="checkbox" id="settleAll"> All weavers</label>
       <div class="field"><div class="checklist settlelist" id="settleStaff"></div></div>
       <div class="field"><label for="settleNote">Note (optional)</label><input id="settleNote" placeholder="e.g. Week ending Saturday"></div>
       <div class="notice show ok" id="settlePreview"></div>
@@ -605,10 +685,23 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
     </form>
   </dialog>
 
+  <dialog id="shiftDialog" aria-labelledby="shiftDialogTitle">
+    <div class="dlghead"><h2 id="shiftDialogTitle">Add shifts</h2><p id="shiftDialogSub">Enter the shifts a weaver worked this period.</p></div>
+    <form id="shiftForm" class="dlgbody">
+      <div class="field"><label for="shiftStaff">Weaver *</label><select id="shiftStaff" required></select></div>
+      <div class="field" id="shiftPickBox"><label for="shiftPick">Shift *</label><select id="shiftPick"></select></div>
+      <div class="field"><label for="shiftCount">Number of shifts *</label><input id="shiftCount" required type="number" min="0.5" step="0.5" inputmode="decimal" placeholder="e.g. 6"><div class="hint">Half shifts are allowed (0.5).</div></div>
+      <div class="field"><label for="shiftNote">Note (optional)</label><input id="shiftNote" placeholder="e.g. Week 3, night shifts"></div>
+      <div class="notice show ok" id="shiftPreview"></div>
+      <div class="notice" id="shiftNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit">Add shifts</button></div>
+    </form>
+  </dialog>
+
   <dialog id="deductionDialog" aria-labelledby="deductionDialogTitle">
-    <div class="dlghead"><h2 id="deductionDialogTitle">Damage deduction</h2><p>Sarees with damage are taken off this staff member's wages in the current period.</p></div>
+    <div class="dlghead"><h2 id="deductionDialogTitle">Damage deduction</h2><p>Sarees with damage are taken off this weaver's wages in the current period.</p></div>
     <form id="deductionForm" class="dlgbody">
-      <div class="field"><label for="dedStaff">Staff *</label><select id="dedStaff" required></select></div>
+      <div class="field"><label for="dedStaff">Weaver *</label><select id="dedStaff" required></select></div>
       <div class="two">
         <div class="field"><label for="dedMinorSarees">Minor damage · sarees</label><input id="dedMinorSarees" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></div>
         <div class="field"><label for="dedMinorRate">₹ per saree</label><input id="dedMinorRate" type="number" min="0.01" step="0.01" inputmode="decimal"></div>
@@ -625,14 +718,14 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
   </dialog>
 
   <dialog id="staffDialog" aria-labelledby="staffDialogTitle">
-    <div class="dlghead"><h2 id="staffDialogTitle">Add staff</h2><p>A staff member runs one or more looms and is paid per saree.</p></div>
+    <div class="dlghead"><h2 id="staffDialogTitle">Add weaver</h2><p>A weaver runs one or more looms and is paid per saree.</p></div>
     <form id="staffForm" class="dlgbody">
       <div class="field"><label for="staffName">Name *</label><input id="staffName" required placeholder="e.g. Ravi"></div>
       <div class="field"><label for="staffPhone">Phone (optional)</label><input id="staffPhone" type="tel" inputmode="tel" placeholder="e.g. 98765 43210"></div>
       <div class="field"><label for="staffFile">Photo (optional)</label><input id="staffFile" type="file" accept="image/*">
-        <div class="dimgedit" id="staffPreviewBox" hidden><img id="staffPreview" alt="Staff photo" style="border-radius:50%"><button class="smallbtn danger" type="button" id="staffImgRemove">Remove photo</button></div></div>
+        <div class="dimgedit" id="staffPreviewBox" hidden><img id="staffPreview" alt="Weaver photo" style="border-radius:50%"><button class="smallbtn danger" type="button" id="staffImgRemove">Remove photo</button></div></div>
       <div class="notice" id="staffNotice"></div>
-      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="staffSubmit">Add staff</button></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="staffSubmit">Add weaver</button></div>
     </form>
   </dialog>
 
@@ -643,6 +736,11 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
         <div class="field"><label for="designNo">Design number *</label><input id="designNo" required placeholder="e.g. D-101"></div>
         <div class="field"><label for="designRate">Wage per saree (₹) *</label><input id="designRate" required type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="e.g. 250"></div>
       </div>
+      <div class="two">
+        <div class="field"><label for="designPicks">Number of picks (optional)</label><input id="designPicks" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g. 2400"></div>
+        <div class="field"><label for="designPickCost">Cost per pick (₹, optional)</label><input id="designPickCost" type="number" min="0.0001" step="any" inputmode="decimal" placeholder="e.g. 0.15"></div>
+      </div>
+      <div class="field"><label for="designTiming">Timing — hours per saree (optional)</label><input id="designTiming" type="number" min="0.01" step="any" inputmode="decimal" placeholder="e.g. 6.5"></div>
       <div class="field"><label for="designName">Design name (optional)</label><input id="designName" placeholder="e.g. Mango butta"></div>
       <div class="field"><label for="designFile">Design image (optional)</label><input id="designFile" type="file" accept="image/*">
         <div class="dimgedit" id="designPreviewBox" hidden><img id="designPreview" alt="Design image"><button class="smallbtn danger" type="button" id="designImgRemove">Remove image</button></div></div>
@@ -652,10 +750,11 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
   </dialog>
 
   <dialog id="setupDialog" aria-labelledby="setupDialogTitle">
-    <div class="dlghead"><h2 id="setupDialogTitle">Design &amp; staff</h2><p>Wages for this loom's dispatches use this design's rate and go to this staff member.</p></div>
+    <div class="dlghead"><h2 id="setupDialogTitle">Designs &amp; weaver</h2><p>Wages for this loom's dispatches use this design's rate and go to this weaver.</p></div>
     <form id="setupForm" class="dlgbody">
-      <div class="field"><label for="setupDesign">Design running</label><div class="colorpair"><select id="setupDesign"></select><button class="smallbtn" type="button" data-open-design>+ New</button></div></div>
-      <div class="field"><label for="setupStaff">Staff running this loom</label><div class="colorpair"><select id="setupStaff"></select><button class="smallbtn" type="button" data-open-staff>+ New</button></div></div>
+      <div class="field"><label>Designs on this loom</label><div class="checklist" id="setupDesigns"></div><div class="hint">Tick every design this loom can weave. <button class="smallbtn" type="button" data-open-design>+ New design</button></div></div>
+      <div class="field"><label for="setupDesign">Weaving now</label><select id="setupDesign"></select><div class="hint">Wages use this design. When you dispatch, you can pick another of the loom's designs.</div></div>
+      <div class="field"><label for="setupStaff">Weaver running this loom</label><div class="colorpair"><select id="setupStaff"></select><button class="smallbtn" type="button" data-open-staff>+ New</button></div></div>
       <p class="hint" id="setupHint"></p>
       <div class="notice" id="setupNotice"></div>
       <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit">Save</button></div>
@@ -672,7 +771,7 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
       <div><h2>Log</h2><p class="sub">Every activity in this factory, newest first. <span id="logCount"></span></p></div>
     </div>
     <div class="logbar">
-      <select id="logType" aria-label="Activity type"><option value="">All activity</option><option value="warp">Warps</option><option value="bobbin">Bobbins</option><option value="loom">Looms</option><option value="dispatch">Dispatches (from looms)</option><option value="delivery">Deliveries (to parties)</option><option value="process">Process</option><option value="stock">Stock</option><option value="party">Parties</option><option value="wages">Wages, staff &amp; designs</option></select>
+      <select id="logType" aria-label="Activity type"><option value="">All activity</option><option value="warp">Warps</option><option value="bobbin">Bobbins</option><option value="loom">Looms</option><option value="dispatch">Dispatches (from looms)</option><option value="delivery">Deliveries (to parties)</option><option value="process">Process</option><option value="stock">Stock</option><option value="party">Parties</option><option value="wages">Wages, weavers &amp; designs</option><option value="expense">Expenses</option></select>
       <input id="logSearch" type="search" placeholder="Search (warp, loom, party, LR…)" aria-label="Search the log">
     </div>
     <section class="panel"><div id="logTable" class="tablewrap"></div><div class="logmore" id="logMore"></div></section>
@@ -693,6 +792,7 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
     <form id="actForm" class="dlgbody">
       <div class="field" id="actPartyField"><label for="actParty">Party *</label><div class="colorpair"><select id="actParty"></select><button class="smallbtn" type="button" data-open-client id="actNewParty">+ New</button></div></div>
       <div class="field"><label for="actQty" id="actQtyLabel">Number of sarees *</label><input id="actQty" required type="number" step="1" inputmode="numeric"></div>
+      <div class="field" id="actDesignField" hidden><label for="actDesign">Design (optional)</label><select id="actDesign"></select></div>
       <div class="field" id="actBatchField"><label for="actBatch">Cleaning batch *</label><select id="actBatch"></select></div>
       <div class="field" id="actLrField"><label for="actLr">LR number (optional)</label><input id="actLr" placeholder="Lorry receipt number"></div>
       <div class="field" id="actNoteField"><label for="actNote" id="actNoteLabel">Reason</label><input id="actNote"></div>
@@ -702,13 +802,39 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
     </form>
   </dialog>
 
+  <dialog id="payDialog" class="widedlg" aria-labelledby="payDialogTitle">
+    <div class="dlghead"><h2 id="payDialogTitle">Payments</h2><p id="payDialogSub"></p></div>
+    <div class="dlgbody">
+      <div class="stats stats5" id="payStats"></div>
+      <h3 class="wedhead">Sarees &amp; rates</h3>
+      <div id="payLines" class="tablewrap"></div>
+      <h3 class="wedhead">Record a payment</h3>
+      <form id="payForm">
+        <div class="two">
+          <div class="field"><label for="payAmount">Amount received (₹) *</label><input id="payAmount" required type="number" min="0.01" step="0.01" inputmode="decimal"></div>
+          <div class="field"><label for="payDate">Date *</label><input id="payDate" required type="date"></div>
+        </div>
+        <div class="two">
+          <div class="field"><label for="payMode">Paid by</label><select id="payMode"><option>Cash</option><option>Bank transfer</option><option>UPI</option><option>Cheque</option><option>Other</option></select></div>
+          <div class="field"><label for="payNote">Note (optional)</label><input id="payNote" maxlength="200" placeholder="e.g. Cheque no., part payment"></div>
+        </div>
+        <div class="notice" id="payNotice"></div>
+        <div class="dlgfoot"><button class="btn ghostbtn" type="button" id="payFull">Settle full balance</button><button class="btn" type="submit">Record payment</button></div>
+      </form>
+      <h3 class="wedhead">Payments received</h3>
+      <div id="payList"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Close</button></div>
+    </div>
+  </dialog>
+
   <dialog id="clientDialog" aria-labelledby="clientDialogTitle">
-    <div class="dlghead"><h2 id="clientDialogTitle">Add party</h2><p>The party you deliver sarees to.</p></div>
+    <div class="dlghead"><h2 id="clientDialogTitle">Add party</h2><p id="clientDialogSub">The party you deliver sarees to.</p></div>
     <form id="clientForm" class="dlgbody">
       <div class="field"><label for="clientName">Party name *</label><input id="clientName" required placeholder="e.g. Sri Lakshmi Silks"></div>
       <div class="field"><label for="clientAddress">Address</label><textarea id="clientAddress" rows="3" placeholder="Street, town, district, PIN"></textarea></div>
+      <div class="field" id="clientRatesBox"><label>Designs for this party</label><div id="clientRates" class="partyrates"></div><div class="hint">Tick the designs you sell to this party and enter the rate per saree (₹) for each. A delivery can then pick one of these designs to be priced. <button class="smallbtn" type="button" data-open-design>+ New design</button></div></div>
       <div class="notice" id="clientNotice"></div>
-      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit">Add party</button></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="clientSubmit">Add party</button></div>
     </form>
   </dialog>
 
@@ -783,12 +909,24 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
         <div class="field"><label for="facEmail">Owner email</label><input id="facEmail" type="email"></div>
       </div>
       <div class="field"><label>Use this factory for *</label>
-        <div class="seg seg3" role="radiogroup">
-          <label><input type="radio" name="facModules" value="both" checked><span>Stock + Wages<small>Everything</small></span></label>
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="facModules" value="both" checked><span>Stock + Wages<small>Stock, parties, designs, weavers, wages</small></span></label>
           <label><input type="radio" name="facModules" value="stock"><span>Stock only<small>Process, stock, parties</small></span></label>
-          <label><input type="radio" name="facModules" value="wages"><span>Wages only<small>Designs, staff, wages</small></span></label>
         </div>
+        <label class="check" id="facProcessBox" style="margin-top:8px"><input type="checkbox" id="facProcess"> Include Process section <span class="hint">(godown, process and folding steps before stock)</span></label>
         <div class="hint">Warps, looms and dispatch are always on. Turning a part off hides it; its data is kept.</div>
+      </div>
+      <div class="field" id="facWageBox"><label>Calculate wages by *</label>
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="facBasis" value="saree" checked><span>Number of sarees<small>Dispatched sarees × design wage</small></span></label>
+          <label><input type="radio" name="facBasis" value="shift"><span>Shift<small>Shifts worked × wage per shift</small></span></label>
+        </div>
+        <div class="hint" id="facWageHint"></div>
+      </div>
+      <div class="field" id="facShiftBox"><label>Shifts</label>
+        <div id="facShiftRows" class="shiftrows"></div>
+        <button class="smallbtn" type="button" id="facShiftAdd">+ Add shift</button>
+        <div class="hint">Most factories run one shift with a few weavers, some run two (e.g. Day and Night). Each shift has its own timing, duration and wage per shift. Used when wages are calculated by shift: enter each weaver's shifts on the Wages page.</div>
       </div>
       <div class="notice" id="factoryNotice"></div>
       <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="factorySubmit">Add factory</button></div>
@@ -838,7 +976,7 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
 </div>
 <script>
 const $ = id => document.getElementById(id);
-let db = { warps: [], bobbins: [], looms: [], deliveries: [], staff: [], designs: [], wagePayouts: [], wageDeductions: [] };
+let db = { warps: [], bobbins: [], looms: [], deliveries: [], staff: [], designs: [], wagePayouts: [], wageDeductions: [], expenses: [] };
 const fmt = n => Number(n || 0).toLocaleString("en-IN",{maximumFractionDigits:2});
 const plural = (n, word) => `${fmt(n)} ${word}${n===1?"":"s"}`;
 const widthLabel = w => w === "triple" ? "Triple width" : "Single width";
@@ -1000,13 +1138,13 @@ const loomRank=l=>{ const st=loomState(l); return st.running?0:st.manual?1:2; };
 const loomPill=l=>{ const st=loomState(l); return st.running?'<span class="pill green">Running</span>':'<span class="pill red">Stopped</span>'; };
 function loomCard(l, sareesByLoom) {
   const w=db.warps.find(x=>x.id===l.warpId), b=bobbinOf(l), delivered=sareesByLoom[l.id]||0, st=loomState(l);
-  const last=db.deliveries.find(d=>d.loomId===l.id), flash=flashIds.has(l.id)?" flash":"";
+  const flash=flashIds.has(l.id)?" flash":"";
   const tools=(st.manual?"":`<button class="iconbtn stop" data-stop title="Stop loom" aria-label="Stop ${esc(l.name)}">⏸</button>`)
     +(!st.running&&isAdmin()?`<button class="iconbtn" data-remove title="Remove loom" aria-label="Remove ${esc(l.name)}">${TRASH_ICON}</button>`:"");
   const edit=w||db.deliveries.some(d=>d.loomId===l.id)?`<button class="iconbtn" data-edit-loom title="Edit sarees" aria-label="Edit sarees on ${esc(l.name)}">✎</button>`:"";
-  const head=`<div class="lhead"><div><h4>${esc(l.name)}</h4><div class="meta">${widthLabel(l.widthType)} · ${l.needsBobbin?"warp + bobbin":"warp only"}</div></div><div class="lhead-r">${loomPill(l)}${edit}${tools}<span class="grip" title="Drag to rearrange" aria-hidden="true">⠿</span></div></div>`;
+  const head=`<div class="lhead"><div><h4>${esc(l.name)}</h4></div><div class="lhead-r">${loomPill(l)}${edit}${tools}<span class="grip" title="Drag to rearrange" aria-hidden="true">⠿</span></div></div>`;
   const pc=(PS||prodStats()).loom(l.id);
-  const total=`<div class="lbig"><b>${fmt(delivered)}</b><span>${delivered===1?"saree":"sarees"} dispatched${last?` · last ${fmtDate(last.createdAt)}`:""}</span></div>
+  const total=`<div class="lbig"><b>${fmt(delivered)}</b><span>${delivered===1?"saree":"sarees"} dispatched</span></div>
     <div class="lprod"><span><b>${fmt(pc.today)}</b>Today</span><span><b>${fmt(pc.d7)}</b>7 days</span><span><b>${fmt(pc.d30)}</b>30 days</span></div>`;
   const stopNote=st.running?"":`<div class="wstate">Stopped${st.manual?` since ${fmtDate(l.stoppedAt)}`:""}<small>${esc(st.reason)}</small></div>`;
   const action=st.manual?`<button class="actbtn" data-resume>Resume loom →</button>`
@@ -1039,11 +1177,16 @@ function loomBobbin(l) {
   return `<div class="lbob${low?" low":""}"><div class="lbobhead"><span>🧵 Bobbin <b>${esc(b.name)}</b> <small>${esc(b.color)}</small>${low?'<span class="lowtag">LOW</span>':""}</span><button class="smallbtn" type="button" data-bobbin-off>Take off</button></div>
     ${bar(b.remainingMeters,b.originalMeters,low)}<small class="lbobleft">${fmt(b.remainingMeters)} m · ${plural(q.leftSarees,"saree")} left</small></div>`;
 }
-// Design + staff strip on a loom card; clicking it opens the Design & staff form.
+// Design + staff strip on a loom card; clicking it opens the Designs & weaver form.
+const loomDesignIds=l=>l.designIds&&l.designIds.length?l.designIds:l.designId?[l.designId]:[];
 function loomSetup(l) {
-  const d=designById(l.designId), s=staffById(l.staffId);
-  return `<button type="button" class="lsetup${d&&s?"":" unset"}" data-setup="${esc(l.id)}" title="Change design and staff">
-    ${designThumb(d)}<span>${d?`<b>${esc(d.number)}</b>${d.name?` · ${esc(d.name)}`:""} · ${money(d.rate)}/saree`:"No design set"}<small>👤 ${s?esc(s.name):"No staff set"}${d&&s?"":" · no wages recorded"}</small></span>✎</button>`;
+  const ds=loomDesignIds(l).map(designById).filter(Boolean), cur=designById(l.designId), s=staffById(l.staffId);
+  const weaver=`<div class="lweaver${s?"":" unset"}">${staffPhoto(s,"sphoto sm")}<div><small>Weaver</small><b>${s?esc(s.name):"No weaver set"}</b>${s&&s.phone?`<span>📞 ${esc(s.phone)}</span>`:""}</div></div>`;
+  const rows=ds.length?ds.map(d=>`<div class="ldesign${d.id===cur?.id?" now":""}">${designThumb(d)}<div><b>${esc(d.number)}</b>${d.name?` · ${esc(d.name)}`:""}<small>${money(d.rate)} per saree</small>${d.id===cur?.id&&ds.length>1?'<em>Weaving now</em>':""}</div></div>`).join("")
+    :'<div class="ldesign none">No design set</div>';
+  return `<div class="lsetup2${(wageBasis()==="shift"?s:s&&ds.length)?"":" unset"}">${weaver}
+    <div class="ldhead"><span>${ds.length>1?`Designs (${ds.length})`:"Design"}</span><button type="button" class="smallbtn" data-setup="${esc(l.id)}" title="Change designs and weaver">✎ Edit</button></div>
+    <div class="ldesigns">${rows}</div>${(wageBasis()==="shift"?s:s&&ds.length)?"":`<div class="lwarn">${wageBasis()==="shift"?"No weaver set.":"No wages are recorded until a design and weaver are set."}</div>`}</div>`;
 }
 // Manual tile order (set by dragging) wins; tiles never arranged (order unset) keep their
 // default order and sit above arranged ones, so new tiles show up first.
@@ -1229,16 +1372,20 @@ $("waDashboard").addEventListener("click",e=>{
 async function refresh() {
   if(!currentFactoryId||!session.user) return;
   db=await api("/api/data");
-  renderStats();renderWarpOptions();renderHome();renderProduction();renderLooms();renderLoomList();if($("manageLoomsDialog").open) renderManageLooms();renderWarps();renderProcess();renderStock();renderDesigns();renderStaff();renderWages();renderLog();applyModules();renderLowAlert();updatePreview();loadDesignImages();
+  renderStats();renderWarpOptions();renderHome();renderProduction();renderLooms();renderLoomList();if($("manageLoomsDialog").open) renderManageLooms();renderWarps();renderProcess();renderStock();renderParties();renderDesigns();renderStaff();renderWages();renderExpenses();renderLog();applyModules();renderLowAlert();updatePreview();loadDesignImages();
   if(flashIds.size) setTimeout(()=>flashIds=new Set(),1600);
 }
-const views=["home","loomlist","warps","bobbins","looms","process","stock","designs","staff","wages","log","settings"];
+const views=["home","loomlist","warps","bobbins","looms","process","stock","parties","designs","staff","wages","expenses","log","settings"];
 // Parts of the app a factory can turn off in Settings (factory.modules, missing = on).
-const VIEW_MODULE={process:"stock",stock:"stock",designs:"wages",staff:"wages",wages:"wages"};
-const mods=()=>{ const m=currentFactory()?.modules; return {stock:m?.stock!==false,wages:m?.wages!==false}; };
+const VIEW_MODULE={process:"stock",stock:"stock",parties:"stock",designs:"wages",staff:"wages",wages:"wages",expenses:"wages"};
+const mods=()=>{ const m=currentFactory()?.modules; return {stock:m?.stock!==false,wages:m?.wages!==false,process:m?.process===true}; };
 function applyModules() {
   const m=mods();
+  const direct=directStock();
   document.querySelectorAll("[data-mod]").forEach(el=>el.hidden=!m[el.dataset.mod]);
+  document.querySelectorAll("[data-direct-hide]").forEach(el=>el.hidden=direct||(el.dataset.mod?!m[el.dataset.mod]:false));
+  $("homeStockTable").hidden=direct;
+  $("stockSub").innerHTML=direct?"Sarees dispatched from the looms go straight to stock. Only stock is delivered to parties.":"Sarees from all warps after checking and <b>Add to stock</b> on the Process page. Only stock is delivered to parties.";
   $("homeStockPanel").hidden=!m.stock;
 }
 function route() {
@@ -1246,6 +1393,7 @@ function route() {
   if(v==="settings"&&!isAdmin()) v="home";
   applyModules();
   if(VIEW_MODULE[v]&&!mods()[VIEW_MODULE[v]]) v="home";
+  if(v==="process"&&directStock()) v="home";
   // Without a factory only Settings (for admins) makes sense; everything else shows a hint.
   const noFactory=!currentFactoryId&&v!=="settings";
   $("noFactory").hidden=!noFactory||!session.user;
@@ -1595,13 +1743,13 @@ function renderLoomList() {
   $("lmTotal").textContent=list.length; $("lmRunning").textContent=running; $("lmStopped").textContent=list.length-running;
   const itemCell=(x,low)=>x?`<strong>${esc(x.name)}</strong>${low?'<span class="lowtag">LOW</span>':""}<br><span style="color:var(--muted)">${fmt(x.remainingMeters)} m · ${plural(warpSarees(x).leftSarees,"saree")}</span>`:'<span style="color:var(--muted)">—</span>';
   // One section per width (like Production); a section only appears when the factory has looms of that width.
-  const table=rows=>`<div class="panel tablewrap"><table><thead><tr><th>Loom</th><th>Runs on</th><th>State</th><th>Warp</th><th>Bobbin</th>${wages?"<th>Design / staff</th>":""}</tr></thead><tbody>${rows.map(l=>{
+  const table=rows=>`<div class="panel tablewrap"><table><thead><tr><th>Loom</th><th>Runs on</th><th>State</th><th>Warp</th><th>Bobbin</th>${wages?"<th>Designs / weaver</th>":""}</tr></thead><tbody>${rows.map(l=>{
     const st=loomState(l), w=db.warps.find(x=>x.id===l.warpId), b=bobbinOf(l), d=designById(l.designId), sf=staffById(l.staffId);
     return `<tr data-id="${esc(l.id)}"${flashIds.has(l.id)?' class="flashrow"':""}><td><strong>${esc(l.name)}</strong></td>
       <td>${l.needsBobbin?"Warp + bobbin":"Warp only"}</td>
       <td class="why">${loomPill(l)}${st.running?"":`<br><span style="color:var(--muted)">${esc(st.reason)}${st.manual?` · since ${fmtDate(l.stoppedAt)}`:""}</span>`}</td>
       <td>${itemCell(w,w&&lowSarees(w))}</td><td>${l.needsBobbin?itemCell(b,b&&lowSarees(b)):'<span style="color:var(--muted)">Not used</span>'}</td>
-      ${wages?`<td>${d?`<strong>${esc(d.number)}</strong> · ${money(d.rate)}`:'<span style="color:var(--muted)">No design</span>'}<br><span style="color:var(--muted)">👤 ${sf?esc(sf.name):"No staff"}</span></td>`:""}</tr>`;
+      ${wages?`<td>${d?`<strong>${esc(d.number)}</strong> · ${money(d.rate)}${loomDesignIds(l).length>1?` <span style="color:var(--muted)">(+${loomDesignIds(l).length-1} more)</span>`:""}`:'<span style="color:var(--muted)">No design</span>'}<br><span style="color:var(--muted)">👤 ${sf?esc(sf.name):"No weaver"}</span></td>`:""}</tr>`;
   }).join("")}</tbody></table></div>`;
   $("loomTable").innerHTML=list.length?["single","triple"].map(g=>{
     const rows=list.filter(l=>l.widthType===g); if(!rows.length) return "";
@@ -1615,7 +1763,7 @@ function renderManageLooms() {
   $("manageLoomsList").innerHTML=list.length?list.map(l=>{
     const st=loomState(l);
     return `<div class="mlrow" data-id="${esc(l.id)}"><div><strong>${esc(l.name)}</strong> ${loomPill(l)}<div class="meta">${widthLabel(l.widthType)} · ${l.needsBobbin?"warp + bobbin":"warp only"}${st.running?"":` · ${esc(st.reason)}`}</div></div>
-      <div class="rowacts"><button class="smallbtn" type="button" data-lm="edit">Edit</button>${st.manual?`<button class="smallbtn" type="button" data-lm="resume">Resume</button>`:`<button class="smallbtn" type="button" data-lm="stop">Stop</button>`}${wages?`<button class="smallbtn" type="button" data-lm="setup">Design &amp; staff</button>`:""}${!st.running&&isAdmin()?`<button class="smallbtn danger" type="button" data-lm="remove" title="Remove">${TRASH_ICON}</button>`:""}</div></div>`;
+      <div class="rowacts"><button class="smallbtn" type="button" data-lm="edit">Edit</button>${st.manual?`<button class="smallbtn" type="button" data-lm="resume">Resume</button>`:`<button class="smallbtn" type="button" data-lm="stop">Stop</button>`}${wages?`<button class="smallbtn" type="button" data-lm="setup">Designs &amp; weaver</button>`:""}${!st.running&&isAdmin()?`<button class="smallbtn danger" type="button" data-lm="remove" title="Remove">${TRASH_ICON}</button>`:""}</div></div>`;
   }).join(""):'<div class="empty">No looms yet.</div>';
 }
 $("openManageLooms").addEventListener("click",()=>{ hideNotice("manageLoomsNotice"); renderManageLooms(); $("manageLoomsDialog").showModal(); });
@@ -1692,7 +1840,7 @@ $("view-looms").addEventListener("click",async e=>{
   try{
     await api(`/api/warps/${encodeURIComponent(warpId)}/move`,{method:"POST",body:JSON.stringify({to:"running",loomId:l.id,date:todayISO()})});
     flashIds=new Set([warpId,l.id]); toast(`${db.warps.find(w=>w.id===warpId).name} is now running on ${l.name}.`); await refresh();
-    // New warp, usually a new design: confirm the design and staff so dispatches earn the right wage.
+    // New warp, usually a new design: confirm the design and weaver so dispatches earn the right wage.
     if(mods().wages) openSetup(l.id,true);
   }catch(err){notice("loomListNotice",err.message)}
 });
@@ -1745,10 +1893,17 @@ function openDelivery(loomId) {
   if(loom) $("deliveryLoom").value=loom.id;
   $("deliveryDialogTitle").textContent=loom?`Dispatch · ${loom.name}`:"Dispatch";
   $("deliveryDialogSub").textContent=w?`${w.name} · ${fmt(w.remainingMeters)} m left (${plural(warpSarees(w).leftSarees,"saree")})`:"Choose the loom and enter the sarees taken off it.";
-  $("deliverySarees").value=""; $("deliveryLr").value=""; hideNotice("deliveryNotice"); updatePreview();
+  $("deliverySarees").value=""; $("deliveryLr").value=""; hideNotice("deliveryNotice"); fillDeliveryDesigns(); updatePreview();
   $("deliveryDialog").showModal(); $("deliverySarees").focus();
 }
 document.querySelectorAll("[data-open-delivery]").forEach(b=>b.addEventListener("click",()=>openDelivery()));
+// Looms with several designs ask which one the sarees were woven on (default: the one weaving now).
+function fillDeliveryDesigns() {
+  const loom=db.looms.find(l=>l.id===$("deliveryLoom").value), ds=mods().wages&&loom?loomDesignIds(loom).map(designById).filter(Boolean):[];
+  $("deliveryDesignField").hidden=ds.length<2;
+  $("deliveryDesign").innerHTML=ds.map(d=>`<option value="${esc(d.id)}">${esc(d.number)}${d.name?` · ${esc(d.name)}`:""} · ${money(d.rate)}/saree</option>`).join("");
+  if(ds.length>1) $("deliveryDesign").value=loom.designId;
+}
 function updatePreview(){
   const loom=db.looms.find(l=>l.id===$("deliveryLoom").value), q=Number($("deliverySarees").value||0), box=$("deliveryPreview");
   const show=(text,ok)=>{box.textContent=text;box.className="notice show "+(ok?"ok":"err")};
@@ -1762,17 +1917,19 @@ function updatePreview(){
   const bb=bobbinOf(loom), bLeft=bb?bb.remainingMeters-used:0;
   if(bb&&bLeft<-1e-9) return show(`Not enough bobbin: ${bb.name} has ${fmt(bb.remainingMeters)} m, ${fmt(used)} m needed (max ${fmt(warpSarees(bb).leftSarees)} sarees).`,false);
   const bobText=bb?` Bobbin ${bb.name} left after: ${fmt(Math.max(0,bLeft))} m (${plural(Math.floor((bLeft+1e-9)/SAREE_M)*perLength,"saree")})${bLeft<SAREE_M-1e-9?", so it will be completed":""}.`:"";
-  const d=designById(loom.designId), st=staffById(loom.staffId);
+  const d=designById($("deliveryDesignField").hidden?loom.designId:$("deliveryDesign").value), st=staffById(loom.staffId);
+  if(mods().wages&&wageBasis()==="shift") return show(`Uses ${fmt(used)} m of ${w.name}. Left after: ${fmt(Math.max(0,left))} m (${plural(Math.floor((left+1e-9)/SAREE_M)*perLength,"saree")})${left<SAREE_M-1e-9?` · under ${SAREE_M} m, so the warp will be completed and the loom freed`:""}.${bobText} Wages are paid per shift, so no per-saree wage is recorded.`,true);
   if(!mods().wages) return show(`Uses ${fmt(used)} m of ${w.name}. Left after: ${fmt(Math.max(0,left))} m (${plural(Math.floor((left+1e-9)/SAREE_M)*perLength,"saree")})${left<SAREE_M-1e-9?` · under ${SAREE_M} m, so the warp will be completed and the loom freed`:""}.${bobText}`,true);
-  const wage=d&&st?` Wage: ${fmt(q)} × ${money(d.rate)} = ${money(Math.round(q*d.rate*100)/100)} to ${st.name} (${d.number}).`:` No wage is recorded: set the ${d?"staff":st?"design":"design and staff"} on ${loom.name} first.`;
+  const wage=d&&st?` Wage: ${fmt(q)} × ${money(d.rate)} = ${money(Math.round(q*d.rate*100)/100)} to ${st.name} (${d.number}).`:` No wage is recorded: set the ${d?"weaver":st?"design":"design and weaver"} on ${loom.name} first.`;
   show(`Uses ${fmt(used)} m of ${w.name}. Left after: ${fmt(Math.max(0,left))} m (${plural(Math.floor((left+1e-9)/SAREE_M)*perLength,"saree")})${left<SAREE_M-1e-9?` · under ${SAREE_M} m, so the warp will be completed and the loom freed`:""}.${bobText}${wage}`,!!(d&&st));
 }
-$("deliveryLoom").addEventListener("change",updatePreview);
+$("deliveryLoom").addEventListener("change",()=>{ fillDeliveryDesigns(); updatePreview(); });
+$("deliveryDesign").addEventListener("change",updatePreview);
 $("deliverySarees").addEventListener("input",updatePreview);
 $("deliveryForm").addEventListener("submit",async e=>{
   e.preventDefault();hideNotice("deliveryNotice");
   try{
-    const r=await api("/api/deliveries",{method:"POST",body:JSON.stringify({loomId:$("deliveryLoom").value,sarees:$("deliverySarees").value,lrNumber:$("deliveryLr").value})});
+    const r=await api("/api/deliveries",{method:"POST",body:JSON.stringify({loomId:$("deliveryLoom").value,sarees:$("deliverySarees").value,lrNumber:$("deliveryLr").value,...($("deliveryDesignField").hidden?{}:{designId:$("deliveryDesign").value})})});
     $("deliveryDialog").close(); flashIds=new Set([r.warp.id,r.loom.id]);
     const lows=[r.warp,r.bobbin].filter(x=>x&&x.status!=="Completed"&&lowSarees(x)).map(x=>`${x.name} has only ${plural(warpSarees(x).leftSarees,"saree")} left`);
     toast(`${plural(r.delivery.sarees,"saree")} dispatched from ${r.delivery.loomName}.${r.delivery.wage!=null?` ${money(r.delivery.wage)} wage to ${r.delivery.staffName}.`:""} ${r.warp.status==="Completed"?`${r.warp.name} is complete (${fmt(r.warp.remainingMeters)} m offcut) — ${r.loom.name} is free for a new warp.`:`${fmt(r.warp.remainingMeters)} m left on ${r.warp.name}.`}${r.bobbin&&r.bobbin.status==="Completed"?` Bobbin ${r.bobbin.name} is used up.`:""}${lows.length?` ⚠ Low: ${lows.join("; ")}.`:""}`);
@@ -1789,8 +1946,11 @@ function stockOf(warpId) {
   const st=Object.fromEntries(STOCK_BUCKETS.map(b=>[b,0])), mine=x=>!warpId||x.warpId===warpId;
   st.sent=st.total=db.deliveries.filter(mine).reduce((s,d)=>s+d.sarees,0);
   (db.stockMoves||[]).forEach(m=>{ if(!mine(m)) return; if(m.from) st[m.from]-=m.qty; st[m.to]+=m.qty; });
+  // Stock + Wages: no Process step, dispatched sarees count as stock straight away (mirrors server stockFor).
+  if(directStock()){ st.stock+=st.sent+st.delivered+st.process+st.folding; st.sent=st.delivered=st.process=st.folding=0; }
   return st;
 }
+const directStock=()=>{ const m=mods(); return m.stock&&m.wages&&!m.process; };
 const onTheWay=st=>st.sent+st.delivered+st.process+st.folding;
 const sumStock=()=>{ const all=stockOf(); return k=>all[k]; };
 // Sarees a party still holds: dispatched to them minus their returns.
@@ -1830,7 +1990,7 @@ function renderProcess() {
       <div class="stages">
         ${stage("sent","Sarees dispatched",st.sent,mv("sent>delivered",st.sent,"Receive at godown →"))}
         ${stage("del","Delivered (godown)",st.delivered,`<button type="button" data-sort="delivered"${st.delivered?"":" disabled"}>Send to process →</button>`)}
-        ${stage("proc","In process",st.process,mv("process>folding",st.process,"Send to folding →"))}
+        ${stage("proc","In process",st.process,mv("process>folding",st.process,"Send to folding →")+`<button type="button" class="ghost" data-sort="process"${st.process?"":" disabled"}>Greese / damage</button>`)}
         ${stage("fold","In folding",st.folding,`<button type="button" data-sort="folding"${st.folding?"":" disabled"}>Add to stock →</button>`)}
       </div>
       <div class="instock">${added?`<b>${fmt(added)}</b> added to stock so far`:"Nothing added to stock yet."}</div>
@@ -1854,11 +2014,6 @@ function renderStock() {
   const batches=cleaningBatches(), out=batches.filter(b=>b.pending>0), done=batches.filter(b=>!b.pending).slice(0,10);
   $("cleaningCount").textContent=out.length?`${plural(out.length,"batch").replace(/hs$/,"hes")} at cleaning`:"Nothing at cleaning";
   $("cleaningTable").innerHTML=batches.length?`<table><thead><tr><th>Sent on</th><th>Sent to / note</th><th>Sent</th><th>Back</th><th>At cleaning</th><th>Status</th><th></th></tr></thead><tbody>${[...out,...done].map(b=>`<tr><td>${fmtDate(b.sentAt)}</td><td>${esc(b.note||"—")}</td><td>${fmt(b.qty)}</td><td>${fmt(b.back)}</td><td><strong>${fmt(b.pending)}</strong></td><td>${b.pending?(b.back?'<span class="pill amber">Partly back</span>':'<span class="pill">At cleaning</span>'):`<span class="pill green">Back${b.lastBack?` ${fmtDate(b.lastBack)}`:""}</span>`}</td><td class="rowacts">${b.pending?`<button class="smallbtn" type="button" data-batch="${esc(b.id)}">Back from cleaning</button>`:""}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">No sarees sent for cleaning yet. Use Send for cleaning on Greese (mai).</div>';
-  const dispatches=(db.stockMoves||[]).filter(m=>m.to==="dispatched");
-  $("clientList").innerHTML=parties.length?parties.map(c=>{
-    const mine=dispatches.filter(m=>m.clientId===c.id);
-    return `<div class="clientrow"><div><strong>${esc(c.name)}</strong><div class="meta">${esc(c.address||"No address")}</div></div><div class="num"><b>${fmt(partyHolds(c.id))}</b><span>sarees${mine.length?` · last ${fmtDate(mine[0].createdAt)}`:""}</span></div></div>`;
-  }).join(""):'<div class="empty">No parties yet. Add a party to deliver sarees to.</div>';
 }
 async function stockPost(url,body,msg,flash) {
   await api(url,{method:"POST",body:JSON.stringify(body)});
@@ -1902,6 +2057,7 @@ $("procEditForm").addEventListener("submit",async e=>{
 // Greese and damage found at either step go straight to the Stock page.
 const SORT_MODE={
   delivered:{title:"Send to process",ok:"Send to process",what:"at the godown",sub:"Check them: good ones go to process; greese (mai) and damaged ones go to the Stock page.",fields:{process:"Process",mai:"Greese (mai)",damage:"Damage"}},
+  process:{title:"Greese / damage",ok:"Take out of process",what:"in process",prefill:false,sub:"Sarees found greasy (mai) or damaged while in process. They are taken out of process automatically.",fields:{mai:"Greese (mai)",damage:"Damage"}},
   folding:{title:"Add to stock",ok:"Add to stock",what:"in folding",sub:"Split them into stock, greese (mai), lot and damage.",fields:{stock:"Stock",mai:"Greese (mai)",lot:"Lot",damage:"Damage"}}};
 let sortWarp=null, sortFrom=null;
 const sortInputs=()=>[...$("sortFields").querySelectorAll("input")];
@@ -1910,20 +2066,33 @@ function sortLeft() {
   $("sortLeft").textContent=used>avail?`That is ${fmt(used-avail)} more than the ${fmt(avail)} ${what}.`:`${fmt(avail-used)} of ${fmt(avail)} left ${what}.`;
 }
 function openSort(w,from) {
-  sortWarp=w; sortFrom=from; const m=SORT_MODE[from], avail=stockOf(w.id)[from];
+  sortAuto=true; sortWarp=w; sortFrom=from; const m=SORT_MODE[from], avail=stockOf(w.id)[from];
   $("sortDialogTitle").textContent=`${m.title} · ${w.name}`;
   $("sortDialogSub").textContent=`${plural(avail,"saree")} ${m.what}. ${m.sub}`;
   $("sortOk").textContent=m.ok;
-  $("sortFields").innerHTML=Object.entries(m.fields).map(([k,label],i)=>`<div class="field"><label for="sort-${k}">${label}</label><input id="sort-${k}" data-k="${k}" type="number" min="0" max="${avail}" step="1" inputmode="numeric" placeholder="0"${i?"":` value="${avail}"`}></div>`).join("");
+  $("sortFields").innerHTML=Object.entries(m.fields).map(([k,label],i)=>`<div class="field"><label for="sort-${k}">${label}</label><input id="sort-${k}" data-k="${k}" type="number" min="0" max="${avail}" step="1" inputmode="numeric" placeholder="0"${i||m.prefill===false?"":` value="${avail}"`}></div>`).join("");
   hideNotice("sortNotice"); sortLeft();
   $("sortDialog").showModal(); sortInputs()[0].select();
 }
-$("sortFields").addEventListener("input",sortLeft);
+// The first field (Process / Stock) is the remainder: it drops automatically as greese, damage or lot are entered.
+// Typing in it directly stops the automatic change for this dialog.
+let sortAuto=true;
+$("sortFields").addEventListener("input",e=>{
+  const m=SORT_MODE[sortFrom], first=sortInputs()[0];
+  if(m&&m.prefill!==false&&first){
+    if(e.target===first) sortAuto=false;
+    else if(sortAuto){
+      const others=sortInputs().slice(1).reduce((t,i)=>t+(Number(i.value)||0),0), avail=stockOf(sortWarp.id)[sortFrom];
+      first.value=Math.max(0,avail-others);
+    }
+  }
+  sortLeft();
+});
 $("sortForm").addEventListener("submit",async e=>{
   e.preventDefault(); hideNotice("sortNotice");
   const m=SORT_MODE[sortFrom], counts=Object.fromEntries(sortInputs().map(i=>[i.dataset.k,Number(i.value)||0]));
   const parts=Object.entries(counts).filter(([,n])=>n).map(([k,n])=>`${fmt(n)} ${m.fields[k].toLowerCase()}`);
-  const msg=sortFrom==="delivered"?`${sortWarp.name} checked: ${parts.join(", ")}.`:`${sortWarp.name}: ${parts.join(", ")} added to stock.`;
+  const msg=sortFrom==="delivered"?`${sortWarp.name} checked: ${parts.join(", ")}.`:sortFrom==="process"?`${sortWarp.name}: ${parts.join(", ")} taken out of process.`:`${sortWarp.name}: ${parts.join(", ")} added to stock.`;
   try{ await stockPost("/api/stock/sort",{warpId:sortWarp.id,from:sortFrom,...counts},msg,sortWarp.id); $("sortDialog").close(); }
   catch(err){notice("sortNotice",err.message)}
 });
@@ -1950,7 +2119,7 @@ function fillActParties(selectId) {
   const list=actKey==="back"?all.filter(c=>partyHolds(c.id)>0):all;
   $("actParty").innerHTML=list.length?list.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}${actKey==="back"?` (${plural(partyHolds(c.id),"saree")})`:""}</option>`).join(""):'<option value="">Add a party first</option>';
   if(selectId) $("actParty").value=selectId;
-  syncActQty();
+  fillActDesigns(); syncActQty();
 }
 function syncActQty() {
   const n=actAvail(), q=$("actQty");
@@ -1960,7 +2129,10 @@ function syncActQty() {
 function actHint() {
   const n=actAvail(), v=$("actQty").value;
   if(actCfg.adjust){ const d=v===""?0:Number(v)-n; $("actHint").textContent=`The app counts ${plural(n,"saree")}.${d?` This ${d>0?"adds":"removes"} ${plural(Math.abs(d),"saree")}.`:""}`; }
-  else $("actHint").textContent=`${plural(n,"saree")} available.`;
+  else {
+    const p=actParty(), d=(actKey==="dispatch"||actKey==="back")&&$("actDesign").value?designById($("actDesign").value):null, r=d&&p?(p.rates||{})[d.id]:0, q=Number(v)||0;
+    $("actHint").textContent=`${plural(n,"saree")} available.${r&&q?` ${actKey==="back"?"Credit":"Value"}: ${fmt(q)} × ${money(r)} = ${money(Math.round(q*r*100)/100)}.`:""}`;
+  }
 }
 function openAct(key,bucket,batchId) {
   actKey=key; actCfg=ACTS[key]; actBucket=bucket||null;
@@ -1978,7 +2150,7 @@ function openAct(key,bucket,batchId) {
   $("actQtyLabel").textContent=actCfg.adjust?"Correct count *":"Number of sarees *";
   $("actOk").textContent=actCfg.ok; $("actOk").classList.toggle("danger",key==="damage");
   hideNotice("actNotice");
-  if(actCfg.party) fillActParties(); else syncActQty();
+  if(actCfg.party){ fillActParties(); fillActDesigns(); } else { $("actDesignField").hidden=true; syncActQty(); }
   $("actDialog").showModal(); $("actQty").focus();
 }
 $("cleaningTable").addEventListener("click",e=>{
@@ -1988,7 +2160,16 @@ $("stockBuckets").addEventListener("click",e=>{
   const btn=e.target.closest("button[data-act]"); if(!btn||btn.disabled) return;
   hideNotice("stockNotice"); openAct(btn.dataset.act,btn.dataset.bucket);
 });
-$("actParty").addEventListener("change",syncActQty);
+// A delivery to a party can pick a design, priced with that party's rate (Wages module = designs exist).
+function fillActDesigns() {
+  const pricing=actKey==="dispatch"||actKey==="back", p=actParty(), rated=pricing&&p&&mods().wages?(db.designs||[]).filter(d=>(p.rates||{})[d.id]>0):[];
+  $("actDesignField").hidden=!(pricing&&mods().wages&&p&&(db.designs||[]).length);
+  $("actDesignField").querySelector("label").textContent=actKey==="back"?"Design (optional, credited at the party's rate)":"Design (optional)";
+  $("actDesign").innerHTML='<option value="">— No design (no rate) —</option>'+rated.map(d=>`<option value="${esc(d.id)}">${esc(d.number)}${d.name?` · ${esc(d.name)}`:""} · ${money(p.rates[d.id])} per saree</option>`).join("");
+  if(!rated.length&&!$("actDesignField").hidden) $("actDesign").options[0].textContent="— No rates set for this party (edit it on the Parties page) —";
+}
+$("actParty").addEventListener("change",()=>{ fillActDesigns(); syncActQty(); });
+$("actDesign").addEventListener("change",actHint);
 $("actBatch").addEventListener("change",syncActQty);
 $("actQty").addEventListener("input",actHint);
 $("actForm").addEventListener("submit",async e=>{
@@ -1996,7 +2177,7 @@ $("actForm").addEventListener("submit",async e=>{
   const p=actParty(), q=Number($("actQty").value);
   if(actCfg.party&&!p) return notice("actNotice",actKey==="dispatch"?"Add a party first using + New.":"Select the party.");
   const body=actCfg.adjust?{bucket:actBucket,count:q,note:$("actNote").value}
-    :{from:actCfg.from,to:actCfg.to,qty:q,note:$("actNote").value,...(p&&actCfg.party?{clientId:p.id}:{}),...(actCfg.lr?{lrNumber:$("actLr").value}:{}),...(actCfg.batch?{batchId:$("actBatch").value}:{})};
+    :{from:actCfg.from,to:actCfg.to,qty:q,note:$("actNote").value,...(p&&actCfg.party?{clientId:p.id}:{}),...(actCfg.lr?{lrNumber:$("actLr").value}:{}),...((actKey==="dispatch"||actKey==="back")&&$("actDesign").value?{designId:$("actDesign").value}:{}),...(actCfg.batch?{batchId:$("actBatch").value}:{})};
   try{ await stockPost(actCfg.adjust?"/api/stock/adjust":"/api/stock/move",body,actCfg.done(q,p,actBucket)); $("actDialog").close(); }
   catch(err){notice("actNotice",err.message)}
 });
@@ -2006,7 +2187,15 @@ $("actForm").addEventListener("submit",async e=>{
 const money=n=>`${n<0?"−":""}₹${Math.abs(Number(n||0)).toLocaleString("en-IN",{maximumFractionDigits:2})}`;
 const staffById=id=>(db.staff||[]).find(s=>s.id===id)||null;
 const designById=id=>(db.designs||[]).find(d=>d.id===id)||null;
-const unpaidWages=()=>db.deliveries.filter(d=>d.wage!=null&&!d.payoutId);
+// Shift entries (db.wageShifts, shift mode) count as unpaid earnings with sarees 0, like the server's unpaid().
+const unpaidDispatches=()=>db.deliveries.filter(d=>d.wage!=null&&!d.payoutId);
+const unpaidWages=()=>[...unpaidDispatches(),...(db.wageShifts||[]).filter(x=>!x.payoutId)];
+const wageBasis=()=>currentFactory()?.wageBasis==="shift"?"shift":"saree";
+// The factory's shifts [{name,start,hours,rate}] (an older single `shift` counts as "Shift 1").
+const shiftList=()=>{ const f=currentFactory(); return Array.isArray(f?.shifts)?f.shifts:f?.shift?[{name:"Shift 1",...f.shift}]:[]; };
+const shiftSpan=x=>{ const [h,m]=x.start.split(":").map(Number), end=((h*60+m+Math.round(x.hours*60))%1440), f=n=>String(Math.floor(n/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0"); return `${x.start}–${f(end)} (${fmt(x.hours)} h)`; };
+// A wage item as text: "D-101: 12 × ₹250" or "Shifts: 10 × ₹600".
+const itemText=i=>i.shift?`${fmt(i.shifts)} × ${money(i.rate)}`:`${fmt(i.sarees)} × ${money(i.rate)}`;
 const unpaidDeductions=()=>(db.wageDeductions||[]).filter(x=>!x.payoutId);
 const r2=n=>Math.round(n*100)/100;
 // Sarees paid for on a dispatch (server wageQty()): edited on the Wages page, else the dispatched count.
@@ -2018,7 +2207,14 @@ function wageLines(list, cuts=[]) {
   list.forEach(d=>{
     const line=lineOf(d.staffId,d.staffName);
     line.sarees+=wageQty(d); line.amount=r2(line.amount+d.wage);
-    let it=line.items.find(i=>i.designId===d.designId&&i.rate===d.rate);
+    if(d.shifts!=null){
+      line.shifts=(line.shifts||0)+d.shifts;
+      const label=d.shiftName||"Shifts";
+      let si=line.items.find(i=>i.shift&&i.designNo===label&&i.rate===d.shiftRate);
+      if(!si) line.items.push(si={shift:true,designId:null,designNo:label,designName:"",rate:d.shiftRate,sarees:0,shifts:0,amount:0});
+      si.shifts+=d.shifts; si.amount=r2(si.amount+d.wage); return;
+    }
+    let it=line.items.find(i=>!i.shift&&i.designId===d.designId&&i.rate===d.rate);
     if(!it) line.items.push(it={designId:d.designId,designNo:d.designNo,designName:d.designName||"",rate:d.rate,sarees:0,amount:0});
     it.sarees+=wageQty(d); it.amount=r2(it.amount+d.wage);
   });
@@ -2079,49 +2275,51 @@ function renderWages() {
   const earned=r2(list.reduce((s,d)=>s+d.wage,0)), deducted=r2(cuts.reduce((s,x)=>s+x.amount,0)), sarees=list.reduce((s,d)=>s+wageQty(d),0);
   const pays=db.wagePayouts||[], last=pays[0], since=periodStart();
   $("wgTotal").textContent=money(earned-deducted);
-  $("wgSince").textContent=since?`${plural(lines.length,"staff").replace(/staffs$/,"staff")} · since ${fmtDate(since)}`:"";
-  $("wgEarned").textContent=money(earned); $("wgSarees").textContent=plural(sarees,"saree");
+  $("wgSince").textContent=since?`${plural(lines.length,"weaver")} · since ${fmtDate(since)}`:"";
+  const shiftN=list.reduce((t,d)=>t+(d.shifts||0),0), byShift=wageBasis()==="shift";
+  $("wgEarned").textContent=money(earned); $("wgSarees").textContent=byShift||shiftN?plural(shiftN,"shift"):plural(sarees,"saree");
+  $("wageSub").textContent=byShift?`Weavers are paid per shift (${shiftList().map(x=>`${x.name} ${money(x.rate)} · ${shiftSpan(x)}`).join("; ")}). Enter each weaver's shifts, then settle each week to pay and start fresh.`:"Each loom runs a design (wage per saree) and is run by a weaver. Every dispatch adds sarees × wage to that weaver. Settle each week to pay and start fresh.";
+  $("shiftAdd").hidden=!byShift; $("shiftPanel").hidden=!byShift;
+  const shifts=(db.wageShifts||[]).filter(x=>!x.payoutId);
+  $("shiftList").innerHTML=shifts.length?shifts.map(x=>`<div class="wrow" data-shift="${esc(x.id)}"><div><strong>${esc(x.staffName)}</strong><div class="meta">${fmt(x.shifts)} ${esc(x.shiftName||"")} shift${x.shifts===1?"":"s"} × ${money(x.shiftRate)}${x.note?` · ${esc(x.note)}`:""}<br>${fmtDate(x.createdAt)}${x.by?` · ${esc(x.by)}`:""}</div></div><div class="wamt">${money(x.wage)}</div><div class="rowacts"><button class="smallbtn danger" type="button" data-del-shift title="Remove">${TRASH_ICON}</button></div></div>`).join(""):'<div class="empty">No shifts entered this period. Use + Shifts to add them.</div>';
   $("wgDeducted").textContent=money(deducted);
   const dmg=cuts.reduce((s,x)=>s+x.items.reduce((t,i)=>t+i.sarees,0),0);
   $("wgDedNote").textContent=dmg?`${plural(dmg,"damaged saree")}`:"";
   $("wgLast").textContent=last?fmtDate(last.createdAt):"—";
-  $("wgLastAmt").textContent=last?`${money(last.total)} to ${plural(last.lines.length,"staff").replace(/staffs$/,"staff")}`:"";
+  $("wgLastAmt").textContent=last?`${money(last.total)} to ${plural(last.lines.length,"weaver")}`:"";
   $("wgPeriod").textContent=since?`Unpaid since ${fmtDate(since)}${last?` · last settled ${fmtDate(last.createdAt)}`:""}`:"";
   // A carried balance alone is not a new period to settle.
   const empty=!list.length&&!cuts.some(x=>!x.carry);
   $("wageSettle").disabled=empty; $("wageDownload").disabled=empty;
-  $("wageTable").innerHTML=lines.length?`<table><thead><tr><th>Staff</th><th>Looms</th><th>Sarees</th><th>Earned</th><th>Deductions</th><th>Net pay</th><th></th></tr></thead><tbody>${lines.map(l=>{
+  $("wageTable").innerHTML=lines.length?`<table><thead><tr><th>Weaver</th><th>Looms</th><th>Sarees</th><th>Earned</th><th>Deductions</th><th>Net pay</th><th></th></tr></thead><tbody>${lines.map(l=>{
     const looms=db.looms.filter(x=>x.staffId===l.staffId).map(x=>x.name).join(", ");
-    const items=[...l.items.map(i=>`${esc(i.designNo)}: ${fmt(i.sarees)} × ${money(i.rate)} = ${money(i.amount)}`),...l.deductions.map(i=>`<span class="neg">− ${esc(dedItem(i))} = ${money(i.amount)}</span>`)];
+    const items=[...l.items.map(i=>`${esc(i.designNo)}: ${itemText(i)} = ${money(i.amount)}`),...l.deductions.map(i=>`<span class="neg">− ${esc(dedItem(i))} = ${money(i.amount)}</span>`)];
     return `<tr><td><div style="display:flex;gap:8px;align-items:flex-start">${staffPhoto(staffById(l.staffId)||{name:l.staffName},"sphoto sm")}<div><strong>${esc(l.staffName)}</strong><div class="wageitems">${items.join("<br>")}</div></div></div></td><td>${esc(looms||"—")}</td><td>${fmt(l.sarees)}</td><td>${money(l.amount)}</td><td>${l.deducted?`<span class="neg">− ${money(l.deducted)}</span>`:"—"}</td><td><strong>${signed(l.net)}</strong>${l.since?`<br><span style="color:var(--muted)">since ${fmtDate(l.since)}</span>`:""}</td><td class="rowacts"><button class="smallbtn" type="button" data-edit-wages="${esc(l.staffId)}">✎ Edit</button>${settleDue().has(l.staffId)?`<button class="smallbtn" type="button" data-settle-staff="${esc(l.staffId)}">Settle</button>`:""}</td></tr>`;
   }).join("")}<tr><td><strong>Total</strong></td><td></td><td><strong>${fmt(sarees)}</strong></td><td><strong>${money(earned)}</strong></td><td><strong>${deducted?`<span class="neg">− ${money(deducted)}</span>`:"—"}</strong></td><td><strong>${signed(r2(earned-deducted))}</strong></td><td></td></tr></tbody></table>`
-    :'<div class="empty">No unpaid wages. Wages are added when sarees are dispatched from a loom that has a design and staff set.</div>';
+    :'<div class="empty">No unpaid wages. Wages are added when sarees are dispatched from a loom that has a design and weaver set.</div>';
   const neg=lines.filter(l=>l.net<0);
   // Running looms that would dispatch without a wage.
-  const missing=db.looms.filter(l=>loomRunning(l)&&!(designById(l.designId)&&staffById(l.staffId)));
-  $("wageMissing").textContent=[missing.length?`⚠ ${missing.map(l=>l.name).join(", ")} ${missing.length===1?"has":"have"} no design or staff set, so ${missing.length===1?"its":"their"} dispatches earn no wage. Set them on the Production page.`:"",
+  const missing=wageBasis()==="shift"?[]:db.looms.filter(l=>loomRunning(l)&&!(designById(l.designId)&&staffById(l.staffId)));
+  $("wageMissing").textContent=[missing.length?`⚠ ${missing.map(l=>l.name).join(", ")} ${missing.length===1?"has":"have"} no design or weaver set, so ${missing.length===1?"its":"their"} dispatches earn no wage. Set them on the Production page.`:"",
     neg.length?`⚠ Deductions are more than the wages earned for ${neg.map(l=>l.staffName).join(", ")}. On settling they are paid ₹0 and the rest is carried to next week.`:""].filter(Boolean).join(" ");
   $("deductionList").innerHTML=cuts.length?cuts.map(x=>`<div class="wrow" data-deduction="${esc(x.id)}"><div><strong>${esc(x.staffName)}</strong><div class="meta">${x.items.map(i=>esc(dedItem(i))).join(" · ")}${x.note?` · ${esc(x.note)}`:""}<br>${fmtDate(x.createdAt)}${x.by?` · ${esc(x.by)}`:""}</div></div><div class="num2"><b class="neg">− ${money(x.amount)}</b></div>
     <div class="rowacts"><button class="smallbtn" type="button" data-edit-deduction>✎ Edit</button><button class="smallbtn danger" type="button" data-del-deduction title="Remove">${TRASH_ICON}</button></div></div>`).join("")
     :'<div class="empty">No deductions this period.</div>';
   $("payoutCount").textContent=pays.length?plural(pays.length,"payout"):"";
-  $("payoutTable").innerHTML=pays.length?`<table><thead><tr><th>Settled on</th><th>Period</th><th>Staff</th><th>Sarees</th><th>Earned</th><th>Deductions</th><th>Paid</th><th>By</th><th></th></tr></thead><tbody>${pays.map(p=>`<tr><td>${fmtDate(p.createdAt)}</td><td>${fmtDate(p.from)} – ${fmtDate(p.to)}</td><td>${p.partial||p.lines.length<=3?esc(p.lines.map(l=>l.staffName).join(", ")):fmt(p.lines.length)}</td><td>${fmt(p.sarees)}</td><td>${money(p.earned??p.total)}</td><td>${p.deducted?`<span class="neg">− ${money(p.deducted)}</span>`:"—"}</td><td><strong>${money(p.total)}</strong>${p.note?`<br><span style="color:var(--muted)">${esc(p.note)}</span>`:""}</td><td>${esc(p.by||"—")}</td><td class="rowacts"><button class="smallbtn" type="button" data-payout="${esc(p.id)}">🧾 Wage sheet</button></td></tr>`).join("")}</tbody></table>`
+  $("payoutTable").innerHTML=pays.length?`<table><thead><tr><th>Settled on</th><th>Period</th><th>Weaver</th><th>Sarees</th><th>Earned</th><th>Deductions</th><th>Paid</th><th>By</th><th></th></tr></thead><tbody>${pays.map(p=>`<tr><td>${fmtDate(p.createdAt)}</td><td>${fmtDate(p.from)} – ${fmtDate(p.to)}</td><td>${p.partial||p.lines.length<=3?esc(p.lines.map(l=>l.staffName).join(", ")):fmt(p.lines.length)}</td><td>${fmt(p.sarees)}</td><td>${money(p.earned??p.total)}</td><td>${p.deducted?`<span class="neg">− ${money(p.deducted)}</span>`:"—"}</td><td><strong>${money(p.total)}</strong>${p.note?`<br><span style="color:var(--muted)">${esc(p.note)}</span>`:""}</td><td>${esc(p.by||"—")}</td><td class="rowacts"><button class="smallbtn" type="button" data-payout="${esc(p.id)}">🧾 Wage sheet</button></td></tr>`).join("")}</tbody></table>`
     :'<div class="empty">No wages settled yet.</div>';
 }
 // Staff page: one card per person with photo, phone, looms, unpaid wages and last payout.
 function renderStaff() {
   const all=db.staff||[], q=$("staffSearch").value.trim().toLowerCase();
   const list=all.filter(s=>!q||`${s.name} ${s.phone||""}`.toLowerCase().includes(q));
-  const lines=wageLines(unpaidWages(),unpaidDeductions());
   $("staffCount").textContent=plural(all.length,"person").replace("persons","people");
   $("staffList").innerHTML=list.length?list.map(s=>{
-    const looms=db.looms.filter(l=>l.staffId===s.id), owed=lines.find(l=>l.staffId===s.id);
-    const lastPay=(db.wagePayouts||[]).find(p=>p.lines.some(l=>l.staffId===s.id)), paid=lastPay&&lastPay.lines.find(l=>l.staffId===s.id);
+    const looms=db.looms.filter(l=>l.staffId===s.id);
     return `<div class="scardx${flashIds.has(s.id)?" flash":""}" data-staff="${esc(s.id)}">
       <div class="shead">${staffPhoto(s)}<div><h4>${esc(s.name)}</h4><div class="meta">${s.phone?`📞 <a href="tel:${esc(s.phone.replace(/[^0-9+]/g,""))}">${esc(s.phone)}</a>`:"No phone"}</div><div class="meta">${looms.length?`Runs ${esc(looms.map(l=>l.name).join(", "))}`:"Not on a loom"}</div></div></div>
-      <div class="sstats"><div>To pay now<b>${signed(owed?owed.net:0)}</b></div><div>Last paid<b>${paid?`${money(lineNet(paid))}`:"—"}</b>${lastPay?fmtDate(lastPay.createdAt):""}</div></div>
-      <div class="rowacts"><button class="smallbtn" type="button" data-edit-staff>Edit</button>${owed&&settleDue().has(s.id)?`<button class="smallbtn" type="button" data-settle-one>Settle</button>`:""}${isAdmin()?`<button class="smallbtn danger" type="button" data-del-staff title="Remove">${TRASH_ICON}</button>`:""}</div></div>`;
-  }).join(""):`<div class="colempty">${all.length?"No one matches.":'No staff yet.<div class="cardact"><button class="actbtn" type="button" data-open-staff-empty>+ Add staff</button></div>'}</div>`;
+      <div class="rowacts"><button class="smallbtn" type="button" data-edit-staff>Edit</button>${isAdmin()?`<button class="smallbtn danger" type="button" data-del-staff title="Remove">${TRASH_ICON}</button>`:""}</div></div>`;
+  }).join(""):`<div class="colempty">${all.length?"No one matches.":'No weavers yet.<div class="cardact"><button class="actbtn" type="button" data-open-staff-empty>+ Add weaver</button></div>'}</div>`;
 }
 $("staffSearch").addEventListener("input",()=>{ renderStaff(); loadImages(); });
 // Designs page: one card per design with its image, wage and the looms running it.
@@ -2130,11 +2328,13 @@ function renderDesigns() {
   const list=all.filter(d=>!q||`${d.number} ${d.name||""}`.toLowerCase().includes(q));
   $("designCount").textContent=plural(all.length,"design");
   $("designGrid").innerHTML=list.length?list.map(d=>{
-    const looms=db.looms.filter(l=>l.designId===d.id);
+    const looms=db.looms.filter(l=>loomDesignIds(l).includes(d.id));
     return `<div class="dcard${flashIds.has(d.id)?" flash":""}" data-design="${esc(d.id)}">
       <div class="dimg">${d.hasImage?imgTag("design",d,`alt="Design ${esc(d.number)}"`):'<span aria-hidden="true">🎨</span>'}</div>
       <div class="dbody"><h4>${esc(d.number)}</h4>${d.name?`<div class="meta">${esc(d.name)}</div>`:""}
         <div class="drate">${money(d.rate)} <small>per saree</small></div>
+        ${d.picks||d.timing||d.pickCost?`<div class="meta">${[d.picks&&`${fmt(d.picks)} picks`,d.timing&&`${fmt(d.timing)} h per saree`,d.pickCost&&`₹${fmt(d.pickCost)} per pick`].filter(Boolean).join(" · ")}</div>`:""}
+        ${d.picks&&d.pickCost?`<div class="meta">Pick cost per saree: <b>${money(d.picks*d.pickCost)}</b></div>`:""}
         <div class="meta">${looms.length?`Running on ${esc(looms.map(l=>l.name).join(", "))}`:"Not on a loom"}</div>
         <div class="rowacts"><button class="smallbtn" type="button" data-edit-design>Edit wage / image</button>${isAdmin()?`<button class="smallbtn danger" type="button" data-del-design title="Remove">${TRASH_ICON}</button>`:""}</div></div></div>`;
   }).join(""):`<div class="colempty">${all.length?"No design matches.":'No designs yet.<div class="cardact"><button class="actbtn" type="button" data-open-design>+ Add design</button></div>'}</div>`;
@@ -2145,13 +2345,13 @@ $("designSearch").addEventListener("input",()=>{ renderDesigns(); loadDesignImag
 function wageCsv(lines, title, from, to) {
   const q=v=>{ const t=String(v??""); return /[",\n]/.test(t)?`"${t.replace(/"/g,'""')}"`:t; };
   const phone=l=>staffById(l.staffId)?.phone||"";
-  const rows=[[title],["Factory",currentFactory()?.name||""],["Period",`${fmtDate(from)} to ${fmtDate(to)}`],[],["Earnings"],["Staff","Phone","Design","Design name","Wage per saree","Sarees","Amount"]];
-  lines.forEach(l=>l.items.forEach(i=>rows.push([l.staffName,phone(l),i.designNo,i.designName,i.rate,i.sarees,i.amount])));
+  const rows=[[title],["Factory",currentFactory()?.name||""],["Period",`${fmtDate(from)} to ${fmtDate(to)}`],[],["Earnings"],["Weaver","Phone","Design","Design name","Wage per saree","Sarees","Amount"]];
+  lines.forEach(l=>l.items.forEach(i=>rows.push([l.staffName,phone(l),i.designNo,i.designName,i.rate,i.shift?`${i.shifts} shifts`:i.sarees,i.amount])));
   const cuts=lines.flatMap(l=>(l.deductions||[]).map(i=>[l.staffName,phone(l),i.label,i.note,i.sarees?i.rate:"",i.sarees||"",-i.amount]));
-  if(cuts.length) rows.push([],["Damage deductions"],["Staff","Phone","Damage","Note","Amount per saree","Sarees","Amount"],...cuts);
+  if(cuts.length) rows.push([],["Damage deductions"],["Weaver","Phone","Damage","Note","Amount per saree","Sarees","Amount"],...cuts);
   // Unsettled sheets show what settling would pay: a negative net is paid as 0 and carried forward.
   const pay=l=>l.carried!=null||lineNet(l)>=0?lineNet(l):0, carry=l=>l.carried??Math.max(0,-lineNet(l));
-  rows.push([],["Staff","Phone","Sarees","Earned","Deductions","Carried to next period","Net pay"]);
+  rows.push([],["Weaver","Phone","Sarees","Earned","Deductions","Carried to next period","Net pay"]);
   lines.forEach(l=>rows.push([l.staffName,phone(l),l.sarees,l.amount,-lineCut(l),carry(l)||"",pay(l)]));
   rows.push(["Total","",lines.reduce((s,l)=>s+l.sarees,0),r2(lines.reduce((s,l)=>s+l.amount,0)),-r2(lines.reduce((s,l)=>s+lineCut(l),0)),r2(lines.reduce((s,l)=>s+carry(l),0))||"",r2(lines.reduce((s,l)=>s+pay(l),0))]);
   return new Blob(["﻿"+rows.map(r=>r.map(q).join(",")).join("\r\n")],{type:"text/csv;charset=utf-8"});
@@ -2169,7 +2369,7 @@ function openWageSheet(lines, {title, from, to, settledAt=null, note="", by=""})
   const period=`${fmtDate(from)} – ${fmtDate(to)}`;
   const slip=l=>`<div class="ws-slip"><div class="ws-sh">${photo(l)}<div><strong>${esc(l.staffName)}</strong><small>${[phone(l)&&`📞 ${esc(phone(l))}`,looms(l)&&esc(looms(l))].filter(Boolean).join(" · ")||"&nbsp;"}</small><small>${esc(period)}</small></div></div>
     <table><thead><tr><th>Design</th><th class="n">Sarees</th><th class="n">Rate</th><th class="n">Amount</th></tr></thead><tbody>
-      ${l.items.length?l.items.map(i=>`<tr><td>${esc(i.designNo)}${i.designName?` · ${esc(i.designName)}`:""}</td><td class="n">${fmt(i.sarees)}</td><td class="n">${money(i.rate)}</td><td class="n">${money(i.amount)}</td></tr>`).join(""):'<tr><td colspan="4">No sarees this period</td></tr>'}
+      ${l.items.length?l.items.map(i=>`<tr><td>${esc(i.designNo)}${i.designName?` · ${esc(i.designName)}`:""}</td><td class="n">${i.shift?`${fmt(i.shifts)} shifts`:fmt(i.sarees)}</td><td class="n">${money(i.rate)}</td><td class="n">${money(i.amount)}</td></tr>`).join(""):'<tr><td colspan="4">No earnings this period</td></tr>'}
       <tr class="tot"><td>Earned</td><td class="n">${fmt(l.sarees)}</td><td></td><td class="n">${money(l.amount)}</td></tr>
       ${(l.deductions||[]).map(i=>`<tr><td class="neg">− ${esc(dedItem(i))}${i.note?` · ${esc(i.note)}`:""}</td><td></td><td></td><td class="n neg">− ${money(i.amount)}</td></tr>`).join("")}
       ${carry(l)?`<tr><td>Carried to next week</td><td></td><td></td><td class="n">+ ${money(carry(l))}</td></tr>`:""}
@@ -2179,9 +2379,9 @@ function openWageSheet(lines, {title, from, to, settledAt=null, note="", by=""})
   $("sheetTitle").textContent=title;
   $("sheetPage").innerHTML=`<div class="ws-head"><div style="display:flex;gap:12px;align-items:center"><img src="img/thari-logo-640.png" alt=""><div><h1>${esc(f?.name||"My Thari")}</h1><p>${esc([f?.location,f?.ownerName].filter(Boolean).join(" · "))}</p></div></div>
       <div class="ws-title"><h2>Wage sheet</h2><p><b>${esc(period)}</b></p><p>${settledAt?`Settled ${esc(whenStamp(settledAt))}${by?` by ${esc(by)}`:""}`:`Not settled yet · ${esc(whenStamp(new Date().toISOString()))}`}</p>${note?`<p>${esc(note)}</p>`:""}</div></div>
-    <div class="ws-totals"><div>Staff<b>${fmt(lines.length)}</b></div><div>Sarees<b>${fmt(T(l=>l.sarees))}</b></div><div>Earned − deductions<b>${money(T(l=>l.amount))} − ${money(T(lineCut))}</b></div><div class="pay">Total to pay<b>${money(T(pay))}</b></div></div>
+    <div class="ws-totals"><div>Weaver<b>${fmt(lines.length)}</b></div><div>Sarees<b>${fmt(T(l=>l.sarees))}</b></div><div>Earned − deductions<b>${money(T(l=>l.amount))} − ${money(T(lineCut))}</b></div><div class="pay">Total to pay<b>${money(T(pay))}</b></div></div>
     <h3>Summary</h3>
-    <table><thead><tr><th>#</th><th>Staff</th><th>Looms</th><th class="n">Sarees</th><th class="n">Earned</th><th class="n">Deductions</th><th class="n">Net pay</th><th>Signature</th></tr></thead><tbody>
+    <table><thead><tr><th>#</th><th>Weaver</th><th>Looms</th><th class="n">Sarees</th><th class="n">Earned</th><th class="n">Deductions</th><th class="n">Net pay</th><th>Signature</th></tr></thead><tbody>
       ${lines.map((l,i)=>`<tr><td>${i+1}</td><td><b>${esc(l.staffName)}</b>${phone(l)?`<br>${esc(phone(l))}`:""}</td><td>${esc(looms(l)||"—")}</td><td class="n">${fmt(l.sarees)}</td><td class="n">${money(l.amount)}</td><td class="n">${lineCut(l)?`<span class="neg">− ${money(lineCut(l))}</span>`:"—"}</td><td class="n"><b>${money(pay(l))}</b>${carry(l)?`<br><small>${money(carry(l))} carried</small>`:""}</td><td class="sign"></td></tr>`).join("")}
       <tr class="tot"><td></td><td>Total</td><td></td><td class="n">${fmt(T(l=>l.sarees))}</td><td class="n">${money(T(l=>l.amount))}</td><td class="n">${T(lineCut)?`− ${money(T(lineCut))}`:"—"}</td><td class="n">${money(T(pay))}</td><td></td></tr>
     </tbody></table>
@@ -2229,8 +2429,8 @@ function settlePreview() {
     row.classList.toggle("off",!on); row.querySelector("[data-pay]").innerHTML=on?money(Math.max(0,n)):'<span style="color:var(--muted)">not now</span>';
   });
   const pay=r2(picked.reduce((s,l)=>s+Math.max(0,after(l)),0)), carry=picked.filter(l=>after(l)<0), other=r2(picked.reduce((s,l)=>s+settleAdj(l.staffId).amount,0));
-  $("settlePreview").textContent=picked.length?`Pay ${money(pay)} to ${picked.length===settleLines.length?"all staff":picked.map(l=>l.staffName).join(", ")}${other?` (after ${money(other)} other deductions)`:""}.${carry.length?` ${carry.map(l=>`${l.staffName}: ${money(-after(l))} carried to next week`).join("; ")}.`:""} Their wages then start again from zero and the wage sheet opens.`:"Tick the staff to settle.";
-  $("settleOk").textContent=picked.length===settleLines.length?"Settle all & start new week":`Settle ${picked.length===1?picked[0].staffName:`${picked.length} staff`}`;
+  $("settlePreview").textContent=picked.length?`Pay ${money(pay)} to ${picked.length===settleLines.length?"all weavers":picked.map(l=>l.staffName).join(", ")}${other?` (after ${money(other)} other deductions)`:""}.${carry.length?` ${carry.map(l=>`${l.staffName}: ${money(-after(l))} carried to next week`).join("; ")}.`:""} Their wages then start again from zero and the wage sheet opens.`:"Tick the weavers to settle.";
+  $("settleOk").textContent=picked.length===settleLines.length?"Settle all & start new week":`Settle ${picked.length===1?picked[0].staffName:`${picked.length} weavers`}`;
   $("settleOk").disabled=!picked.length;
 }
 $("settleStaff").addEventListener("change",settlePreview);
@@ -2250,7 +2450,7 @@ $("settleForm").addEventListener("submit",async e=>{
   try{
     const p=await api("/api/wages/settle",{method:"POST",body:JSON.stringify({note:$("settleNote").value,adjustments,...(all?{}:{staffIds:ids})})});
     $("settleDialog").close();
-    toast(`${money(p.total)} settled for ${all?"all staff":p.lines.map(l=>l.staffName).join(", ")}. Their new week has started.`); await refresh();
+    toast(`${money(p.total)} settled for ${all?"all weavers":p.lines.map(l=>l.staffName).join(", ")}. Their new week has started.`); await refresh();
     payoutSheet(p);
   }catch(err){notice("settleNotice",err.message)}
 });
@@ -2265,7 +2465,7 @@ function dedPreview() {
   $("dedPreview").textContent=parts.length?`${parts.join(" + ")} → ${money(total)} taken off${s?` ${s.name}'s`:""} wages.`:"Enter the number of sarees with minor and/or heavy damage.";
 }
 function openDeduction(staffId) {
-  if(!(db.staff||[]).length) return notice("wageNotice","Add staff first.");
+  if(!(db.staff||[]).length) return notice("wageNotice","Add weaver first.");
   $("deductionForm").reset(); hideNotice("deductionNotice");
   // Staff with wages this period first.
   const owed=new Set(unpaidWages().map(d=>d.staffId));
@@ -2277,6 +2477,39 @@ function openDeduction(staffId) {
   dedPreview(); $("deductionDialog").showModal(); $("dedMinorSarees").focus();
 }
 document.querySelectorAll("[data-open-deduction]").forEach(b=>b.addEventListener("click",()=>openDeduction()));
+// Shift pay: enter shifts worked per weaver (factory wage basis = shift).
+const pickedShift=()=>{ const l=shiftList(); return l.length===1?l[0]:l.find(x=>x.name===$("shiftPick").value)||l[0]; };
+function shiftPreview() {
+  const n=Number($("shiftCount").value), x=pickedShift();
+  $("shiftPreview").textContent=!x?"":n>0?`${fmt(n)} × ${money(x.rate)} = ${money(r2(n*x.rate))}`:`${x.name}: ${money(x.rate)} per shift · ${shiftSpan(x)}`;
+}
+function openShifts(staffId) {
+  if(!(db.staff||[]).length) return notice("wageNotice","Add a weaver first.");
+  const list=shiftList();
+  if(!list.length||list.some(x=>!(x.rate>0))) return notice("wageNotice","Add a shift with its wage per shift in the factory settings first.");
+  $("shiftForm").reset(); hideNotice("shiftNotice");
+  const owed=new Set(unpaidWages().map(d=>d.staffId));
+  $("shiftStaff").innerHTML=(db.staff||[]).slice().sort((a,b)=>owed.has(b.id)-owed.has(a.id)).map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("");
+  if(staffId) $("shiftStaff").value=staffId;
+  $("shiftPickBox").hidden=list.length<2;
+  $("shiftPick").innerHTML=list.map(x=>`<option value="${esc(x.name)}">${esc(x.name)} · ${money(x.rate)} · ${shiftSpan(x)}</option>`).join("");
+  shiftPreview(); $("shiftDialog").showModal(); $("shiftCount").focus();
+}
+$("shiftPick").addEventListener("change",shiftPreview);
+$("shiftAdd").addEventListener("click",()=>openShifts());
+document.querySelectorAll("[data-open-shift]").forEach(b=>b.addEventListener("click",()=>openShifts()));
+$("shiftCount").addEventListener("input",shiftPreview);
+$("shiftForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("shiftNotice");
+  try{
+    const x=await api("/api/wages/shifts",{method:"POST",body:JSON.stringify({staffId:$("shiftStaff").value,shiftName:pickedShift()?.name,shifts:$("shiftCount").value,note:$("shiftNote").value})});
+    $("shiftDialog").close(); toast(`${fmt(x.shifts)} ${x.shiftName} shift${x.shifts===1?"":"s"} added for ${x.staffName} (${money(x.wage)}).`); await refresh();
+  }catch(err){notice("shiftNotice",err.message)}
+});
+$("shiftList").addEventListener("click",e=>{
+  const row=e.target.closest("[data-shift]"), x=row&&(db.wageShifts||[]).find(y=>y.id===row.dataset.shift); if(!x||!e.target.closest("[data-del-shift]")) return;
+  removeItem(`/api/wages/shifts/${encodeURIComponent(x.id)}`,`Remove ${fmt(x.shifts)} shift${x.shifts===1?"":"s"} for ${x.staffName}?`,"The amount is taken off this period's wages.","Shifts removed.");
+});
 $("deductionForm").addEventListener("input",dedPreview);
 $("deductionForm").addEventListener("submit",async e=>{
   e.preventDefault(); hideNotice("deductionNotice");
@@ -2305,7 +2538,7 @@ function openWageEdit(staffId) {
   fillWageEdit(); $("wageEditDialog").showModal();
 }
 function fillWageEdit() {
-  const list=unpaidWages().filter(d=>d.staffId===wageEditStaff), cuts=unpaidDeductions().filter(x=>x.staffId===wageEditStaff);
+  const list=unpaidDispatches().filter(d=>d.staffId===wageEditStaff), cuts=unpaidDeductions().filter(x=>x.staffId===wageEditStaff);
   const num=(f,v,step,min)=>`<input type="number" data-f="${f}" value="${v}" min="${min}" step="${step}" inputmode="${step==="1"?"numeric":"decimal"}">`;
   $("wageEditDispatches").innerHTML=list.length?`<table><thead><tr><th>Date</th><th>Loom</th><th>Design</th><th>Sarees</th><th>₹ per saree</th><th>Wage</th></tr></thead><tbody>${list.map(d=>`<tr data-wd="${esc(d.id)}"><td>${fmtDate(d.createdAt)}</td><td>${esc(d.loomName||"—")}</td><td>${esc(d.designNo||"—")}</td>
     <td>${num("sarees",wageQty(d),"1","0")}${wageQty(d)!==d.sarees?`<br><small style="color:var(--muted)">dispatched ${fmt(d.sarees)}</small>`:""}</td><td>${num("rate",d.rate,"0.01","0.01")}</td><td data-amt></td></tr>`).join("")}</tbody></table>`
@@ -2361,7 +2594,7 @@ let staffImage; // undefined: unchanged, null: remove, string: new photo
 const showStaffPreview=src=>{ $("staffPreviewBox").hidden=src==null; if(src!=null) $("staffPreview").src=src||""; };
 function openStaff(s) {
   staffEditId=s?s.id:null; staffImage=undefined; $("staffForm").reset(); hideNotice("staffNotice");
-  $("staffDialogTitle").textContent=s?`Edit ${s.name}`:"Add staff"; $("staffSubmit").textContent=s?"Save":"Add staff";
+  $("staffDialogTitle").textContent=s?`Edit ${s.name}`:"Add weaver"; $("staffSubmit").textContent=s?"Save":"Add weaver";
   if(s){ $("staffName").value=s.name; $("staffPhone").value=s.phone||""; }
   showStaffPreview(s&&s.hasImage?imgSrc("staff",s)||"":null);
   if(s&&s.hasImage&&!imgSrc("staff",s)) imageFor("staff",s).then(src=>{ if(staffEditId===s.id&&staffImage===undefined) showStaffPreview(src); });
@@ -2382,7 +2615,7 @@ $("staffForm").addEventListener("submit",async e=>{
     const s=await api(staffEditId?`/api/staff/${encodeURIComponent(staffEditId)}`:"/api/staff",{method:staffEditId?"PUT":"POST",body:JSON.stringify(body)});
     if(staffImage) imgRemember("staff",s,staffImage);
     $("staffDialog").close(); flashIds=new Set([s.id]); toast(staffEditId?`${s.name} saved.`:`${s.name} added.`); await refresh();
-    if($("setupDialog").open&&!staffEditId){ fillSetup(); $("setupStaff").value=s.id; }
+    if($("setupDialog").open&&!staffEditId){ $("setupStaff").dataset.keep=s.id; fillSetup(); }
   }catch(err){notice("staffNotice",err.message)}
 });
 // Design form (add / edit). The image is shrunk in the browser to keep the data file small.
@@ -2391,7 +2624,7 @@ function openDesign(d) {
   designEditId=d?d.id:null; designImage=undefined; $("designForm").reset(); hideNotice("designNotice");
   $("designDialogTitle").textContent=d?`Edit design ${d.number}`:"Add design"; $("designSubmit").textContent=d?"Save":"Add design";
   $("designDialogSub").textContent=d?"A new wage applies to dispatches from now on. Wages already earned keep their rate.":"The wage is paid per saree dispatched from a loom running this design.";
-  if(d){ $("designNo").value=d.number; $("designName").value=d.name||""; $("designRate").value=d.rate; }
+  if(d){ $("designNo").value=d.number; $("designName").value=d.name||""; $("designRate").value=d.rate; $("designPicks").value=d.picks??""; $("designTiming").value=d.timing??""; $("designPickCost").value=d.pickCost??""; }
   showDesignPreview(d&&d.hasImage?imgSrc("design",d)||"":null);
   if(d&&d.hasImage&&!imgSrc("design",d)) imageFor("design",d).then(src=>{ if(designEditId===d.id&&designImage===undefined) showDesignPreview(src); });
   $("designDialog").showModal(); $("designNo").focus();
@@ -2421,25 +2654,29 @@ $("designImgRemove").addEventListener("click",()=>{ designImage=null; $("designF
 document.querySelectorAll("[data-open-design]").forEach(b=>b.addEventListener("click",()=>openDesign(null)));
 $("designForm").addEventListener("submit",async e=>{
   e.preventDefault(); hideNotice("designNotice");
-  const body={number:$("designNo").value,name:$("designName").value,rate:$("designRate").value};
+  const body={number:$("designNo").value,name:$("designName").value,rate:$("designRate").value,picks:$("designPicks").value,timing:$("designTiming").value,pickCost:$("designPickCost").value};
   if(designImage!==undefined) body.image=designImage;
   try{
     const d=await api(designEditId?`/api/designs/${encodeURIComponent(designEditId)}`:"/api/designs",{method:designEditId?"PUT":"POST",body:JSON.stringify(body)});
     if(designImage) imgRemember("design",d,designImage);
     $("designDialog").close(); toast(designEditId?`Design ${d.number} saved.`:`Design ${d.number} added.`); await refresh();
-    if($("setupDialog").open&&!designEditId){ fillSetup(); $("setupDesign").value=d.id; }
+    if($("setupDialog").open&&!designEditId){ setupChecked.add(d.id); fillSetup(); fillSetupCurrent($("setupDesign").value||d.id); }
+    // Added from the party dialog: show it in the rates list (keeping what was typed) and focus its rate.
+    if($("clientDialog").open&&!designEditId){
+      const st=partyRateState(); st[d.id]={on:true,value:""};
+      renderPartyRates(st); $("clientRates").querySelector(`input[data-rate="${CSS.escape(d.id)}"]`)?.focus();
+    }
   }catch(err){notice("designNotice",err.message)}
 });
 async function removeItem(url, title, text, done) {
   if(!await ask({title,text,ok:"Remove",danger:true})) return;
   try{ await api(url,{method:"DELETE"}); toast(done); await refresh(); }
-  catch(err){notice({"#designs":"designListNotice","#staff":"staffListNotice"}[location.hash]||"wageNotice",err.message)}
+  catch(err){notice({"#designs":"designListNotice","#staff":"staffListNotice","#expenses":"expenseListNotice","#parties":"partyNotice"}[location.hash]||"wageNotice",err.message)}
 }
 $("staffList").addEventListener("click",e=>{
   if(e.target.closest("[data-open-staff-empty]")) return openStaff(null);
   const row=e.target.closest("[data-staff]"), s=row&&staffById(row.dataset.staff); if(!s) return;
   if(e.target.closest("[data-edit-staff]")) openStaff(s);
-  if(e.target.closest("[data-settle-one]")) openSettle(s.id);
   if(e.target.closest("[data-del-staff]")) removeItem(`/api/staff/${encodeURIComponent(s.id)}`,`Remove ${s.name}?`,"Unpaid wages and past payouts keep their name.",`${s.name} removed.`);
 });
 $("designGrid").addEventListener("click",e=>{
@@ -2448,31 +2685,172 @@ $("designGrid").addEventListener("click",e=>{
   if(e.target.closest("[data-edit-design]")) openDesign(d);
   if(e.target.closest("[data-del-design]")) removeItem(`/api/designs/${encodeURIComponent(d.id)}`,`Remove design ${d.number}?`,"Wages already earned keep the design number and rate.",`Design ${d.number} removed.`);
 });
-// Design & staff of one loom.
+// Designs & weaver of one loom.
 let setupLoomId=null;
+let setupChecked=new Set();
 function fillSetup() {
-  const l=db.looms.find(x=>x.id===setupLoomId), dv=$("setupDesign").value, sv=$("setupStaff").value;
-  $("setupDesign").innerHTML='<option value="">— No design —</option>'+(db.designs||[]).map(d=>`<option value="${esc(d.id)}">${esc(d.number)}${d.name?` · ${esc(d.name)}`:""} · ${money(d.rate)}/saree</option>`).join("");
-  $("setupStaff").innerHTML='<option value="">— No staff —</option>'+(db.staff||[]).map(s=>{ const n=db.looms.filter(x=>x.staffId===s.id&&x.id!==setupLoomId).length; return `<option value="${esc(s.id)}">${esc(s.name)}${n?` · also on ${plural(n,"loom")}`:""}</option>`; }).join("");
-  $("setupDesign").value=dv||l?.designId||""; $("setupStaff").value=sv||l?.staffId||"";
+  const l=db.looms.find(x=>x.id===setupLoomId), cur=$("setupDesign").value, sv=$("setupStaff").value;
+  const dl=db.designs||[], label=d=>`${esc(d.number)}${d.name?` · ${esc(d.name)}`:""} · ${money(d.rate)}/saree`;
+  $("setupDesigns").innerHTML=dl.length?dl.map(d=>`<label><input type="checkbox" value="${esc(d.id)}"${setupChecked.has(d.id)?" checked":""}> ${label(d)}</label>`).join(""):'<span class="hint">No designs yet. Add one with + New design.</span>';
+  fillSetupCurrent(cur||l?.designId||"");
+  $("setupStaff").innerHTML='<option value="">— No weaver —</option>'+(db.staff||[]).map(s=>{ const n=db.looms.filter(x=>x.staffId===s.id&&x.id!==setupLoomId).length; return `<option value="${esc(s.id)}">${esc(s.name)}${n?` · also on ${plural(n,"loom")}`:""}</option>`; }).join("");
+  $("setupStaff").value=$("setupStaff").dataset.keep||sv||l?.staffId||"";
 }
+// "Weaving now" lists only the ticked designs.
+function fillSetupCurrent(want) {
+  const ds=(db.designs||[]).filter(d=>setupChecked.has(d.id));
+  $("setupDesign").innerHTML='<option value="">— No design —</option>'+ds.map(d=>`<option value="${esc(d.id)}">${esc(d.number)}${d.name?` · ${esc(d.name)}`:""}</option>`).join("");
+  $("setupDesign").value=ds.some(d=>d.id===want)?want:(ds[0]?.id||"");
+}
+$("setupDesigns").addEventListener("change",e=>{
+  if(e.target.checked) setupChecked.add(e.target.value); else setupChecked.delete(e.target.value);
+  fillSetupCurrent($("setupDesign").value);
+});
 function openSetup(loomId, afterAssign=false) {
   const l=db.looms.find(x=>x.id===loomId); if(!l) return;
-  setupLoomId=l.id; $("setupDesign").value=""; $("setupStaff").value=""; fillSetup(); hideNotice("setupNotice");
+  setupLoomId=l.id; $("setupDesign").value=""; $("setupStaff").value=""; $("setupStaff").dataset.keep=""; setupChecked=new Set(loomDesignIds(l).filter(i=>designById(i))); fillSetup(); hideNotice("setupNotice");
   const w=db.warps.find(x=>x.id===l.warpId);
-  $("setupDialogTitle").textContent=`Design & staff · ${l.name}`;
-  $("setupHint").textContent=afterAssign?`${w?w.name:"The warp"} is now on ${l.name}. Check the design and staff so its dispatches earn the right wage.`:"Changes apply to dispatches from now on.";
+  $("setupDialogTitle").textContent=`Designs & weaver · ${l.name}`;
+  $("setupHint").textContent=afterAssign?`${w?w.name:"The warp"} is now on ${l.name}. Check the design and weaver so its dispatches earn the right wage.`:"Changes apply to dispatches from now on.";
   $("setupDialog").showModal();
 }
 $("setupForm").addEventListener("submit",async e=>{
   e.preventDefault(); hideNotice("setupNotice");
   try{
-    const l=await api(`/api/looms/${encodeURIComponent(setupLoomId)}/setup`,{method:"POST",body:JSON.stringify({designId:$("setupDesign").value,staffId:$("setupStaff").value})});
+    const l=await api(`/api/looms/${encodeURIComponent(setupLoomId)}/setup`,{method:"POST",body:JSON.stringify({designIds:[...setupChecked],designId:$("setupDesign").value,staffId:$("setupStaff").value})});
     $("setupDialog").close(); flashIds=new Set([l.id]); toast(`${l.name} saved.`); await refresh();
   }catch(err){notice("setupNotice",err.message)}
 });
 // ---- Log: every activity, newest first (stored server-side in db.activity) ----
-const LOG_TYPE={warp:["Warp","violet"],bobbin:["Bobbin","blue"],loom:["Loom","blue"],dispatch:["Dispatch","green"],delivery:["Delivery","red"],process:["Process",""],stock:["Stock","teal"],party:["Party","amber"],wages:["Wages","green"]};
+const LOG_TYPE={warp:["Warp","violet"],bobbin:["Bobbin","blue"],loom:["Loom","blue"],dispatch:["Dispatch","green"],delivery:["Delivery","red"],process:["Process",""],stock:["Stock","teal"],party:["Party","amber"],wages:["Wages","green"],expense:["Expense","amber"]};
+// Expenses: per-loom costs (warp join, bobbin join, spares, maintenance).
+const EXP_KINDS={warp_join:"Warp join",bobbin_join:"Bobbin join",spares:"Spares",maintenance:"Maintenance"};
+const EXP_SUBTYPES=["Routine service","Repair","Breakdown","Other"];
+const monthKey=v=>String(v||"").slice(0,7);
+function renderExpenses() {
+  const all=db.expenses||[], today=todayISO(), month=monthKey(today);
+  const sum=l=>l.reduce((t,x)=>t+x.amount,0);
+  const loomSel=$("expLoomFilter"), keep=loomSel.value;
+  const ids=new Set(db.looms.map(l=>l.id));
+  const gone=[...new Map(all.filter(x=>!ids.has(x.loomId)).map(x=>[x.loomId,x.loomName])).entries()];
+  loomSel.innerHTML='<option value="">All looms</option>'+db.looms.map(l=>`<option value="${esc(l.id)}">${esc(l.name)}</option>`).join("")+gone.map(([i,n])=>`<option value="${esc(i)}">${esc(n)} (removed)</option>`).join("");
+  loomSel.value=[...loomSel.options].some(o=>o.value===keep)?keep:"";
+  const lf=loomSel.value, kf=$("expKindFilter").value, q=$("expSearch").value.trim().toLowerCase();
+  const list=all.filter(x=>(!lf||x.loomId===lf)&&(!kf||x.kind===kf)&&(!q||`${x.item||""} ${x.vendor||""} ${x.billNo||""} ${x.note||""} ${x.warpName||""} ${x.bobbinName||""} ${x.loomName}`.toLowerCase().includes(q)));
+  $("expenseCount").textContent=plural(all.length,"entry").replace(/ys$/,"ies");
+  $("expenseStats").innerHTML=`<div class="stat"><small>This month</small><strong>${money(sum(all.filter(x=>monthKey(x.date)===month)))}</strong></div>`+
+    Object.keys(EXP_KINDS).map(k=>`<div class="stat"><small>${EXP_KINDS[k]}</small><strong>${money(sum(all.filter(x=>x.kind===k)))}</strong></div>`).join("");
+  const rows=[...db.looms.map(l=>[l.id,l.name,false]),...gone.map(([i,n])=>[i,n,true])];
+  $("expenseByLoom").innerHTML=all.length?`<table><thead><tr><th>Loom</th>${Object.values(EXP_KINDS).map(n=>`<th>${n}</th>`).join("")}<th>This month</th><th>Total</th></tr></thead><tbody>${rows.map(([i,n,rm])=>{
+    const mine=all.filter(x=>x.loomId===i);
+    return `<tr><td><b>${esc(n)}</b>${rm?" (removed)":""}</td>${Object.keys(EXP_KINDS).map(k=>`<td>${money(sum(mine.filter(x=>x.kind===k)))}</td>`).join("")}<td>${money(sum(mine.filter(x=>monthKey(x.date)===month)))}</td><td><b>${money(sum(mine))}</b></td></tr>`;
+  }).join("")}</tbody></table>`:'<div class="empty">No expenses yet.</div>';
+  $("expenseTable").innerHTML=list.length?`<table><thead><tr><th>Date</th><th>Loom</th><th>Type</th><th>Details</th><th>Paid to</th><th>Bill no.</th><th>Amount</th><th></th></tr></thead><tbody>${list.map(x=>{
+    const bits=[x.warpName&&`Warp ${x.warpName}`,x.bobbinName&&`Bobbin ${x.bobbinName}`,x.subtype,x.item&&`${x.item}${x.qty?` × ${fmt(x.qty)}`:""}`,x.note].filter(Boolean);
+    return `<tr data-exp="${esc(x.id)}" class="${flashIds.has(x.id)?"flash":""}"><td>${fmtDate(x.date)}</td><td>${esc(x.loomName)}</td><td><span class="pill">${esc(EXP_KINDS[x.kind]||x.kind)}</span></td><td class="logtext">${esc(bits.join(" · ")||"—")}</td><td>${esc(x.vendor||"—")}</td><td>${esc(x.billNo||"—")}</td><td><b>${money(x.amount)}</b></td><td class="rowacts"><button class="smallbtn" type="button" data-edit-exp>Edit</button><button class="smallbtn danger" type="button" data-del-exp title="Remove">${TRASH_ICON}</button></td></tr>`;
+  }).join("")}</tbody></table>`:`<div class="empty">${all.length?"No expense matches.":"No expenses yet."}</div>`;
+}
+["expLoomFilter","expKindFilter"].forEach(i=>$(i).addEventListener("change",renderExpenses));
+$("expSearch").addEventListener("input",renderExpenses);
+let expenseEditId=null;
+// Shows only the detail fields that fit the chosen type.
+function syncExpenseKind() {
+  const k=$("expKind").value;
+  $("expWarpBox").hidden=k!=="warp_join"; $("expBobbinBox").hidden=k!=="bobbin_join"; $("expSubtypeBox").hidden=k!=="maintenance";
+  $("expQtyBox").hidden=k!=="spares";
+  $("expItemLabel").textContent={spares:"Spare part *",maintenance:"Work done (optional)"}[k]||"Details (optional)";
+  $("expItem").required=k==="spares";
+  $("expVendorLabel").textContent={spares:"Supplier / shop (optional)",maintenance:"Mechanic / done by (optional)"}[k]||"Paid to (optional)";
+}
+function openExpense(x) {
+  expenseEditId=x?x.id:null; $("expenseForm").reset(); hideNotice("expenseNotice");
+  $("expenseDialogTitle").textContent=x?"Edit expense":"Add expense"; $("expenseSubmit").textContent=x?"Save":"Add expense";
+  const opt=(v,t)=>`<option value="${esc(v)}">${esc(t)}</option>`;
+  $("expLoom").innerHTML=opt("","Select loom")+db.looms.map(l=>opt(l.id,l.name)).join("");
+  $("expWarp").innerHTML=opt("","— none —")+db.warps.map(w=>opt(w.id,w.name)).join("");
+  $("expBobbin").innerHTML=opt("","— none —")+(db.bobbins||[]).map(b=>opt(b.id,b.name)).join("");
+  $("expSubtype").innerHTML=EXP_SUBTYPES.map(t=>opt(t,t)).join("");
+  $("expDate").value=todayISO();
+  if(x){
+    $("expLoom").value=x.loomId; $("expKind").value=x.kind; $("expAmount").value=x.amount; $("expDate").value=x.date;
+    $("expWarp").value=x.warpId||""; $("expBobbin").value=x.bobbinId||""; $("expSubtype").value=x.subtype||EXP_SUBTYPES[0];
+    $("expItem").value=x.item||""; $("expQty").value=x.qty||""; $("expVendor").value=x.vendor||""; $("expBill").value=x.billNo||""; $("expNote").value=x.note||"";
+  }
+  syncExpenseKind(); $("expenseDialog").showModal(); $("expAmount").focus();
+}
+$("expKind").addEventListener("change",syncExpenseKind);
+document.querySelectorAll("[data-open-expense]").forEach(b=>b.addEventListener("click",()=>openExpense(null)));
+$("expenseForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("expenseNotice");
+  const body={loomId:$("expLoom").value,kind:$("expKind").value,amount:$("expAmount").value,date:$("expDate").value,warpId:$("expWarp").value,bobbinId:$("expBobbin").value,
+    subtype:$("expSubtype").value,item:$("expItem").value,qty:$("expQty").value,vendor:$("expVendor").value,billNo:$("expBill").value,note:$("expNote").value};
+  try{
+    const x=await api(expenseEditId?`/api/expenses/${encodeURIComponent(expenseEditId)}`:"/api/expenses",{method:expenseEditId?"PUT":"POST",body:JSON.stringify(body)});
+    $("expenseDialog").close(); flashIds=new Set([x.id]); toast(expenseEditId?"Expense saved.":`${money(x.amount)} added to ${x.loomName}.`); await refresh();
+  }catch(err){notice("expenseNotice",err.message)}
+});
+$("expenseTable").addEventListener("click",e=>{
+  const row=e.target.closest("[data-exp]"), x=row&&(db.expenses||[]).find(y=>y.id===row.dataset.exp); if(!x) return;
+  if(e.target.closest("[data-edit-exp]")) openExpense(x);
+  if(e.target.closest("[data-del-exp]")) removeItem(`/api/expenses/${encodeURIComponent(x.id)}`,`Remove this ${money(x.amount)} ${EXP_KINDS[x.kind]||""} expense?`,`It was recorded for ${x.loomName}.`,"Expense removed.");
+});
+// ---- Expense report (weekly / monthly): opens in the printable sheet view ----
+const dayAdd=(iso,n)=>{ const d=new Date(iso+"T00:00:00Z"); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); };
+const weekStart=iso=>dayAdd(iso,-((new Date(iso+"T00:00:00Z").getUTCDay()+6)%7));
+function syncExpReport() {
+  const w=$("expRepPeriod").value==="week";
+  $("expRepWeekBox").hidden=!w; $("expRepMonthBox").hidden=w;
+}
+$("expRepPeriod").addEventListener("change",syncExpReport);
+$("expReportBtn").addEventListener("click",()=>{
+  const gone=[...new Map((db.expenses||[]).filter(x=>!db.looms.some(l=>l.id===x.loomId)).map(x=>[x.loomId,x.loomName])).entries()];
+  $("expRepLoom").innerHTML='<option value="">All looms</option>'+db.looms.map(l=>`<option value="${esc(l.id)}">${esc(l.name)}</option>`).join("")+gone.map(([i,n])=>`<option value="${esc(i)}">${esc(n)} (removed)</option>`).join("");
+  $("expRepDay").value=todayISO(); $("expRepMonth").value=todayISO().slice(0,7); syncExpReport(); $("expReportDialog").showModal();
+});
+$("expReportForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  let from,to,label;
+  if($("expRepPeriod").value==="week"){
+    const day=$("expRepDay").value; if(!day) return;
+    from=weekStart(day); to=dayAdd(from,6); label="Weekly";
+  }else{
+    const m=$("expRepMonth").value; if(!m) return;
+    from=m+"-01"; const d=new Date(from+"T00:00:00Z"); d.setUTCMonth(d.getUTCMonth()+1); d.setUTCDate(0); to=d.toISOString().slice(0,10); label="Monthly";
+  }
+  $("expReportDialog").close(); openExpenseReport({from,to,label,loomId:$("expRepLoom").value});
+});
+function openExpenseReport({from,to,label,loomId}) {
+  const f=currentFactory(), all=(db.expenses||[]).filter(x=>x.date>=from&&x.date<=to&&(!loomId||x.loomId===loomId));
+  const list=[...all].sort((a,b)=>a.date.localeCompare(b.date)||a.createdAt.localeCompare(b.createdAt));
+  const sum=l=>r2(l.reduce((t,x)=>t+x.amount,0)), kinds=Object.keys(EXP_KINDS);
+  const looms=[...new Map(list.map(x=>[x.loomId,x.loomName])).entries()];
+  const loomName=loomId?(looms[0]?.[1]||db.looms.find(l=>l.id===loomId)?.name||""):"All looms";
+  const detail=x=>[x.warpName&&`Warp ${x.warpName}`,x.bobbinName&&`Bobbin ${x.bobbinName}`,x.subtype,x.item&&`${x.item}${x.qty?` × ${fmt(x.qty)}`:""}`,x.note].filter(Boolean).join(" · ");
+  const period=`${fmtDate(from)} – ${fmtDate(to)}`, title=`${label} expense report`;
+  $("sheetTitle").textContent=title;
+  $("sheetPage").innerHTML=`<div class="ws-head"><div style="display:flex;gap:12px;align-items:center"><img src="img/thari-logo-640.png" alt=""><div><h1>${esc(f?.name||"My Thari")}</h1><p>${esc([f?.location,f?.ownerName].filter(Boolean).join(" · "))}</p></div></div>
+      <div class="ws-title"><h2>${esc(title)}</h2><p><b>${esc(period)}</b></p><p>${esc(loomName)} · ${esc(whenStamp(new Date().toISOString()))}</p></div></div>
+    <div class="ws-totals"><div>Entries<b>${fmt(list.length)}</b></div>${kinds.slice(0,3).map(k=>`<div>${EXP_KINDS[k]}<b>${money(sum(list.filter(x=>x.kind===k)))}</b></div>`).join("")}<div class="pay">Total spent<b>${money(sum(list))}</b></div></div>
+    <h3>By loom</h3>
+    <table><thead><tr><th>Loom</th>${kinds.map(k=>`<th class="n">${EXP_KINDS[k]}</th>`).join("")}<th class="n">Total</th></tr></thead><tbody>
+      ${looms.length?looms.map(([i,n])=>{ const m=list.filter(x=>x.loomId===i); return `<tr><td><b>${esc(n)}</b></td>${kinds.map(k=>`<td class="n">${money(sum(m.filter(x=>x.kind===k)))}</td>`).join("")}<td class="n"><b>${money(sum(m))}</b></td></tr>`; }).join(""):`<tr><td colspan="${kinds.length+2}">No expenses in this period</td></tr>`}
+      <tr class="tot"><td>Total</td>${kinds.map(k=>`<td class="n">${money(sum(list.filter(x=>x.kind===k)))}</td>`).join("")}<td class="n">${money(sum(list))}</td></tr>
+    </tbody></table>
+    <h3>All entries</h3>
+    <table><thead><tr><th>Date</th><th>Loom</th><th>Type</th><th>Details</th><th>Paid to</th><th>Bill no.</th><th class="n">Amount</th></tr></thead><tbody>
+      ${list.length?list.map(x=>`<tr><td>${fmtDate(x.date)}</td><td>${esc(x.loomName)}</td><td>${esc(EXP_KINDS[x.kind]||x.kind)}</td><td>${esc(detail(x)||"—")}</td><td>${esc(x.vendor||"—")}</td><td>${esc(x.billNo||"—")}</td><td class="n">${money(x.amount)}</td></tr>`).join(""):'<tr><td colspan="7">No expenses in this period</td></tr>'}
+      <tr class="tot"><td colspan="6">Total</td><td class="n">${money(sum(list))}</td></tr>
+    </tbody></table>
+    <div class="ws-foot">My Thari · Track all my loom production</div>`;
+  sheetCsv=()=>{
+    const q=v=>{ const t=String(v??""); return /[",\n]/.test(t)?`"${t.replace(/"/g,'""')}"`:t; };
+    const rows=[[title],["Factory",f?.name||""],["Period",`${fmtDate(from)} to ${fmtDate(to)}`],["Loom",loomName],[],["Date","Loom","Type","Kind","Item","Quantity","Warp","Bobbin","Paid to","Bill no.","Note","Amount"],
+      ...list.map(x=>[x.date,x.loomName,EXP_KINDS[x.kind]||x.kind,x.subtype||"",x.item||"",x.qty||"",x.warpName||"",x.bobbinName||"",x.vendor||"",x.billNo||"",x.note||"",x.amount]),
+      [],["Total",...Array(10).fill(""),sum(list)]];
+    saveBlob(new Blob(["\ufeff"+rows.map(r=>r.map(q).join(",")).join("\r\n")],{type:"text/csv;charset=utf-8"}),`my-thari-expenses-${label.toLowerCase()}-${from}.csv`);
+  };
+  document.body.classList.add("sheet-open"); $("sheetView").hidden=false; $("sheetView").scrollTop=0;
+}
 let logLimit=200;
 function renderLog() {
   const type=$("logType").value, q=$("logSearch").value.trim().toLowerCase();
@@ -2488,17 +2866,116 @@ function renderLog() {
 $("logType").addEventListener("change",()=>{logLimit=200;renderLog();});
 $("logSearch").addEventListener("input",()=>{logLimit=200;renderLog();});
 $("logMore").addEventListener("click",e=>{ if(e.target.closest("#logMoreBtn")){ logLimit+=200; renderLog(); } });
-document.querySelectorAll("[data-open-client]").forEach(b=>b.addEventListener("click",()=>{
-  $("clientForm").reset(); hideNotice("clientNotice"); $("clientDialog").showModal(); $("clientName").focus();
-}));
+// ---- Parties: one card per party with its rate per saree for each design ----
+const partyById=id=>(db.clients||[]).find(c=>c.id===id)||null;
+// A party's account: priced deliveries (billed) less priced returns (credit) less payments received (mirrors server partyBalance()).
+function partyLedger(c) {
+  const moves=(db.stockMoves||[]).filter(m=>m.clientId===c.id), pays=(db.partyPayments||[]).filter(p=>p.clientId===c.id);
+  const out=moves.filter(m=>m.to==="dispatched"), back=moves.filter(m=>m.from==="dispatched");
+  const sum=l=>r2(l.reduce((t,m)=>t+(m.amount||0),0));
+  const billed=sum(out), credit=sum(back), paid=r2(pays.reduce((t,p)=>t+p.amount,0));
+  return {out,back,pays,billed,credit,paid,balance:r2(billed-credit-paid),
+    sarees:out.filter(m=>m.amount!=null).reduce((t,m)=>t+m.qty,0), unpriced:out.filter(m=>m.amount==null).reduce((t,m)=>t+m.qty,0)};
+}
+const balText=b=>b>0?`${money(b)} due`:b<0?`${money(-b)} advance`:"Settled";
+const partyValue=c=>(db.stockMoves||[]).filter(m=>m.clientId===c.id&&m.to==="dispatched"&&m.amount!=null).reduce((t,m)=>({amt:t.amt+m.amount,n:t.n+m.qty}),{amt:0,n:0});
+function renderParties() {
+  const all=db.clients||[], q=$("partySearch").value.trim().toLowerCase(), wages=mods().wages;
+  const list=all.filter(c=>!q||`${c.name} ${c.address||""}`.toLowerCase().includes(q));
+  $("partyCount").textContent=plural(all.length,"party").replace("partys","parties");
+  $("partyGrid").innerHTML=list.length?list.map(c=>{
+    const lg=partyLedger(c), rated=Object.entries(c.rates||{}).map(([id,r])=>[designById(id),r]).filter(([d])=>d);
+    const lastMove=(db.stockMoves||[]).find(m=>m.clientId===c.id&&m.to==="dispatched");
+    return `<div class="scardx pcard${flashIds.has(c.id)?" flash":""}" data-party="${esc(c.id)}">
+      <div><h4>${esc(c.name)}</h4><div class="meta">${esc(c.address||"No address")}</div></div>
+      <div class="sstats"><div>Holds now<b>${fmt(partyHolds(c.id))}</b>sarees${lastMove?` · last ${fmtDate(lastMove.createdAt)}`:""}</div><div>Balance<b class="${lg.balance>0?"neg":""}">${lg.billed||lg.paid?balText(lg.balance):"—"}</b>${lg.sarees?plural(lg.sarees,"priced saree"):"no priced deliveries"}</div></div>
+      ${wages?(rated.length?`<div class="prates">${rated.map(([d,r])=>`<div><span>${esc(d.number)}${d.name?` · ${esc(d.name)}`:""}</span><b>${money(r)}</b></div>`).join("")}</div>`:`<div class="pnone">${(db.designs||[]).length?"No rates set yet.":"Add designs first to set rates."}</div>`):""}
+      <div class="rowacts"><button class="smallbtn" type="button" data-pay-party>💰 Payments</button><button class="smallbtn" type="button" data-edit-party>${wages?"Edit / rates":"Edit"}</button>${isAdmin()?`<button class="smallbtn danger" type="button" data-del-party title="Remove">${TRASH_ICON}</button>`:""}</div></div>`;
+  }).join(""):`<div class="colempty">${all.length?"No party matches.":'No parties yet.<div class="cardact"><button class="actbtn" type="button" data-open-client>+ Add party</button></div>'}</div>`;
+}
+$("partySearch").addEventListener("input",renderParties);
+let partyEditId=null;
+function openParty(c) {
+  partyEditId=c?c.id:null; $("clientForm").reset(); hideNotice("clientNotice");
+  $("clientDialogTitle").textContent=c?`Edit ${c.name}`:"Add party"; $("clientSubmit").textContent=c?"Save":"Add party";
+  $("clientDialogSub").textContent=c?"Change the details and the rate per saree for each design.":"The party you deliver sarees to.";
+  if(c){ $("clientName").value=c.name; $("clientAddress").value=c.address||""; }
+  $("clientRatesBox").hidden=!mods().wages;
+  renderPartyRates(Object.fromEntries(Object.entries(c?.rates||{}).map(([id,r])=>[id,{on:true,value:r}])));
+  $("clientDialog").showModal(); $("clientName").focus();
+}
+// One row per design: a tick box to pick it for this party and its rate per saree (enabled once ticked).
+// `state` is { designId: { on, value } }, kept when a new design is added while the dialog is open.
+function renderPartyRates(state) {
+  const designs=db.designs||[];
+  $("clientRates").innerHTML=designs.length?designs.map(d=>{
+    const st=state[d.id]||{on:false,value:""};
+    return `<div class="prow${st.on?" on":""}"><label class="prowlabel"><input type="checkbox" data-sel="${esc(d.id)}"${st.on?" checked":""}><span>${esc(d.number)}${d.name?` · ${esc(d.name)}`:""}<small>${money(d.rate)} wage per saree</small></span></label><input type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="₹ rate" data-rate="${esc(d.id)}" value="${esc(st.value??"")}"${st.on?"":" disabled"}></div>`;
+  }).join(""):'<div class="pnone">No designs yet. Add one with + New design.</div>';
+}
+const partyRateState=()=>{ const st={}; $("clientRates").querySelectorAll("input[data-sel]").forEach(c=>{ const r=$("clientRates").querySelector(`input[data-rate="${CSS.escape(c.dataset.sel)}"]`); st[c.dataset.sel]={on:c.checked,value:r.value}; }); return st; };
+$("clientRates").addEventListener("change",e=>{
+  const c=e.target.closest("input[data-sel]"); if(!c) return;
+  const r=$("clientRates").querySelector(`input[data-rate="${CSS.escape(c.dataset.sel)}"]`);
+  r.disabled=!c.checked; c.closest(".prow").classList.toggle("on",c.checked); if(c.checked) r.focus();
+});
+document.querySelectorAll("[data-open-client]").forEach(b=>b.addEventListener("click",()=>openParty(null)));
 $("clientForm").addEventListener("submit",async e=>{
   e.preventDefault(); hideNotice("clientNotice");
+  // Only ticked designs are saved, and each needs a rate.
+  const rates={};
+  for(const i of $("clientRates").querySelectorAll("input[data-rate]:not(:disabled)")){
+    if(!(Number(i.value)>0)){ const d=designById(i.dataset.rate); return notice("clientNotice",`Enter the rate for design ${d?d.number:""}, or untick it.`); }
+    rates[i.dataset.rate]=i.value;
+  }
+  const body={name:$("clientName").value,address:$("clientAddress").value,...($("clientRatesBox").hidden?{}:{rates})};
   try{
-    const c=await api("/api/clients",{method:"POST",body:JSON.stringify({name:$("clientName").value,address:$("clientAddress").value})});
-    $("clientDialog").close(); toast(`${c.name} added as a party.`); await refresh();
+    const c=await api(partyEditId?`/api/clients/${encodeURIComponent(partyEditId)}`:"/api/clients",{method:partyEditId?"PUT":"POST",body:JSON.stringify(body)});
+    $("clientDialog").close(); flashIds=new Set([c.id]); toast(partyEditId?`${c.name} saved.`:`${c.name} added as a party.`); await refresh();
     // Opened from the dispatch form: select the new party there.
     if($("actDialog").open&&actKey==="dispatch") fillActParties(c.id);
   }catch(err){notice("clientNotice",err.message)}
+});
+$("partyGrid").addEventListener("click",e=>{
+  if(e.target.closest("[data-open-client]")) return openParty(null);
+  const card=e.target.closest("[data-party]"), c=card&&partyById(card.dataset.party); if(!c) return;
+  if(e.target.closest("[data-pay-party]")) return openPay(c);
+  if(e.target.closest("[data-edit-party]")) openParty(c);
+  if(e.target.closest("[data-del-party]")) removeItem(`/api/clients/${encodeURIComponent(c.id)}`,`Remove ${c.name}?`,"Only parties with no deliveries can be removed.",`${c.name} removed.`);
+});
+// Party payments: sarees and rates, what is owed, payments received, and settling the balance.
+let payPartyId=null;
+function renderPay() {
+  const c=partyById(payPartyId); if(!c) return $("payDialog").close();
+  const lg=partyLedger(c);
+  $("payDialogTitle").textContent=`Payments · ${c.name}`;
+  $("payDialogSub").textContent=lg.unpriced?`${plural(lg.unpriced,"delivered saree")} had no design/rate, so ${lg.unpriced===1?"it is":"they are"} not billed.`:"Sarees delivered at the party's rate, less returns and payments received.";
+  const stat=(l,v,cls="")=>`<div class="stat ${cls}"><small>${l}</small><strong>${v}</strong></div>`;
+  $("payStats").innerHTML=stat("Sarees billed",fmt(lg.sarees))+stat("Billed",money(lg.billed))+stat("Returns credit",lg.credit?"− "+money(lg.credit):money(0))+stat("Received",money(lg.paid))+stat(lg.balance<0?"Advance":"Balance due",money(Math.abs(lg.balance)),lg.balance>0?"s-dmg":"");
+  const lines=[...lg.out.map(m=>({m,sign:1})),...lg.back.filter(m=>m.amount!=null).map(m=>({m,sign:-1}))].sort((a,b)=>b.m.createdAt.localeCompare(a.m.createdAt));
+  $("payLines").innerHTML=lines.length||lg.unpriced?`<table><thead><tr><th>Date</th><th>Design</th><th>Sarees</th><th>Rate</th><th>Amount</th><th>LR</th></tr></thead><tbody>${lines.map(({m,sign})=>`<tr><td>${fmtDate(m.createdAt)}</td><td>${esc(m.designNo||"—")}${m.designName?` · ${esc(m.designName)}`:""}${sign<0?' <span class="pill amber">Return</span>':""}</td><td>${sign<0?"−":""}${fmt(m.qty)}</td><td>${m.rate!=null?money(m.rate):"—"}</td><td>${m.amount!=null?`${sign<0?"− ":""}${money(m.amount)}`:'<span style="color:var(--muted)">not priced</span>'}</td><td>${esc(m.lrNumber||"—")}</td></tr>`).join("")}<tr class="tot"><td colspan="2"><b>Net billed</b></td><td><b>${fmt(lg.sarees-lg.back.filter(m=>m.amount!=null).reduce((t,m)=>t+m.qty,0))}</b></td><td></td><td><b>${money(r2(lg.billed-lg.credit))}</b></td><td></td></tr></tbody></table>`:'<div class="empty">No deliveries to this party yet.</div>';
+  $("payList").innerHTML=lg.pays.length?lg.pays.map(p=>`<div class="wrow" data-pay="${esc(p.id)}"><div><strong>${money(p.amount)}</strong> <span class="pill">${esc(p.mode)}</span>${p.settled?' <span class="pill green">Settled</span>':""}<div class="meta">${fmtDate(p.date)}${p.note?` · ${esc(p.note)}`:""} · balance after ${money(p.balanceAfter)}${p.by?` · ${esc(p.by)}`:""}</div></div><div class="rowacts"><button class="smallbtn danger" type="button" data-del-pay title="Remove">${TRASH_ICON}</button></div></div>`).join(""):'<div class="empty">No payments recorded yet.</div>';
+  $("payFull").disabled=!(lg.balance>0);
+}
+function openPay(c) {
+  payPartyId=c.id; $("payForm").reset(); hideNotice("payNotice"); $("payDate").value=todayISO(); renderPay();
+  $("payDialog").showModal();
+}
+$("payFull").addEventListener("click",()=>{ const c=partyById(payPartyId), b=c&&partyLedger(c).balance; if(b>0){ $("payAmount").value=b; $("payAmount").focus(); } });
+$("payForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("payNotice");
+  try{
+    const p=await api(`/api/clients/${encodeURIComponent(payPartyId)}/payments`,{method:"POST",body:JSON.stringify({amount:$("payAmount").value,date:$("payDate").value,mode:$("payMode").value,note:$("payNote").value})});
+    await refresh(); toast(p.settled?`${money(p.amount)} received. Balance settled.`:`${money(p.amount)} received.`);
+    $("payForm").reset(); $("payDate").value=todayISO(); renderPay();
+  }catch(err){notice("payNotice",err.message)}
+});
+$("payList").addEventListener("click",async e=>{
+  const row=e.target.closest("[data-pay]"); if(!row||!e.target.closest("[data-del-pay]")) return;
+  const p=(db.partyPayments||[]).find(x=>x.id===row.dataset.pay); if(!p) return;
+  if(!await ask({title:`Remove the ${money(p.amount)} payment?`,text:"The amount goes back onto the party's balance.",ok:"Remove",danger:true})) return;
+  try{ await api(`/api/clients/${encodeURIComponent(payPartyId)}/payments/${encodeURIComponent(p.id)}`,{method:"DELETE"}); await refresh(); renderPay(); toast("Payment removed."); }
+  catch(err){notice("payNotice",err.message)}
 });
 // ---- Session: sign-in, factory selection, user menu ----
 // The token and last-used factory are per-device conveniences kept in localStorage.
@@ -2515,7 +2992,7 @@ function showLogin(message) {
 }
 function signOut(message) {
   session={token:null,user:null,factories:[]}; currentFactoryId=null; store_.set("loom.token",null);
-  db={warps:[],bobbins:[],looms:[],deliveries:[],clients:[],stockMoves:[],staff:[],designs:[],wagePayouts:[],wageDeductions:[]};
+  db={warps:[],bobbins:[],looms:[],deliveries:[],clients:[],stockMoves:[],staff:[],designs:[],wagePayouts:[],wageDeductions:[],expenses:[]};
   $("userMenu").hidden=true; showLogin(message);
 }
 function applySession({user,factories}) {
@@ -2595,7 +3072,7 @@ async function loadSettings() {
   $("setFactoryCount").textContent=plural(i.factories.length,"factory").replace(/ys$/,"ies");
   $("setFactoryTable").innerHTML=i.factories.length?`<table><thead><tr><th>Factory</th><th>Owner</th><th>Users</th><th></th></tr></thead><tbody>${i.factories.map(f=>{
     const users=i.users.filter(u=>u.role!=="admin"&&u.factoryIds.includes(f.id)).map(u=>u.name||u.username);
-    return `<tr data-id="${esc(f.id)}"><td><strong>${esc(f.name)}</strong><br><span style="color:var(--muted)">${esc(f.location)}</span><br><span class="pill ${f.modules?.stock===false||f.modules?.wages===false?"amber":"green"}">${f.modules?.stock===false?"Wages only":f.modules?.wages===false?"Stock only":"Stock + Wages"}</span></td><td>${esc(f.ownerName)}${f.ownerPhone?`<br><span style="color:var(--muted)">${esc(f.ownerPhone)}</span>`:""}${f.ownerEmail?`<br><span style="color:var(--muted)">${esc(f.ownerEmail)}</span>`:""}</td><td>${users.length?esc(users.join(", ")):'<span style="color:var(--muted)">Admins only</span>'}</td><td class="rowacts"><button class="smallbtn" data-fac="edit">Edit</button><button class="smallbtn danger" data-fac="reset">Reset</button><button class="smallbtn danger" data-fac="delete">Delete</button></td></tr>`;
+    return `<tr data-id="${esc(f.id)}"><td><strong>${esc(f.name)}</strong><br><span style="color:var(--muted)">${esc(f.location)}</span><br><span class="pill ${f.modules?.wages===false?"amber":"green"}">${f.modules?.stock===false?"Wages only (re-save to change)":f.modules?.wages===false?"Stock only":`Stock + Wages${f.modules?.process===true?" + Process":""}`}</span></td><td>${esc(f.ownerName)}${f.ownerPhone?`<br><span style="color:var(--muted)">${esc(f.ownerPhone)}</span>`:""}${f.ownerEmail?`<br><span style="color:var(--muted)">${esc(f.ownerEmail)}</span>`:""}</td><td>${users.length?esc(users.join(", ")):'<span style="color:var(--muted)">Admins only</span>'}</td><td class="rowacts"><button class="smallbtn" data-fac="edit">Edit</button><button class="smallbtn danger" data-fac="reset">Reset</button><button class="smallbtn danger" data-fac="delete">Delete</button></td></tr>`;
   }).join("")}</tbody></table>`:'<div class="empty">No factories yet. Add the first one.</div>';
   $("setUserCount").textContent=plural(i.users.length,"user");
   $("setUserTable").innerHTML=`<table><thead><tr><th>User</th><th>Role</th><th>Factories</th><th></th></tr></thead><tbody>${i.users.map(u=>{
@@ -2638,15 +3115,43 @@ function openFactoryDialog(f) {
   editingFactory=f||null; $("factoryForm").reset(); hideNotice("factoryNotice");
   $("factoryDialogTitle").textContent=f?`Edit ${f.name}`:"Add factory"; $("factorySubmit").textContent=f?"Save changes":"Add factory";
   if(f){ $("facName").value=f.name; $("facLocation").value=f.location; $("facOwner").value=f.ownerName; $("facPhone").value=f.ownerPhone||""; $("facEmail").value=f.ownerEmail||""; }
-  const m=f?.modules, pick=m?.stock===false?"wages":m?.wages===false?"stock":"both";
+  const m=f?.modules, pick=m?.wages===false?"stock":"both";
+  $("facProcess").checked=m?.process===true;
   $("factoryForm").querySelector(`input[name=facModules][value=${pick}]`).checked=true;
+  $("factoryForm").querySelector(`input[name=facBasis][value=${f?.wageBasis==="shift"?"shift":"saree"}]`).checked=true;
+  const list=f?(Array.isArray(f.shifts)?f.shifts:f.shift?[{name:"Shift 1",...f.shift}]:[]):[];
+  $("facShiftRows").innerHTML=""; (list.length?list:[{name:"Shift 1",start:"06:00",hours:8,rate:""}]).forEach(addShiftRow);
+  syncFactoryOptions();
   $("factoryDialog").showModal(); $("facName").focus();
 }
+// Shift rows in the factory dialog: one row per shift (name, start, hours, wage per shift).
+function addShiftRow(x={}) {
+  const n=$("facShiftRows").children.length+1, row=document.createElement("div"); row.className="shiftrow";
+  const f=(k,label,type,val,extra="")=>`<div><label>${label}</label><input data-f="${k}" type="${type}" value="${esc(val??"")}" ${extra}></div>`;
+  row.innerHTML=f("name","Name","text",x.name||`Shift ${n}`,'maxlength="40" placeholder="e.g. Day"')+f("start","Starts","time",x.start||"06:00")+f("hours","Hours","number",x.hours??8,'min="0.5" max="24" step="0.5" inputmode="decimal"')+f("rate","₹ per shift","number",x.rate||"",'min="0" step="0.01" inputmode="decimal" placeholder="e.g. 600"')+'<button class="smallbtn danger" type="button" data-rm title="Remove shift">✕</button>';
+  $("facShiftRows").appendChild(row);
+  syncFactoryOptions();
+}
+$("facShiftAdd").addEventListener("click",()=>{ if($("facShiftRows").children.length>=6) return notice("factoryNotice","A factory can have up to 6 shifts."); const n=$("facShiftRows").children.length; addShiftRow({name:n===1?"Night":`Shift ${n+1}`,start:n===1?"18:00":"06:00",hours:8}); });
+$("facShiftRows").addEventListener("click",e=>{ if(e.target.closest("[data-rm]")){ e.target.closest(".shiftrow").remove(); syncFactoryOptions(); } });
+// Stock only: no wages, so the wage options are greyed out. Paying per saree: the shift options are greyed out.
+function syncFactoryOptions() {
+  const mod=$("factoryForm").querySelector("input[name=facModules]:checked").value, noWages=mod==="stock";
+  const basis=$("factoryForm").querySelector("input[name=facBasis]:checked").value, shiftOff=noWages||basis!=="shift";
+  $("facProcessBox").hidden=noWages;
+  $("facWageBox").classList.toggle("off",noWages); $("facShiftBox").classList.toggle("off",shiftOff);
+  $("factoryForm").querySelectorAll("input[name=facBasis]").forEach(i=>i.disabled=noWages);
+  $("facShiftBox").querySelectorAll("input,button").forEach(i=>i.disabled=shiftOff);
+  $("facWageHint").textContent=noWages?"Not used: this factory is set to Stock only.":"";
+  $("facShiftBox").querySelector("label").textContent=noWages?"Shifts (not used with Stock only)":basis!=="shift"?"Shifts (used only when wages are calculated by shift)":"Shifts";
+  $("facShiftRows").querySelectorAll("[data-rm]").forEach(b=>b.hidden=$("facShiftRows").children.length<2);
+}
+$("factoryForm").addEventListener("change",e=>{ if(e.target.name==="facModules"||e.target.name==="facBasis") syncFactoryOptions(); });
 $("addFactoryBtn").addEventListener("click",()=>openFactoryDialog());
 $("factoryForm").addEventListener("submit",async e=>{
   e.preventDefault(); hideNotice("factoryNotice");
   const pick=$("factoryForm").querySelector("input[name=facModules]:checked").value;
-  const body=JSON.stringify({name:$("facName").value,location:$("facLocation").value,ownerName:$("facOwner").value,ownerPhone:$("facPhone").value,ownerEmail:$("facEmail").value,modules:{stock:pick!=="wages",wages:pick!=="stock"}});
+  const body=JSON.stringify({name:$("facName").value,location:$("facLocation").value,ownerName:$("facOwner").value,ownerPhone:$("facPhone").value,ownerEmail:$("facEmail").value,modules:{stock:true,wages:pick!=="stock",process:pick==="both"&&$("facProcess").checked},wageBasis:$("factoryForm").querySelector("input[name=facBasis]:checked").value,shifts:[...$("facShiftRows").querySelectorAll(".shiftrow")].map(r=>({name:r.querySelector("[data-f=name]").value,start:r.querySelector("[data-f=start]").value,hours:r.querySelector("[data-f=hours]").value,rate:r.querySelector("[data-f=rate]").value}))});
   try{
     const f=await api(editingFactory?`/api/admin/factories/${encodeURIComponent(editingFactory.id)}`:"/api/admin/factories",{method:editingFactory?"PUT":"POST",body});
     $("factoryDialog").close(); toast(editingFactory?`${f.name} updated.`:`${f.name} created.`);

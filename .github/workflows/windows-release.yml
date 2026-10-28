@@ -34,6 +34,9 @@ jobs:
       - name: Check that every module loads
         run: for f in *.js scripts/*.js; do node --check "$f"; done
 
+      - name: Run the test suite
+        run: npm test
+
       - name: Cache the Windows Node.js runtime
         uses: actions/cache@v4
         with:

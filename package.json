@@ -1,6 +1,6 @@
 {
   "name": "my-thari",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "My Thari – track warps, looms, saree production, stock and dispatch across factories",
   "main": "launcher.js",
   "repository": "github:renuraj18/loom-saree-manager",
@@ -11,7 +11,8 @@
     "start": "node launcher.js",
     "dev": "node launcher.js",
     "reset-data": "node scripts/reset-data.js",
-    "build:win": "node scripts/build-windows.js"
+    "build:win": "node scripts/build-windows.js",
+    "test": "node --test"
   },
   "engines": {
     "node": ">=18"

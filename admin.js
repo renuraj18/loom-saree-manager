@@ -19,12 +19,35 @@ const text = v => (typeof v === "string" ? v.trim() : "");
 // Not sent (older pages): keep the factory's current setting.
 function factoryFields(body) {
   const f = { name: text(body.name), location: text(body.location), ownerName: text(body.ownerName), ownerPhone: text(body.ownerPhone), ownerEmail: text(body.ownerEmail) };
-  if (body.modules && typeof body.modules === "object") f.modules = { stock: body.modules.stock !== false, wages: body.modules.wages !== false };
+  if (body.modules && typeof body.modules === "object") f.modules = { stock: body.modules.stock !== false, wages: body.modules.wages !== false, process: body.modules.process === true };
+  // Wage basis ("saree" or "shift") and the factory's shifts: name, start time, hours and wage per shift (₹) each.
+  // Most factories run one shift, some two (e.g. Day / Night). A legacy single `shift` becomes "Shift 1".
+  if (body.wageBasis !== undefined) f.wageBasis = body.wageBasis === "shift" ? "shift" : "saree";
+  const rawShifts = Array.isArray(body.shifts) ? body.shifts : body.shift && typeof body.shift === "object" ? [{ name: "Shift 1", ...body.shift }] : null;
+  if (rawShifts) {
+    f.shifts = rawShifts.slice(0, 6).map(x => {
+      const hours = Number(x?.hours), rate = x?.rate === "" || x?.rate == null ? 0 : Number(x.rate);
+      return { name: text(x?.name).slice(0, 40), start: text(x?.start), hours, rate: Number.isFinite(rate) ? Math.round(rate * 100) / 100 : NaN };
+    });
+    const names = new Set();
+    f.shiftBad = "";
+    f.shifts.forEach((x, i) => {
+      if (f.shiftBad) return;
+      if (!x.name) f.shiftBad = `Enter a name for shift ${i + 1}.`;
+      else if (names.has(x.name.toLowerCase())) f.shiftBad = `Two shifts are called "${x.name}". Give each shift its own name.`;
+      else if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(x.start)) f.shiftBad = `Enter the start time of ${x.name}.`;
+      else if (!(x.hours > 0 && x.hours <= 24)) f.shiftBad = `${x.name}: duration must be between 0 and 24 hours.`;
+      else if (!(x.rate >= 0)) f.shiftBad = `${x.name}: enter the wage per shift (0 or more).`;
+      names.add(x.name.toLowerCase());
+    });
+  }
   return f;
 }
 function factoryError(f, accounts, selfId) {
   if (!f.name || !f.location || !f.ownerName) return "Enter the factory name, location and owner name.";
-  if (f.modules && !f.modules.stock && !f.modules.wages) return "Choose Stock, Wages or both for this factory.";
+  if (f.modules && !f.modules.stock) return "Choose Stock only or Stock + Wages for this factory.";
+  if (f.shiftBad) return f.shiftBad;
+  if (f.wageBasis === "shift" && !(f.shifts?.length && f.shifts.every(x => x.rate > 0))) return "Add at least one shift and enter the wage per shift to pay by shift.";
   if (accounts.factories.some(x => x.id !== selfId && x.name.toLowerCase() === f.name.toLowerCase())) return "A factory with this name already exists.";
   return null;
 }
@@ -33,9 +56,13 @@ function cleanFactoryIds(ids, accounts, role) {
   if (role === "admin") return [];
   return [...new Set(Array.isArray(ids) ? ids : [])].filter(id => accounts.factories.some(f => f.id === id));
 }
+// Stock + Wages factories have no Process step (sarees count as stock straight after dispatch, see stockFor in
+// server.js). When a factory stops skipping Process (Stock only, or "Include Process" ticked), server.js's
+// flushToStock() turns those sarees into real stock records so counts stay the same.
+const isDirect = f => f?.modules?.stock !== false && f?.modules?.wages !== false && f?.modules?.process !== true;
 const otherAdmins = (accounts, id) => accounts.users.filter(u => u.role === "admin" && u.id !== id).length;
 
-module.exports = function adminRouter() {
+module.exports = function adminRouter({ flushToStock } = {}) {
   const router = express.Router();
 
   router.get("/info", async (_req, res) => {
@@ -60,6 +87,7 @@ module.exports = function adminRouter() {
     const f = factoryFields(req.body || {});
     const err = factoryError(f, accounts);
     if (err) return res.status(400).json({ error: err });
+    delete f.shiftBad;
     const factory = { id: store.newId("FAC"), ...f, createdAt: new Date().toISOString() };
     store.writeFactoryRaw(factory.id, store.emptyFactoryData());
     accounts.factories.push(factory);
@@ -74,7 +102,10 @@ module.exports = function adminRouter() {
     const f = factoryFields(req.body || {});
     const err = factoryError(f, accounts, factory.id);
     if (err) return res.status(400).json({ error: err });
+    delete f.shiftBad;
+    const wasDirect = isDirect(factory);
     Object.assign(factory, f);
+    if (wasDirect && !isDirect(factory) && flushToStock) flushToStock(factory.id);
     store.writeAccounts(accounts);
     res.json(factory);
   });

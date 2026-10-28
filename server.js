@@ -23,6 +23,9 @@ function readDb(factoryId) {
   const db = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")) : store.emptyFactoryData();
   const migrated = migrateDb(db);
   if (settleSpentWarps(db) || migrated) writeDb(factoryId, db);
+  // Stock + Wages factories have no Process step: see stockFor(). Not enumerable, so it is never saved to the file.
+  const f = store.readAccounts().factories.find(x => x.id === factoryId);
+  Object.defineProperty(db, "direct", { value: noProcess(f), enumerable: false, configurable: true });
   return db;
 }
 // Atomic (temp file + rename), so a crash or power cut mid-write never leaves a half-written file.
@@ -41,7 +44,7 @@ function isSpent(warp) {
 // Brings older data files up to the current shape. Returns true if anything changed.
 function migrateDb(db) {
   let changed = false;
-  for (const key of ["clients", "stockMoves", "staff", "designs", "wagePayouts", "wageDeductions", "bobbins"]) {
+  for (const key of ["clients", "stockMoves", "staff", "designs", "wagePayouts", "wageDeductions", "wageShifts", "partyPayments", "bobbins", "expenses"]) {
     if (!Array.isArray(db[key])) { db[key] = []; changed = true; }
   }
   if (!Array.isArray(db.activity)) { db.activity = seedActivity(db); db.activityVersion = 2; changed = true; }
@@ -149,8 +152,8 @@ function moveText(m) {
     "mai>cleaning": `${sarees(m.qty)} sent for cleaning`,
     "cleaning>stock": `${sarees(m.qty)} back from cleaning${m.batchSentAt ? ` (batch sent ${String(m.batchSentAt).slice(0, 10)}${m.batchNote ? `, ${m.batchNote}` : ""})` : ""}, added to stock`,
     "stock>damage": `${sarees(m.qty)} moved from stock to damage (damage return)`,
-    "stock>dispatched": `${sarees(m.qty)}${of} delivered to ${m.clientName}${m.lrNumber ? ` · LR ${m.lrNumber}` : ""}`,
-    "dispatched>stock": `${sarees(m.qty)} returned by ${m.clientName}, added to stock`,
+    "stock>dispatched": `${sarees(m.qty)}${of} delivered to ${m.clientName}${m.lrNumber ? ` · LR ${m.lrNumber}` : ""}${m.designNo ? ` · ${m.designNo} ${m.qty} × ₹${m.rate} = ₹${m.amount}` : ""}`,
+    "dispatched>stock": `${sarees(m.qty)} returned by ${m.clientName}, added to stock${m.designNo ? ` · ${m.designNo} ${m.qty} × ₹${m.rate} = ₹${m.amount} credited` : ""}`,
     "damage>returned": `${sarees(m.qty)} damaged returned to loom owner${m.ownerName ? ` ${m.ownerName}` : ""}`
   }[`${m.from}>${m.to}`];
   return (text || `${sarees(m.qty)} moved ${m.from} → ${m.to}`) + why;
@@ -210,16 +213,20 @@ function assignWarp(loom, warp, kind = "warps") {
 
 app.get("/api/health", (_req, res) => res.json({ status: "ok", app: "My Thari" }));
 app.use("/api/auth", authRouter());
-app.use("/api/admin", requireAuth, requireAdmin, require("./admin")());
+app.use("/api/admin", requireAuth, requireAdmin, require("./admin")({ flushToStock: id => flushToStock(id) }));
 // Everything below works on one factory's data and needs a signed-in user with access to it.
-app.use(["/api/data", "/api/warps", "/api/bobbins", "/api/looms", "/api/deliveries", "/api/clients", "/api/stock", "/api/order", "/api/staff", "/api/designs", "/api/wages"], requireAuth, factoryScope);
+app.use(["/api/data", "/api/warps", "/api/bobbins", "/api/looms", "/api/deliveries", "/api/clients", "/api/stock", "/api/order", "/api/staff", "/api/designs", "/api/wages", "/api/expenses"], requireAuth, factoryScope);
 // Each factory turns the Stock module (process, stock, parties) and the Wages module (staff, designs,
 // wages) on or off in Settings (factory.modules, missing = on). Production (warps, looms, dispatch) is always on.
+// Stock + Wages factories skip the Process step unless "Include Process" is ticked (modules.process).
+const noProcess = f => !!f && modulesOf(f).stock && modulesOf(f).wages && f?.modules?.process !== true;
 const modulesOf = f => ({ stock: f?.modules?.stock !== false, wages: f?.modules?.wages !== false });
 const needModule = (name, label) => (req, res, next) => modulesOf(req.factory)[name] ? next()
   : res.status(403).json({ error: `${label} is turned off for this factory. An admin can turn it on in Settings.` });
 app.use(["/api/stock", "/api/clients"], needModule("stock", "Stock"));
 app.use(["/api/staff", "/api/designs", "/api/wages", "/api/looms/:id/setup"], needModule("wages", "Wages"));
+// Stock-only factories have no looms to cost, so Expenses is off for them too (it follows the Wages module).
+app.use("/api/expenses", needModule("wages", "Expenses"));
 // Design images and staff photos are left out (only hasImage); the page loads each one from
 // /api/designs/:id/image or /api/staff/:id/image.
 const noImage = ({ image, ...rest }) => ({ ...rest, hasImage: !!image });
@@ -327,6 +334,7 @@ app.post("/api/deliveries", (req, res) => {
   const body = req.body || {};
   const loomId = cleanText(body.loomId);
   const quantity = Number(body.sarees);
+  const designId = cleanText(body.designId);
   const note = cleanText(body.note);
   const lrNumber = cleanText(body.lrNumber);
   const db = readDb(req.factoryId);
@@ -336,6 +344,7 @@ app.post("/api/deliveries", (req, res) => {
   if (!Number.isInteger(quantity) || quantity <= 0) {
     return res.status(400).json({ error: "Number of sarees must be a positive whole number." });
   }
+  if (designId && !loomDesignIds(loom).includes(designId)) return res.status(400).json({ error: "That design is not set on this loom." });
   if (!loom.warpId) return res.status(400).json({ error: "This loom has no warp assigned. Assign a warp before marking delivery." });
   const warp = db.warps.find(w => w.id === loom.warpId);
   if (!warp) return res.status(400).json({ error: "Assigned warp record was not found." });
@@ -363,9 +372,10 @@ app.post("/api/deliveries", (req, res) => {
     widthType: loom.widthType, sarees: quantity, metersReduced: Number(metersToReduce.toFixed(2)),
     remainingMeters: warp.remainingMeters, note, lrNumber, createdAt: new Date().toISOString(),
     ...(bobbin ? { bobbinId: bobbin.id, bobbinName: bobbin.name, bobbinRemaining: bobbin.remainingMeters } : {}),
-    ...(modulesOf(req.factory).wages ? wageFor(db, loom, quantity) : {})
+    ...(modulesOf(req.factory).wages ? dispatchWage(req.factory, db, loom, quantity, designId || loom.designId) : {})
   };
   db.deliveries.unshift(delivery);
+  if (delivery.designId && loom.designId !== delivery.designId) loom.designId = delivery.designId; // the loom is now weaving this design
   const wageText = delivery.wage != null ? ` · wage ${money(delivery.wage)} to ${delivery.staffName} (${delivery.designNo})` : "";
   logEvent(db, req, "dispatch", `${sarees(quantity)} dispatched from ${loom.name} (${warp.name}) · ${delivery.metersReduced} m used, ${warp.remainingMeters} m left${lrNumber ? ` · LR ${lrNumber}` : ""}${bobbin ? ` · bobbin ${bobbin.name} ${bobbin.remainingMeters} m left` : ""}${wageText}${warp.status === "Completed" ? ` · ${warp.name} completed, ${loom.name} free` : ""}${bobbin && bobbin.status === "Completed" ? ` · bobbin ${bobbin.name} completed` : ""}${loomState(db, loom).running ? "" : ` · ${loom.name} stopped: ${loomState(db, loom).reason}`}`);
   writeDb(req.factoryId, db);
@@ -616,6 +626,94 @@ app.post("/api/clients", (req, res) => {
   res.status(201).json(client);
 });
 
+// Per-party selling rates: { designId: ₹ per saree }. Blank / 0 means no rate for that design. Unknown designs are dropped.
+function partyRates(db, raw) {
+  const out = {};
+  if (!raw || typeof raw !== "object") return { rates: out };
+  for (const [designId, v] of Object.entries(raw)) {
+    if (v === "" || v == null || Number(v) === 0) continue;
+    const design = db.designs.find(d => d.id === designId);
+    if (!design) continue;
+    const rate = rateField(v);
+    if (rate == null) return { error: `Enter a rate above 0 for design ${design.number}, or leave it blank.` };
+    out[designId] = rate;
+  }
+  return { rates: out };
+}
+// Edit a party: name, address and the rate per saree for each design (rates apply to deliveries from then on).
+app.put("/api/clients/:id", (req, res) => {
+  const db = readDb(req.factoryId);
+  const client = db.clients.find(c => c.id === req.params.id);
+  if (!client) return res.status(404).json({ error: "Party not found." });
+  const name = cleanText(req.body?.name), address = cleanText(req.body?.address);
+  if (!name) return res.status(400).json({ error: "Enter the party name." });
+  if (db.clients.some(c => c !== client && c.name.toLowerCase() === name.toLowerCase())) return res.status(409).json({ error: "A party with this name already exists." });
+  const changes = [];
+  if (client.name !== name) changes.push(`renamed ${name}`);
+  let rates = client.rates || {};
+  if (req.body?.rates !== undefined) {
+    const r = partyRates(db, req.body.rates);
+    if (r.error) return res.status(400).json({ error: r.error });
+    for (const d of db.designs) {
+      const was = rates[d.id] ?? null, now = r.rates[d.id] ?? null;
+      if (was !== now) changes.push(`${d.number} ${was == null ? "—" : money(was)} → ${now == null ? "—" : money(now)}`);
+    }
+    rates = r.rates;
+  }
+  Object.assign(client, { name, address, rates });
+  logEvent(db, req, "party", `Party ${name} updated${changes.length ? ` · rates/changes: ${changes.join(", ")}` : ""}`);
+  writeDb(req.factoryId, db);
+  res.json(client);
+});
+// ---- Party payments ----
+// A party owes the amount of its priced deliveries (stock>dispatched moves with an amount), less the amount of
+// priced returns (dispatched>stock with an amount), less the payments recorded here. Unpriced moves aren't billed.
+function partyBalance(db, clientId) {
+  let billed = 0, credit = 0;
+  for (const m of db.stockMoves) if (m.clientId === clientId && m.amount != null) { if (m.to === "dispatched") billed += m.amount; else credit += m.amount; }
+  const paid = db.partyPayments.filter(p => p.clientId === clientId).reduce((t, p) => t + p.amount, 0);
+  return { billed: round2(billed), credit: round2(credit), paid: round2(paid), balance: round2(billed - credit - paid) };
+}
+const PAY_MODES = ["Cash", "Bank transfer", "UPI", "Cheque", "Other"];
+app.post("/api/clients/:id/payments", (req, res) => {
+  const body = req.body || {};
+  const db = readDb(req.factoryId);
+  const client = db.clients.find(c => c.id === req.params.id);
+  if (!client) return res.status(404).json({ error: "Party not found." });
+  const amount = rateField(body.amount);
+  if (amount == null) return res.status(400).json({ error: "Enter the amount received (more than 0)." });
+  const date = body.date ? isoDate(body.date) : new Date().toISOString().slice(0, 10);
+  if (!date) return res.status(400).json({ error: "Enter a valid date." });
+  const mode = PAY_MODES.includes(cleanText(body.mode)) ? cleanText(body.mode) : "Cash";
+  const before = partyBalance(db, client.id).balance;
+  const pay = { id: id("PAYR"), clientId: client.id, clientName: client.name, amount, date, mode, note: cleanText(body.note).slice(0, 200),
+    balanceBefore: before, balanceAfter: round2(before - amount), settled: round2(before - amount) <= 0 && before > 0, by: actor(req), createdAt: new Date().toISOString() };
+  db.partyPayments.unshift(pay);
+  logEvent(db, req, "party", `${money(amount)} received from ${client.name} (${mode})${pay.note ? ` · ${pay.note}` : ""} · balance ${money(pay.balanceAfter)}${pay.settled ? " · settled" : ""}`);
+  writeDb(req.factoryId, db);
+  res.status(201).json(pay);
+});
+app.delete("/api/clients/:id/payments/:pid", (req, res) => {
+  const db = readDb(req.factoryId);
+  const pay = db.partyPayments.find(p => p.id === req.params.pid && p.clientId === req.params.id);
+  if (!pay) return res.status(404).json({ error: "Payment not found." });
+  db.partyPayments = db.partyPayments.filter(p => p !== pay);
+  logEvent(db, req, "party", `Payment ${money(pay.amount)} from ${pay.clientName} (${pay.date}) removed`);
+  writeDb(req.factoryId, db);
+  res.json({ removed: pay.id });
+});
+// A party with delivery history can't be removed (its deliveries and returns would lose their party).
+app.delete("/api/clients/:id", requireAdmin, (req, res) => {
+  const db = readDb(req.factoryId);
+  const client = db.clients.find(c => c.id === req.params.id);
+  if (!client) return res.status(404).json({ error: "Party not found." });
+  if (db.stockMoves.some(m => m.clientId === client.id) || db.partyPayments.some(p => p.clientId === client.id)) return res.status(409).json({ error: `${client.name} has deliveries on record, so it can't be removed.` });
+  db.clients = db.clients.filter(c => c !== client);
+  logEvent(db, req, "party", `Party ${client.name} removed`);
+  writeDb(req.factoryId, db);
+  res.json({ removed: client.id });
+});
+
 // ---- Wages ----
 // Each loom has a current design (with a wage per saree) and a staff member running it; one staff
 // member can run several looms. A dispatch snapshots the staff, design and rate onto the delivery
@@ -624,16 +722,32 @@ app.post("/api/clients", (req, res) => {
 // records a payout with per-staff totals and marks those deliveries with its id: a new period starts.
 const money = n => `₹${Number(n).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 const round2 = n => Math.round(n * 100) / 100;
-function wageFor(db, loom, quantity) {
+// A loom can have several designs (designIds); designId is the one weaving now and is what a dispatch uses.
+// How a factory pays its weavers (factory settings): "saree" = sarees dispatched × the design's rate,
+// "shift" = shifts worked (entered on the Wages page) × the factory's wage per shift.
+const wageBasisOf = f => f?.wageBasis === "shift" ? "shift" : "saree";
+// The factory's shifts [{ name, start, hours, rate }] (an older single `shift` counts as "Shift 1").
+const shiftsOf = f => Array.isArray(f?.shifts) ? f.shifts : f?.shift ? [{ name: "Shift 1", ...f.shift }] : [];
+const loomDesignIds = loom => loom.designIds?.length ? loom.designIds : loom.designId ? [loom.designId] : [];
+function wageFor(db, loom, quantity, designId = loom.designId) {
   const staff = db.staff.find(s => s.id === loom.staffId);
-  const design = db.designs.find(d => d.id === loom.designId);
+  const design = db.designs.find(d => d.id === designId);
   const out = {};
   if (design) Object.assign(out, { designId: design.id, designNo: design.number, designName: design.name, rate: design.rate });
   if (staff) Object.assign(out, { staffId: staff.id, staffName: staff.name });
   if (staff && design) out.wage = round2(quantity * design.rate);
   return out;
 }
-const unpaid = db => db.deliveries.filter(d => d.wage != null && !d.payoutId);
+// In shift mode a dispatch records the weaver and design but no per-saree wage.
+function dispatchWage(factory, db, loom, quantity, designId) {
+  const out = wageFor(db, loom, quantity, designId);
+  if (wageBasisOf(factory) === "shift") { delete out.wage; delete out.rate; }
+  return out;
+}
+const unpaidDispatches = db => db.deliveries.filter(d => d.wage != null && !d.payoutId);
+// Shift entries (db.wageShifts) are unpaid earnings like dispatches: wage = shifts × the rate when entered,
+// sarees 0. They are settled in the same payout.
+const unpaid = db => [...unpaidDispatches(db), ...db.wageShifts.filter(x => !x.payoutId)];
 // Sarees paid for on a dispatch: the dispatched count, unless edited on the Wages page (wageSarees).
 // Only the wage changes; production and stock keep the dispatched count.
 const wageQty = d => d.wageSarees ?? d.sarees;
@@ -648,7 +762,16 @@ function wageLines(deliveries, deductions = []) {
     const line = lineOf(d.staffId, d.staffName);
     line.sarees += wageQty(d);
     line.amount = round2(line.amount + d.wage);
-    const item = line.items.find(i => i.designId === d.designId && i.rate === d.rate)
+    if (d.shifts != null) { // a shift entry
+      line.shifts = (line.shifts || 0) + d.shifts;
+      const label = d.shiftName || "Shifts";
+      const si = line.items.find(i => i.shift && i.designNo === label && i.rate === d.shiftRate)
+        || line.items[line.items.push({ shift: true, designId: null, designNo: label, designName: "", rate: d.shiftRate, sarees: 0, shifts: 0, amount: 0 }) - 1];
+      si.shifts += d.shifts;
+      si.amount = round2(si.amount + d.wage);
+      continue;
+    }
+    const item = line.items.find(i => !i.shift && i.designId === d.designId && i.rate === d.rate)
       || line.items[line.items.push({ designId: d.designId, designNo: d.designNo, designName: d.designName || "", rate: d.rate, sarees: 0, amount: 0 }) - 1];
     item.sarees += wageQty(d);
     item.amount = round2(item.amount + d.wage);
@@ -678,36 +801,36 @@ function rateField(value) {
 // Staff: name, optional phone and optional photo (same rules as a design image).
 app.post("/api/staff", (req, res) => {
   const name = cleanText(req.body?.name), phone = cleanText(req.body?.phone), image = imageField(req.body?.image);
-  if (!name) return res.status(400).json({ error: "Enter the staff name." });
+  if (!name) return res.status(400).json({ error: "Enter the weaver's name." });
   if (image === false) return res.status(400).json({ error: "The photo could not be used. Choose a JPG or PNG photo." });
   const db = readDb(req.factoryId);
-  if (db.staff.some(s => s.name.toLowerCase() === name.toLowerCase())) return res.status(409).json({ error: "A staff member with this name already exists." });
+  if (db.staff.some(s => s.name.toLowerCase() === name.toLowerCase())) return res.status(409).json({ error: "A weaver with this name already exists." });
   const now = new Date().toISOString();
   const staff = { id: id("STF"), name, phone, image: image || null, imageAt: image ? now : null, createdAt: now };
   db.staff.unshift(staff);
-  logEvent(db, req, "wages", `Staff ${name} added${phone ? ` · ${phone}` : ""}`);
+  logEvent(db, req, "wages", `Weaver ${name} added${phone ? ` · ${phone}` : ""}`);
   writeDb(req.factoryId, db);
   res.status(201).json(noImage(staff));
 });
 
 app.get("/api/staff/:id/image", (req, res) => {
   const staff = readDb(req.factoryId).staff.find(s => s.id === req.params.id);
-  if (!staff || !staff.image) return res.status(404).json({ error: "No photo for this staff member." });
+  if (!staff || !staff.image) return res.status(404).json({ error: "No photo for this weaver." });
   res.json({ image: staff.image });
 });
 
 app.put("/api/staff/:id", (req, res) => {
   const name = cleanText(req.body?.name), phone = cleanText(req.body?.phone), image = imageField(req.body?.image);
-  if (!name) return res.status(400).json({ error: "Enter the staff name." });
+  if (!name) return res.status(400).json({ error: "Enter the weaver's name." });
   if (image === false) return res.status(400).json({ error: "The photo could not be used. Choose a JPG or PNG photo." });
   const db = readDb(req.factoryId);
   const staff = db.staff.find(s => s.id === req.params.id);
-  if (!staff) return res.status(404).json({ error: "Staff member not found." });
-  if (db.staff.some(s => s !== staff && s.name.toLowerCase() === name.toLowerCase())) return res.status(409).json({ error: "A staff member with this name already exists." });
+  if (!staff) return res.status(404).json({ error: "Weaver not found." });
+  if (db.staff.some(s => s !== staff && s.name.toLowerCase() === name.toLowerCase())) return res.status(409).json({ error: "A weaver with this name already exists." });
   const old = staff.name;
   Object.assign(staff, { name, phone });
   if (image !== undefined && image !== staff.image) Object.assign(staff, { image, imageAt: image ? new Date().toISOString() : null });
-  logEvent(db, req, "wages", `Staff ${old}${old !== name ? ` renamed to ${name}` : " updated"}${phone ? ` · ${phone}` : ""}`);
+  logEvent(db, req, "wages", `Weaver ${old}${old !== name ? ` renamed to ${name}` : " updated"}${phone ? ` · ${phone}` : ""}`);
   writeDb(req.factoryId, db);
   res.json(noImage(staff));
 });
@@ -716,13 +839,80 @@ app.put("/api/staff/:id", (req, res) => {
 app.delete("/api/staff/:id", requireAdmin, (req, res) => {
   const db = readDb(req.factoryId);
   const staff = db.staff.find(s => s.id === req.params.id);
-  if (!staff) return res.status(404).json({ error: "Staff member not found." });
+  if (!staff) return res.status(404).json({ error: "Weaver not found." });
   const looms = db.looms.filter(l => l.staffId === staff.id);
-  if (looms.length) return res.status(409).json({ error: `${staff.name} still runs ${looms.map(l => l.name).join(", ")}. Change the staff on those looms first.` });
+  if (looms.length) return res.status(409).json({ error: `${staff.name} still runs ${looms.map(l => l.name).join(", ")}. Change the weaver on those looms first.` });
   db.staff = db.staff.filter(s => s !== staff);
-  logEvent(db, req, "wages", `Staff ${staff.name} removed`);
+  logEvent(db, req, "wages", `Weaver ${staff.name} removed`);
   writeDb(req.factoryId, db);
   res.json({ removed: staff.id });
+});
+
+// Expenses per loom: warp joining, bobbin joining, spares and maintenance. Each has an amount, a date and
+// optional details (what, quantity, paid to, bill no., the warp/bobbin joined, a note).
+const EXPENSE_KINDS = {
+  warp_join: "Warp join", bobbin_join: "Bobbin join", spares: "Spares", maintenance: "Maintenance"
+};
+const EXPENSE_SUBTYPES = { maintenance: ["Routine service", "Repair", "Breakdown", "Other"] };
+function expenseBody(db, body) {
+  const loom = db.looms.find(l => l.id === cleanText(body.loomId));
+  if (!loom) return { error: "Select the loom." };
+  const kind = cleanText(body.kind);
+  if (!EXPENSE_KINDS[kind]) return { error: "Select the type of expense." };
+  const amount = rateField(body.amount);
+  if (amount == null) return { error: "Enter the amount spent." };
+  const date = body.date ? isoDate(body.date) : new Date().toISOString().slice(0, 10);
+  if (!date) return { error: "Enter a valid date." };
+  const qtyRaw = body.qty;
+  const qty = qtyRaw === "" || qtyRaw == null ? null : positiveNumber(qtyRaw);
+  if (qtyRaw !== "" && qtyRaw != null && qty == null) return { error: "Quantity must be a number above zero." };
+  const out = { loomId: loom.id, loomName: loom.name, kind, label: EXPENSE_KINDS[kind], amount, date, qty,
+    item: cleanText(body.item).slice(0, 120), vendor: cleanText(body.vendor).slice(0, 120), billNo: cleanText(body.billNo).slice(0, 60),
+    subtype: EXPENSE_SUBTYPES[kind]?.includes(cleanText(body.subtype)) ? cleanText(body.subtype) : "",
+    note: cleanText(body.note).slice(0, 500), warpId: null, warpName: "", bobbinId: null, bobbinName: "" };
+  if ((kind === "spares") && !out.item) return { error: "Enter the spare part." };
+  if (kind === "warp_join") {
+    const w = db.warps.find(x => x.id === cleanText(body.warpId));
+    if (w) { out.warpId = w.id; out.warpName = w.name; }
+  }
+  if (kind === "bobbin_join") {
+    const b = db.bobbins.find(x => x.id === cleanText(body.bobbinId));
+    if (b) { out.bobbinId = b.id; out.bobbinName = b.name; }
+  }
+  return { value: out };
+}
+const expenseText = x => `${x.label} ${money(x.amount)} on ${x.loomName}` +
+  `${x.warpName ? ` · warp ${x.warpName}` : ""}${x.bobbinName ? ` · bobbin ${x.bobbinName}` : ""}${x.subtype ? ` · ${x.subtype}` : ""}` +
+  `${x.item ? ` · ${x.item}${x.qty ? ` × ${x.qty}` : ""}` : ""}${x.vendor ? ` · ${x.vendor}` : ""}`;
+app.post("/api/expenses", (req, res) => {
+  const db = readDb(req.factoryId);
+  const r = expenseBody(db, req.body || {});
+  if (r.error) return res.status(400).json({ error: r.error });
+  const x = { id: id("EXP"), ...r.value, by: actor(req), createdAt: new Date().toISOString() };
+  db.expenses.unshift(x);
+  logEvent(db, req, "expense", `Expense added: ${expenseText(x)}`);
+  writeDb(req.factoryId, db);
+  res.status(201).json(x);
+});
+app.put("/api/expenses/:id", (req, res) => {
+  const db = readDb(req.factoryId);
+  const x = db.expenses.find(e => e.id === req.params.id);
+  if (!x) return res.status(404).json({ error: "Expense not found." });
+  const r = expenseBody(db, req.body || {});
+  if (r.error) return res.status(400).json({ error: r.error });
+  Object.assign(x, r.value, { updatedAt: new Date().toISOString() });
+  logEvent(db, req, "expense", `Expense edited: ${expenseText(x)}`);
+  writeDb(req.factoryId, db);
+  res.json(x);
+});
+app.delete("/api/expenses/:id", (req, res) => {
+  const db = readDb(req.factoryId);
+  const x = db.expenses.find(e => e.id === req.params.id);
+  if (!x) return res.status(404).json({ error: "Expense not found." });
+  db.expenses = db.expenses.filter(e => e !== x);
+  logEvent(db, req, "expense", `Expense removed: ${expenseText(x)}`);
+  writeDb(req.factoryId, db);
+  res.json({ removed: x.id });
 });
 
 function designBody(body) {
@@ -730,7 +920,17 @@ function designBody(body) {
   if (!number) return { error: "Enter the design number." };
   if (rate == null) return { error: "Enter the wage per saree (more than 0)." };
   if (image === false) return { error: "The image could not be used. Choose a JPG or PNG photo." };
-  return { number, name, rate, image };
+  // Weaving details, all optional: picks per saree, hours to weave one saree, cost (₹) per pick.
+  const opt = (raw, label, whole, places) => {
+    if (raw === "" || raw == null) return { value: null };
+    const n = Number(raw);
+    if (!Number.isFinite(n) || n <= 0 || (whole && !Number.isInteger(n))) return { error: `${label} must be ${whole ? "a whole number" : "a number"} above zero.` };
+    const k = 10 ** places;
+    return { value: Math.round(n * k) / k };
+  };
+  const picks = opt(body.picks, "Number of picks", true, 0), timing = opt(body.timing, "Timing", false, 2), pickCost = opt(body.pickCost, "Cost per pick", false, 4);
+  for (const x of [picks, timing, pickCost]) if (x.error) return { error: x.error };
+  return { number, name, rate, image, picks: picks.value, timing: timing.value, pickCost: pickCost.value };
 }
 
 app.post("/api/designs", (req, res) => {
@@ -739,7 +939,7 @@ app.post("/api/designs", (req, res) => {
   const db = readDb(req.factoryId);
   if (db.designs.some(d => d.number.toLowerCase() === v.number.toLowerCase())) return res.status(409).json({ error: "A design with this number already exists." });
   const now = new Date().toISOString();
-  const design = { id: id("DSN"), number: v.number, name: v.name, rate: v.rate, image: v.image || null, imageAt: v.image ? now : null, createdAt: now };
+  const design = { id: id("DSN"), number: v.number, name: v.name, rate: v.rate, picks: v.picks, timing: v.timing, pickCost: v.pickCost, image: v.image || null, imageAt: v.image ? now : null, createdAt: now };
   db.designs.unshift(design);
   logEvent(db, req, "wages", `Design ${v.number}${v.name ? ` (${v.name})` : ""} added · ${money(v.rate)} per saree`);
   writeDb(req.factoryId, db);
@@ -759,7 +959,10 @@ app.put("/api/designs/:id", (req, res) => {
   if (design.number !== v.number) changes.push(`renumbered ${v.number}`);
   if (design.rate !== v.rate) changes.push(`wage ${money(design.rate)} → ${money(v.rate)} per saree`);
   if (v.image !== undefined && v.image !== design.image) changes.push(v.image ? "image updated" : "image removed");
-  Object.assign(design, { number: v.number, name: v.name, rate: v.rate });
+  for (const [k, label] of [["picks", "picks"], ["timing", "timing"], ["pickCost", "cost per pick"]]) {
+    if ((design[k] ?? null) !== v[k]) changes.push(`${label} ${design[k] ?? "—"} → ${v[k] ?? "—"}`);
+  }
+  Object.assign(design, { number: v.number, name: v.name, rate: v.rate, picks: v.picks, timing: v.timing, pickCost: v.pickCost });
   if (v.image !== undefined && v.image !== design.image) Object.assign(design, { image: v.image, imageAt: v.image ? new Date().toISOString() : null });
   logEvent(db, req, "wages", `Design ${design.number} updated${changes.length ? ` · ${changes.join(", ")}` : ""}`);
   writeDb(req.factoryId, db);
@@ -777,7 +980,7 @@ app.delete("/api/designs/:id", requireAdmin, (req, res) => {
   const db = readDb(req.factoryId);
   const design = db.designs.find(d => d.id === req.params.id);
   if (!design) return res.status(404).json({ error: "Design not found." });
-  const looms = db.looms.filter(l => l.designId === design.id);
+  const looms = db.looms.filter(l => loomDesignIds(l).includes(design.id));
   if (looms.length) return res.status(409).json({ error: `Design ${design.number} is set on ${looms.map(l => l.name).join(", ")}. Change the design on those looms first.` });
   db.designs = db.designs.filter(d => d !== design);
   logEvent(db, req, "wages", `Design ${design.number} removed`);
@@ -790,14 +993,25 @@ app.post("/api/looms/:id/setup", (req, res) => {
   const db = readDb(req.factoryId);
   const loom = db.looms.find(l => l.id === req.params.id);
   if (!loom) return res.status(404).json({ error: "Loom not found." });
-  const designId = cleanText(req.body?.designId), staffId = cleanText(req.body?.staffId);
-  const design = designId ? db.designs.find(d => d.id === designId) : null;
+  const staffId = cleanText(req.body?.staffId);
+  // designIds: every design this loom can weave; designId: the one weaving now (one of them). Sending only designId sets a single design.
+  const rawIds = Array.isArray(req.body?.designIds) ? req.body.designIds : cleanText(req.body?.designId) ? [req.body.designId] : [];
+  const designIds = [...new Set(rawIds.map(cleanText).filter(Boolean))];
+  const designs = designIds.map(i => db.designs.find(d => d.id === i));
+  if (designs.some(d => !d)) return res.status(404).json({ error: "Design not found." });
+  let designId = cleanText(req.body?.designId);
+  if (designId && !designIds.includes(designId)) return res.status(400).json({ error: "The design weaving now must be one of the loom's designs." });
+  if (!designId) designId = designIds[0] || "";
+  const design = designs.find(d => d.id === designId) || null;
   const staff = staffId ? db.staff.find(s => s.id === staffId) : null;
-  if (designId && !design) return res.status(404).json({ error: "Design not found." });
-  if (staffId && !staff) return res.status(404).json({ error: "Staff member not found." });
+  if (staffId && !staff) return res.status(404).json({ error: "Weaver not found." });
   const parts = [];
-  if ((loom.designId || null) !== (design?.id || null)) parts.push(design ? `design ${design.number} (${money(design.rate)} per saree)` : "no design");
-  if ((loom.staffId || null) !== (staff?.id || null)) parts.push(staff ? `staff ${staff.name}` : "no staff");
+  const before = loomDesignIds(loom).join(), now = designIds.join();
+  if ((loom.designId || null) !== (design?.id || null) || before !== now) {
+    parts.push(designs.length ? `design${designs.length > 1 ? "s" : ""} ${designs.map(d => d.number).join(", ")}${designs.length > 1 ? ` (weaving ${design.number})` : ` (${money(design.rate)} per saree)`}` : "no design");
+  }
+  if ((loom.staffId || null) !== (staff?.id || null)) parts.push(staff ? `weaver ${staff.name}` : "no weaver");
+  loom.designIds = designIds;
   loom.designId = design ? design.id : null;
   loom.staffId = staff ? staff.id : null;
   if (parts.length) {
@@ -807,13 +1021,47 @@ app.post("/api/looms/:id/setup", (req, res) => {
   res.json(loom);
 });
 
+// Shift pay: enter the shifts a weaver worked in the open period. The factory's wage per shift (Settings) is
+// copied onto the entry, so changing it later doesn't alter shifts already entered. Only unpaid entries can be removed.
+app.post("/api/wages/shifts", (req, res) => {
+  const body = req.body || {};
+  if (wageBasisOf(req.factory) !== "shift") return res.status(409).json({ error: "This factory pays per saree. An admin can switch it to shifts in Settings." });
+  const list = shiftsOf(req.factory);
+  if (!list.length) return res.status(409).json({ error: "Add a shift (with its wage) in the factory settings first." });
+  const shift = list.length === 1 ? list[0] : list.find(x => x.name === cleanText(body.shiftName));
+  if (!shift) return res.status(400).json({ error: "Select the shift." });
+  const rate = shift.rate;
+  if (!(rate > 0)) return res.status(409).json({ error: `Set the wage per shift for ${shift.name} in the factory settings first.` });
+  const db = readDb(req.factoryId);
+  const staff = db.staff.find(s => s.id === cleanText(body.staffId));
+  if (!staff) return res.status(400).json({ error: "Select the weaver." });
+  const shifts = Number(body.shifts);
+  if (!Number.isFinite(shifts) || shifts <= 0 || shifts > 100 || Math.round(shifts * 2) !== shifts * 2) return res.status(400).json({ error: "Enter the number of shifts (whole or half shifts, above 0)." });
+  const entry = { id: id("SFT"), staffId: staff.id, staffName: staff.name, shifts, shiftName: shift.name, shiftRate: rate, wage: round2(shifts * rate), sarees: 0, wageSarees: 0,
+    note: cleanText(body.note).slice(0, 200), by: actor(req), createdAt: new Date().toISOString() };
+  db.wageShifts.unshift(entry);
+  logEvent(db, req, "wages", `${shifts} ${shift.name} shift${shifts === 1 ? "" : "s"} for ${staff.name} · ${shifts} × ${money(rate)} = ${money(entry.wage)}${entry.note ? ` · ${entry.note}` : ""}`);
+  writeDb(req.factoryId, db);
+  res.status(201).json(entry);
+});
+app.delete("/api/wages/shifts/:id", (req, res) => {
+  const db = readDb(req.factoryId);
+  const x = db.wageShifts.find(e => e.id === req.params.id);
+  if (!x) return res.status(404).json({ error: "Shift entry not found." });
+  if (x.payoutId) return res.status(409).json({ error: "These shifts are already settled." });
+  db.wageShifts = db.wageShifts.filter(e => e !== x);
+  logEvent(db, req, "wages", `${x.shifts} shift${x.shifts === 1 ? "" : "s"} for ${x.staffName} removed`);
+  writeDb(req.factoryId, db);
+  res.json({ removed: x.id });
+});
+
 // Adds a damage deduction for one staff member in the current (unpaid) period. The amounts per saree
 // used are remembered as the factory's defaults (db.deductionRates) for the next deduction.
 app.post("/api/wages/deductions", (req, res) => {
   const body = req.body || {};
   const db = readDb(req.factoryId);
   const staff = db.staff.find(s => s.id === cleanText(body.staffId));
-  if (!staff) return res.status(400).json({ error: "Select the staff member." });
+  if (!staff) return res.status(400).json({ error: "Select the weaver." });
   const items = [];
   for (const kind of Object.keys(DAMAGE_KINDS)) {
     const raw = body[`${kind}Sarees`], n = raw === "" || raw == null ? 0 : Number(raw);
@@ -854,7 +1102,7 @@ app.post("/api/wages/edit", (req, res) => {
   const at = new Date().toISOString(), by = actor(req), changes = [];
   let staffName = db.staff.find(s => s.id === staffId)?.name;
   for (const e of Array.isArray(body.dispatches) ? body.dispatches : []) {
-    const d = unpaid(db).find(x => x.id === e?.id && x.staffId === staffId);
+    const d = unpaidDispatches(db).find(x => x.id === e?.id && x.staffId === staffId);
     if (!d) return res.status(400).json({ error: "A dispatch was already settled or no longer exists. Reload and try again." });
     const n = Number(e.sarees), rate = rateField(e.rate);
     if (!Number.isInteger(n) || n < 0) return res.status(400).json({ error: `Enter a whole number of sarees for the ${d.loomName} dispatch.` });
@@ -899,7 +1147,7 @@ app.post("/api/wages/edit", (req, res) => {
     }
   }
   if (!changes.length) return res.json({ changed: 0 });
-  logEvent(db, req, "wages", `Wages edited for ${staffName || "staff"} · ${changes.join(" · ")}`);
+  logEvent(db, req, "wages", `Wages edited for ${staffName || "weaver"} · ${changes.join(" · ")}`);
   writeDb(req.factoryId, db);
   res.json({ changed: changes.length });
 });
@@ -910,11 +1158,11 @@ app.post("/api/wages/edit", (req, res) => {
 app.post("/api/wages/settle", (req, res) => {
   const db = readDb(req.factoryId);
   const pick = Array.isArray(req.body?.staffIds) ? new Set(req.body.staffIds.map(String)) : null;
-  if (pick && !pick.size) return res.status(400).json({ error: "Select the staff to settle." });
+  if (pick && !pick.size) return res.status(400).json({ error: "Select the weavers to settle." });
   const due = new Set([...unpaid(db).map(d => d.staffId), ...unpaidDeductions(db).filter(x => !x.carry).map(x => x.staffId)]);
   const mine = x => due.has(x.staffId) && (!pick || pick.has(x.staffId));
   const list = unpaid(db).filter(mine), cuts = unpaidDeductions(db).filter(mine);
-  if (!list.length && !cuts.length) return res.status(400).json({ error: pick ? "The selected staff have no unpaid wages to settle." : "There are no unpaid wages to settle." });
+  if (!list.length && !cuts.length) return res.status(400).json({ error: pick ? "The selected weavers have no unpaid wages to settle." : "There are no unpaid wages to settle." });
   const at = new Date().toISOString();
   // Other deductions typed in while settling ({ staffId: { amount, note } }, e.g. an advance): saved as
   // deductions of kind "other" and settled in this payout.
@@ -925,7 +1173,7 @@ app.post("/api/wages/settle", (req, res) => {
     const amount = rateField(raw);
     if (amount == null) return res.status(400).json({ error: "Other deductions must be an amount above 0." });
     const staff = db.staff.find(s => s.id === staffId);
-    if (!staff || !mine({ staffId })) return res.status(400).json({ error: "Other deductions can only be for staff being settled." });
+    if (!staff || !mine({ staffId })) return res.status(400).json({ error: "Other deductions can only be for weavers being settled." });
     const note = cleanText(a.note) || "Other deduction";
     cuts.push({ id: id("DED"), staffId, staffName: staff.name, items: [{ kind: "other", label: note, sarees: 0, rate: 0, amount }],
       amount, note: "", by: actor(req), createdAt: at });
@@ -950,10 +1198,11 @@ app.post("/api/wages/settle", (req, res) => {
     total: round2(lines.reduce((s, l) => s + l.net, 0)), lines, partial: !!pick && [...due].some(id => !pick.has(id)),
     note: cleanText(req.body?.note), by: actor(req), createdAt: at
   };
+  const shiftTotal = list.reduce((t, d) => t + (d.shifts || 0), 0);
   for (const d of [...list, ...cuts]) d.payoutId = payout.id;
   db.wageDeductions.unshift(...carries);
   db.wagePayouts.unshift(payout);
-  logEvent(db, req, "wages", `Wages settled${payout.partial ? ` for ${lines.map(l => l.staffName).join(", ")}` : ""} · ${money(payout.total)} to ${payout.lines.length} staff for ${sarees(payout.sarees)}${deducted ? ` (${money(earned)} earned − ${money(deducted)} deductions)` : ""}${payout.carried ? ` · ${money(payout.carried)} carried to next period` : ""}${payout.note ? ` · ${payout.note}` : ""}`);
+  logEvent(db, req, "wages", `Wages settled${payout.partial ? ` for ${lines.map(l => l.staffName).join(", ")}` : ""} · ${money(payout.total)} to ${payout.lines.length} weaver${payout.lines.length === 1 ? "" : "s"} for ${shiftTotal ? `${shiftTotal} shift${shiftTotal === 1 ? "" : "s"}${payout.sarees ? ` + ${sarees(payout.sarees)}` : ""}` : sarees(payout.sarees)}${deducted ? ` (${money(earned)} earned − ${money(deducted)} deductions)` : ""}${payout.carried ? ` · ${money(payout.carried)} carried to next period` : ""}${payout.note ? ` · ${payout.note}` : ""}`);
   writeDb(req.factoryId, db);
   res.status(201).json(payout);
 });
@@ -971,7 +1220,7 @@ const STOCK_BUCKETS = ["sent", "delivered", "process", "folding", "stock", "mai"
 const PROCESS_MOVES = new Set(["sent>delivered", "delivered>process", "process>folding"]);
 const POOL_MOVES = new Set(["mai>cleaning", "cleaning>stock", "stock>damage", "stock>dispatched", "dispatched>stock", "damage>returned"]);
 // Splits: checking at the godown (before process) and Add to stock (after folding).
-const SORTS = { delivered: ["process", "mai", "damage"], folding: ["stock", "mai", "lot", "damage"] };
+const SORTS = { delivered: ["process", "mai", "damage"], process: ["mai", "damage"], folding: ["stock", "mai", "lot", "damage"] };
 const ADJUSTABLE = ["stock", "mai", "lot", "damage"];
 const WARP_ADJUSTABLE = ["delivered", "process", "folding"];
 const STOCK_LABEL = { sent: "sent from looms and not yet received", delivered: "at the godown", process: "in process", folding: "in folding",
@@ -986,7 +1235,30 @@ function stockFor(db, warpId) {
     if (m.from) st[m.from] -= m.qty;
     st[m.to] += m.qty;
   }
+  // Stock + Wages factories skip the Process step: dispatched sarees go straight to stock (anything already
+  // on the way counts as stock too). Derived on read, so nothing is rewritten and switching back is safe.
+  if (db.direct) {
+    st.stock += st.sent + st.delivered + st.process + st.folding;
+    st.sent = st.delivered = st.process = st.folding = 0;
+  }
   return st;
+}
+// Called when a factory stops skipping the Process step (see stockFor): whatever sat in sent / godown / process /
+// folding and counted as stock becomes real stock moves, so every count stays the same. Reads with the normal
+// migrations, and with the direct view off so the old buckets are visible.
+function flushToStock(factoryId) {
+  const db = readDb(factoryId);
+  Object.defineProperty(db, "direct", { value: false, enumerable: false, configurable: true });
+  const at = new Date().toISOString(), moves = [];
+  for (const w of db.warps) {
+    const st = stockFor(db, w.id);
+    for (const from of ["sent", "delivered", "process", "folding"]) {
+      if (st[from]) moves.push({ id: id("MOV"), warpId: w.id, warpName: w.name, from, to: "stock", qty: st[from], auto: true, note: "Moved to stock when Process was turned back on", by: "system", createdAt: at });
+    }
+  }
+  if (!moves.length) return;
+  db.stockMoves.unshift(...moves);
+  writeDb(factoryId, db);
 }
 // Sarees a party still holds: dispatched to them minus their returns.
 function partyHolds(db, clientId) {
@@ -1042,6 +1314,15 @@ app.post("/api/stock/move", (req, res) => {
     const available = from === "dispatched" ? partyHolds(db, client.id) : stockFor(db).stock;
     if (qty > available) return res.status(400).json({ error: from === "dispatched" ? `${client.name} has only ${sarees(available)} to return.` : onlyLeft(available, "stock") });
     Object.assign(move, { clientId: client.id, clientName: client.name, lrNumber: cleanText(body.lrNumber) });
+    // Optional design on a delivery: priced with this party's rate for it (rate and amount are saved on the move).
+    // A party return can name a design too: its amount is credited to the party's balance.
+    const designId = cleanText(body.designId);
+    if (designId) {
+      const design = db.designs.find(d => d.id === designId), rate = client.rates?.[designId];
+      if (!design) return res.status(400).json({ error: "Design not found." });
+      if (!(rate > 0)) return res.status(400).json({ error: `${client.name} has no rate for design ${design.number}. Set it on the Parties page first.` });
+      Object.assign(move, { designId, designNo: design.number, designName: design.name || "", rate, amount: round2(qty * rate) });
+    }
   } else {
     const available = stockFor(db)[from];
     if (qty > available) return res.status(400).json({ error: onlyLeft(available, from) });
@@ -1060,7 +1341,7 @@ app.post("/api/stock/move", (req, res) => {
   res.status(201).json({ move, stock: stockFor(db, move.warpId), pool: stockFor(db) });
 });
 
-// Splits one warp's sarees in one go: from "delivered" (checking before process) into process,
+// Splits one warp's sarees in one go: from "process" (greese / damage found while in process, which come off the process count), from "delivered" (checking before process) into process,
 // mai and damage, or from "folding" (Add to stock) into stock, mai, lot and damage.
 app.post("/api/stock/sort", (req, res) => {
   const body = req.body || {};
@@ -1079,7 +1360,7 @@ app.post("/api/stock/sort", (req, res) => {
   const moves = counts.filter(([, n]) => n > 0).map(([to, qty]) => ({ id: id("MOV"), warpId: warp.id, warpName: warp.name, from, to, qty, by, createdAt }));
   db.stockMoves.unshift(...moves);
   const split = moves.map(m => `${m.qty} ${STOCK_NAME[m.to].toLowerCase()}`).join(", ");
-  logEvent(db, req, "process", from === "delivered" ? `${sarees(total)} of ${warp.name} checked · ${split}` : `${sarees(total)} of ${warp.name} added to stock section · ${split}`);
+  logEvent(db, req, "process", from === "delivered" ? `${sarees(total)} of ${warp.name} checked · ${split}` : from === "process" ? `${sarees(total)} of ${warp.name} taken out of process · ${split}` : `${sarees(total)} of ${warp.name} added to stock section · ${split}`);
   writeDb(req.factoryId, db);
   res.status(201).json({ moves, stock: stockFor(db, warp.id), pool: stockFor(db) });
 });
