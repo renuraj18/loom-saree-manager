@@ -11,12 +11,16 @@ const store = require("./store");
 const { requireAuth, requireAdmin, requireParty, factoryScope, authRouter, userFromToken } = require("./auth");
 const events = require("./events");
 const party = require("./party");
+const license = require("./license");
 
 // Larger than the default 100kb so a design image (resized in the browser) fits in one request.
 app.use(express.json({ limit: "2mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 // Served locally (not from a CDN) so dashboard image export also works on an offline LAN.
 app.use("/vendor/html2canvas", express.static(path.join(__dirname, "node_modules", "html2canvas", "dist")));
+// An expired, revoked or long-unverified license makes the app read-only (license.js): changes are refused,
+// everything can still be viewed, and licensing, backups, settings and upgrade keep working.
+app.use("/api", license.readOnlyGuard);
 
 // Each factory has its own data file (store.factoryFile). Data routes get the factory id from
 // factoryScope (X-Factory header), so every read/write below is limited to one factory.
@@ -226,14 +230,14 @@ app.get("/api/events", events.eventsRoute(userFromToken, user => {
   return user.factoryIds || [];
 }));
 // The party app (public/party.html): see party.js.
-app.use("/api/party", requireAuth, requireParty, party({ readDb, writeDb, logEvent, loomState: (db, l) => loomState(db, l), newId: id }));
+app.use("/api/party", requireAuth, requireParty, license.needPartyEdition, party({ readDb, writeDb, logEvent, loomState: (db, l) => loomState(db, l), newId: id }));
 // Everything below works on one factory's data and needs a signed-in user with access to it.
 app.use(["/api/data", "/api/warps", "/api/bobbins", "/api/looms", "/api/deliveries", "/api/clients", "/api/stock", "/api/order", "/api/staff", "/api/designs", "/api/wages", "/api/expenses", "/api/requests", "/api/shipments", "/api/announcements"], requireAuth, factoryScope);
 // In a factory a party has registered, looms and designs are set up by the party (party app). Owners keep
 // running them; an admin can still change anything.
 const setupByParty = (req, res, next) => req.user.role !== "admin" && party.partyManaged(req.factory)
   ? res.status(403).json({ error: "Looms and designs in this factory are set up by the party. Ask them to change it in their app." }) : next();
-app.post("/api/looms", setupByParty);
+app.post("/api/looms", setupByParty, license.needRoom("loom"));
 app.put("/api/looms/:id", setupByParty);
 app.post("/api/designs", setupByParty);
 // What the owner may do on a party's loom (factory.ownerPerms, set by that party). Returns an error message or "".
@@ -1518,6 +1522,13 @@ const server = app.listen(PORT, HOST, () => {
   safeArchiveLogs();
   // Hourly: refresh today's backup and move log entries older than 30 days to a CSV archive.
   setInterval(() => { backupNow(); safeArchiveLogs(); }, 60 * 60 * 1000);
+  // License: make the install id on first start, then check in online when the license asks for it (weekly).
+  const lic = license.state();
+  console.log(`License: ${lic.editionLabel} · ${lic.state}${lic.expiresAt ? ` · until ${lic.expiresAt}` : ""} · install ${lic.installId}`);
+  const appVersion = require("./package.json").version;
+  const checkin = () => license.checkin(false, appVersion).catch(() => {});
+  checkin();
+  setInterval(checkin, 6 * 60 * 60 * 1000);
   if (process.env.OPEN_BROWSER) openBrowser(`http://localhost:${PORT}`);
 });
 server.on("error", err => {

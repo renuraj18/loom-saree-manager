@@ -5,8 +5,21 @@ const net = require("node:net");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
+const crypto = require("node:crypto");
 
 const ROOT = path.join(__dirname, "..");
+
+// Test license keys: a throwaway Ed25519 pair; the server gets the public key in LICENSE_PUBLIC_KEY.
+const KEYS = crypto.generateKeyPairSync("ed25519");
+const PUBLIC_PEM = KEYS.publicKey.export({ type: "spki", format: "pem" });
+const PRIVATE_PEM = KEYS.privateKey.export({ type: "pkcs8", format: "pem" });
+const TEST_INSTALL = "INS-TEST-0000-0001";
+// A signed license key (license.js format). Defaults: a large Party license for TEST_INSTALL until 2099.
+function issueKey(over = {}) {
+  const { sign } = require("../license");
+  return sign({ v: 1, id: "LIC-" + crypto.randomBytes(4).toString("hex").toUpperCase(), edition: "party", licensee: "Test", installId: TEST_INSTALL,
+    maxFactories: 1000, maxLooms: 100000, issuedAt: new Date().toISOString(), expiresAt: "2099-12-31", ...over }, PRIVATE_PEM);
+}
 
 function freePort() {
   return new Promise((resolve, reject) => {
@@ -18,15 +31,20 @@ function freePort() {
 
 // Starts server.js against an empty data dir. Returns { url, dir, stop, api, admin }.
 // seed(dirs) can write files (an old db.json, a backup file…) before the server starts: dirs = { data, backups }.
-async function startApp({ seed } = {}) {
+// license: undefined = a large Party license; false = none (trial); an object = license payload overrides.
+// settings: extra settings.json fields (e.g. trialStartedAt, licenseAddedAt).
+async function startApp({ seed, license, settings = {} } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "thari-test-"));
   fs.mkdirSync(path.join(dir, "data"), { recursive: true });
   fs.mkdirSync(path.join(dir, "backups"), { recursive: true });
+  fs.writeFileSync(path.join(dir, "data", "settings.json"), JSON.stringify({
+    installId: TEST_INSTALL, trialStartedAt: new Date().toISOString(),
+    ...(license === false ? {} : { license: issueKey(license || {}), licenseAddedAt: new Date().toISOString() }), ...settings }));
   if (seed) seed({ data: path.join(dir, "data"), backups: path.join(dir, "backups") });
   const port = await freePort();
   const child = spawn(process.execPath, ["server.js"], {
     cwd: ROOT,
-    env: { ...process.env, PORT: String(port), DATA_DIR: path.join(dir, "data"), BACKUP_DIR: path.join(dir, "backups"), OPEN_BROWSER: "" },
+    env: { ...process.env, LICENSE_PUBLIC_KEY: PUBLIC_PEM, PORT: String(port), DATA_DIR: path.join(dir, "data"), BACKUP_DIR: path.join(dir, "backups"), OPEN_BROWSER: "" },
     stdio: ["ignore", "pipe", "pipe"]
   });
   let log = "";
@@ -89,4 +107,4 @@ async function runningLoom(a, { name = "L1", warpName = "W1", meters = 200, widt
 const dispatch = (a, loomId, sarees, extra = {}) => a.post("/api/deliveries", { loomId, sarees, ...extra });
 const dataOf = async a => (await a.get("/api/data")).body;
 
-module.exports = { startApp, runningLoom, dispatch, dataOf, ROOT };
+module.exports = { startApp, runningLoom, dispatch, dataOf, ROOT, issueKey, TEST_INSTALL };

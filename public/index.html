@@ -320,6 +320,7 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
 </header>
 <main>
   <div class="notice err show" id="pwWarn" hidden>You are using the default password. <button class="smallbtn" type="button" data-menu="password">Change it now</button></div>
+  <div class="notice" id="licenseBar"></div>
   <section class="panel empty" id="noFactory" hidden></section>
   <div class="lowalert" id="lowAlert" hidden></div>
   <div class="lowalert" id="partyAlert" hidden></div>
@@ -925,6 +926,14 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
       <div><h2>Settings</h2><p class="sub">Factories, users, backups and the app. Only admins can see this page.</p></div>
     </div>
     <div class="notice" id="settingsNotice"></div>
+    <section class="panel homepanel">
+      <div class="sectionhead"><h2>License</h2><div class="actions"><span class="pill" id="licPill"></span></div></div>
+      <div id="licStatus" class="tablewrap"></div>
+      <div class="field"><label for="licKey">License key</label><textarea id="licKey" rows="3" placeholder="MYTHARI1.…" style="font-family:ui-monospace,monospace;font-size:12px"></textarea>
+        <div class="hint">Send this PC's install ID to your supplier. Paste the key you get back and save it. <b>Factory</b> licenses cover one weaving unit; <b>Party</b> licenses add the party app for managing job work across several factories.</div></div>
+      <div class="notice" id="licNotice"></div>
+      <div class="headbtns"><button class="btn btn-inline" type="button" id="licSave">Save key</button><button class="btn btn-inline ghostbtn" type="button" id="licCheck">Check online now</button><button class="btn btn-inline ghostbtn" type="button" id="licCopy">Copy install ID</button><button class="btn btn-inline ghostbtn" type="button" id="licRemove">Remove key</button></div>
+    </section>
     <section class="panel homepanel">
       <div class="sectionhead"><h2>Factories</h2><div class="actions"><span id="setFactoryCount"></span><button class="btn btn-inline" type="button" id="addFactoryBtn">+ Add factory</button></div></div>
       <div id="setFactoryTable" class="tablewrap"></div>
@@ -3100,7 +3109,7 @@ function signOut(message) {
   db={warps:[],bobbins:[],looms:[],deliveries:[],clients:[],stockMoves:[],staff:[],designs:[],wagePayouts:[],wageDeductions:[],expenses:[]};
   $("userMenu").hidden=true; showLogin(message);
 }
-function applySession({user,factories}) {
+function applySession({user,factories,license}) {
   // Party accounts use the party app (same sign-in, same token).
   if(user.role==="party"){ location.replace("party.html"); return; }
   session.user=user; session.factories=factories;
@@ -3116,6 +3125,7 @@ function applySession({user,factories}) {
   $("menuSettings").hidden=!isAdmin(); $("footerBackup").hidden=!isAdmin();
   $("pwWarn").hidden=!user.defaultPassword;
   renderFactorySelect();
+  renderLicenseBar(license);
   startLive();
 }
 function renderFactorySelect() {
@@ -3175,6 +3185,7 @@ const fmtSize=b=>b<1024?`${b} B`:b<1048576?`${(b/1024).toFixed(1)} KB`:`${(b/104
 const whenFull=v=>new Date(v).toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
 async function loadSettings() {
   if(!isAdmin()) return;
+  loadLicense();
   try{ settingsInfo=await api("/api/admin/info"); }catch(err){ return notice("settingsNotice",err.message); }
   const i=settingsInfo, facName=id=>i.factories.find(f=>f.id===id)?.name;
   $("setFactoryCount").textContent=plural(i.factories.length,"factory").replace(/ys$/,"ies");
@@ -3578,6 +3589,46 @@ $("partyAcctForm").addEventListener("submit",async e=>{
     $("partyAcctDialog").close(); toast(editingPartyAcct?"Party saved.":"Party added. It can sign in now."); await loadSettings(); await reloadSession(); await refresh();
   }catch(err){ notice("partyAcctNotice",err.message); }
 });
+
+// ---- License (license.js): banner on every page, details in Settings ----
+const LIC_PILL={trial:"amber","trial-ended":"red",active:"green",expiring:"amber",grace:"amber",expired:"red",revoked:"red",offline:"red","wrong-pc":"red",invalid:"red"};
+const LIC_STATE={trial:"Trial","trial-ended":"Trial ended",active:"Active",expiring:"Expiring soon",grace:"In grace period",expired:"Expired",revoked:"Withdrawn",offline:"Not verified online","wrong-pc":"For another PC",invalid:"Invalid key"};
+function renderLicenseBar(l) {
+  const bar=$("licenseBar");
+  if(!l||!l.message||(l.state==="active")){ bar.className="notice"; bar.textContent=""; return; }
+  bar.className="notice show "+(l.readOnly?"err":"ok");
+  bar.textContent=(l.readOnly?"Read-only: ":"")+l.message+(l.readOnly&&!isAdmin()?" Ask your admin to renew the license.":"");
+  if(isAdmin()){ const a=document.createElement("a"); a.href="#settings"; a.textContent=" Open license settings"; bar.appendChild(a); }
+}
+async function loadLicense() {
+  let l; try{ l=await api("/api/admin/license"); }catch(err){ return notice("licNotice",err.message); }
+  $("licPill").className="pill "+(LIC_PILL[l.state]||"gray"); $("licPill").textContent=LIC_STATE[l.state]||l.state;
+  const row=(k,v)=>`<tr><th style="width:200px">${k}</th><td style="white-space:normal">${v}</td></tr>`;
+  const lim=(used,max)=>`${fmt(used)} of ${fmt(max)}${used>=max?' <span class="pill red">full</span>':""}`;
+  $("licStatus").innerHTML=`<table><tbody>${[
+    row("Edition",`<b>${esc(l.editionLabel)}</b>${l.party?" · party features on":" · own factory only"}`),
+    l.licensee?row("Licensed to",esc(l.licensee)+(l.licenseId?` <span style="color:var(--muted)">(${esc(l.licenseId)})</span>`:"")):"",
+    row("Factories",lim(l.usage.factories,l.maxFactories)),row("Looms",lim(l.usage.looms,l.maxLooms)),
+    l.expiresAt?row(l.edition==="trial"?"Trial ends":"Valid until",`${esc(fmtDate(l.expiresAt))}${l.graceUntil&&["grace","expiring"].includes(l.state)?` · grace until ${esc(fmtDate(l.graceUntil))}`:""}`):"",
+    l.checkin?row("Online check",l.checkin.lastOkAt?`Last verified ${esc(whenFull(l.checkin.lastOkAt))}${l.checkin.error?` · last try failed: ${esc(l.checkin.error)}`:""}`:`Not verified yet${l.checkin.error?` · ${esc(l.checkin.error)}`:""}`):"",
+    row("This PC's install ID",`<code>${esc(l.installId)}</code>`),
+    l.message?row("Status",esc(l.message)):""
+  ].join("")}</tbody></table>`;
+  $("licCheck").hidden=!l.checkin; $("licRemove").hidden=l.edition==="trial";
+  $("licCopy").dataset.id=l.installId;
+  renderLicenseBar(l);
+}
+$("licSave").addEventListener("click",async()=>{
+  hideNotice("licNotice");
+  try{ await api("/api/admin/license",{method:"POST",body:JSON.stringify({key:$("licKey").value})}); $("licKey").value=""; notice("licNotice","License saved.",true); await loadLicense(); await reloadSession(); }
+  catch(err){ notice("licNotice",err.message); }
+});
+$("licCheck").addEventListener("click",async()=>{ try{ await api("/api/admin/license/checkin",{method:"POST"}); await loadLicense(); toast("Checked."); }catch(err){ notice("licNotice",err.message); } });
+$("licRemove").addEventListener("click",async()=>{
+  if(!await ask({title:"Remove the license key?",text:"The app goes back to the trial, or read-only if the trial has ended.",ok:"Remove key"})) return;
+  try{ await api("/api/admin/license",{method:"DELETE"}); await loadLicense(); await reloadSession(); }catch(err){ notice("licNotice",err.message); }
+});
+$("licCopy").addEventListener("click",async e=>{ const id=e.currentTarget.dataset.id||""; try{ await navigator.clipboard.writeText(id); toast("Install ID copied."); }catch{ toast(id); } });
 async function boot() {
   if(!session.token) return showLogin();
   try{ await reloadSession(); }catch{ return; } // api() already showed the sign-in screen on 401

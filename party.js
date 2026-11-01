@@ -14,6 +14,7 @@
 //   announcements { id, partyId, partyName, kind: warp|design|holiday|general, title, body, ackRequired, acks: [{ userId, name, at }], by, createdAt }
 const express = require("express");
 const store = require("./store");
+const license = require("./license");
 
 // What a factory owner may do on a party's looms unless the party turns it off.
 const DEFAULT_PERMS = { dispatch: true, stop: true, warp: true, receive: true, request: true, ship: true };
@@ -119,6 +120,8 @@ module.exports = function partyRouter(h) {
     const name = text(b.name), location = text(b.location), ownerName = text(b.ownerName), ownerPhone = text(b.ownerPhone);
     const username = text(b.username), password = String(b.password || "");
     if (!name || !ownerName) return res.status(400).json({ error: "Enter the factory name and the owner's name." });
+    const over = license.limitError("factory");
+    if (over) return res.status(403).json({ error: over, code: "LICENSE_LIMIT" });
     if (!/^[A-Za-z0-9._-]{3,32}$/.test(username)) return res.status(400).json({ error: "Owner login: 3–32 letters, numbers, dots, dashes or underscores (the mobile number works well)." });
     const accounts = store.readAccounts();
     if (accounts.factories.some(f => f.name.toLowerCase() === name.toLowerCase())) return res.status(409).json({ error: "A factory with this name already exists. Ask the admin to link it to you." });
@@ -157,6 +160,8 @@ module.exports = function partyRouter(h) {
     const o = own(req, res); if (!o) return;
     const f = loomFields(req.body || {});
     if (!f.name || !["single", "triple"].includes(f.widthType)) return res.status(400).json({ error: "Enter loom number and width type." });
+    const over = license.limitError("loom");
+    if (over) return res.status(403).json({ error: over, code: "LICENSE_LIMIT" });
     const db = h.readDb(o.factory.id);
     if (db.looms.some(l => l.name.toLowerCase() === f.name.toLowerCase())) return res.status(409).json({ error: "A loom with this number/name already exists in this factory." });
     const loom = { id: h.newId("LOOM"), ...f, plan: "", bodyColor: "", borderColor: "", plannedMeters: null, wovenMeters: 0, warpId: null,

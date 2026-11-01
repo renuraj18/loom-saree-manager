@@ -149,6 +149,7 @@ dialog h2{margin:0 0 4px;font-size:18px}
       <div><h1 id="title">Dashboard</h1><div class="live off" id="live"><i></i><span id="liveText">Connecting…</span></div></div>
       <div class="seg" role="group" aria-label="Factory" id="facSeg"></div>
     </div>
+    <div class="notice" id="licBar"></div>
 
     <!-- Dashboard -->
     <section data-view="home">
@@ -477,11 +478,16 @@ function startLive(){
   src.onerror=()=>{ $("live").classList.add("off"); $("liveText").textContent="Reconnecting…"; };
   src.onmessage=()=>{ clearTimeout(liveT); liveT=setTimeout(()=>{ if(!$("dlg").open) load().catch(()=>{}); },500); };
 }
+function licenseBar(l){
+  if(!l||l.state==="active"||!l.message) return hide("licBar");
+  const msg=!l.party?"Party features need a Party license on this PC. Ask the admin to renew it.":(l.readOnly?"Read-only: ":"")+l.message+(l.readOnly?" Ask the admin to renew the license.":"");
+  notice("licBar",msg,!l.readOnly&&l.party);
+}
 async function boot(){
   if(!token) return location.replace("index.html");
   const m=await api("/api/auth/me");
   if(m.user.role!=="party") return location.replace("index.html");
-  me=m.user; $("app").hidden=false; route(); await load(); startLive();
+  me=m.user; $("app").hidden=false; licenseBar(m.license); route(); await load(); startLive();
 }
 boot().catch(err=>toast("Could not load: "+err.message));
 </script>
