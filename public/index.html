@@ -314,6 +314,18 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{ou
 @media(max-width:600px){.qbtn{flex:1 1 calc(50% - 10px);justify-content:center;padding:12px 8px}}
 @media(min-width:1000px){nav.tabs .tab.active{box-shadow:inset 3px 0 0 #ffb703;font-weight:700}nav.tabs .tab{padding:11px 12px;font-size:15px}}
 .navbrand{display:none}
+/* ---- Compact header: one 56px row (logo, factory, live, user), fixed while scrolling ---- */
+:root{--hh:56px}
+body:not(.signed-out){padding-top:56px}
+header,body:not(.signed-out) header{position:fixed;top:0;left:0;right:0;height:56px;margin:0!important;padding:0 16px!important;border-radius:0!important;display:flex;align-items:center;gap:14px;z-index:50;background:linear-gradient(90deg,#1a1050 0%,#2e1a8f 60%,#5532e0 100%);box-shadow:0 2px 14px -4px rgba(26,16,80,.45)}
+header .brand{flex:none;display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800;color:#fff;letter-spacing:.01em}
+.brandlogo{width:34px;height:34px;border-radius:9px;background:#fff;padding:2px;display:block}
+header .factorybar{margin:0;flex:0 1 auto;min-width:0}
+header .usermenu{position:relative!important;top:auto!important;right:auto!important;margin-left:auto;flex:none}
+header .usermenu .menu{right:0;top:calc(100% + 8px)}
+@media(min-width:1000px){header .brand{width:204px}nav.tabs{top:56px!important;padding-top:44px!important}.navtoggle{top:66px!important}}
+@media(max-width:600px){header,body:not(.signed-out) header{padding:0 10px!important;gap:8px}header .brandname{display:none}#liveText{display:none}.livedot{margin-left:4px}header .adminbtn{padding:7px 10px}}
+
 /* ---- Home: today at a glance ---- */
 .qbtn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
 .h-title{display:flex;align-items:center;gap:10px;margin:0 0 10px}.h-title h3{margin:0;font-size:17px}
@@ -379,8 +391,8 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{ou
   </form>
 </div>
 <header>
+  <a href="#home" class="brand" title="My Thari · Track all my loom production"><img class="brandlogo" src="img/thari-icon-64.png" alt=""><span class="brandname">My Thari</span></a>
   <div class="factorybar"><span aria-hidden="true">🏭</span><select id="factorySelect" aria-label="Factory"></select><span id="factoryLoc"></span><span class="livedot off" id="liveDot" title="Live updates"><i></i><span id="liveText">Offline</span></span></div>
-  <a href="#home" class="brand"><span class="logocard"><img src="img/thari-logo-640.png" srcset="img/thari-logo-640.png 640w, img/thari-logo-1280.png 1280w" sizes="180px" alt="Thari logo"></span><span class="brandtext"><h1>My Thari</h1><p>Track all my loom production</p></span></a>
   <div class="usermenu">
     <button class="adminbtn" id="userBtn" type="button" aria-haspopup="true" aria-expanded="false">👤 <span id="userBtnName"></span> ▾</button>
     <div class="menu" id="userMenu" hidden>
@@ -398,7 +410,6 @@ a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{ou
   <div class="lowalert" id="lowAlert" hidden></div>
   <div class="lowalert" id="partyAlert" hidden></div>
   <nav class="tabs" aria-label="Sections">
-    <a class="navbrand" href="#home"><img src="img/thari-icon-64.png" alt=""><span class="lb">My Thari</span></a>
     <button type="button" class="navtoggle" id="navToggle" title="Collapse menu" aria-label="Collapse menu">«</button>
     <span class="navgroup">Floor</span>
     <a class="tab" href="#home" title="Home"><i class="ic">🏠</i><span class="lb">Home</span></a>
