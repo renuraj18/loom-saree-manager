@@ -1522,9 +1522,6 @@ const server = app.listen(PORT, HOST, () => {
   safeArchiveLogs();
   // Hourly: refresh today's backup and move log entries older than 30 days to a CSV archive.
   setInterval(() => { backupNow(); safeArchiveLogs(); }, 60 * 60 * 1000);
-<<<<<<< HEAD
-  if (process.env.OPEN_BROWSER) openBrowser(`http://localhost:${PORT}${process.env.OPEN_PATH || ""}`);
-=======
   // License: make the install id on first start, then check in online when the license asks for it (weekly).
   const lic = license.state();
   console.log(`License: ${lic.editionLabel} · ${lic.state}${lic.expiresAt ? ` · until ${lic.expiresAt}` : ""} · install ${lic.installId}`);
@@ -1532,8 +1529,7 @@ const server = app.listen(PORT, HOST, () => {
   const checkin = () => license.checkin(false, appVersion).catch(() => {});
   checkin();
   setInterval(checkin, 6 * 60 * 60 * 1000);
-  if (process.env.OPEN_BROWSER) openBrowser(`http://localhost:${PORT}`);
->>>>>>> d17a2b8b82654cc8aeed05986e3849a3dbb626cc
+  if (process.env.OPEN_BROWSER) openBrowser(`http://localhost:${PORT}${process.env.OPEN_PATH || ""}`);
 });
 server.on("error", err => {
   // Double-clicking the launcher while the app is already running: just show the open app.
