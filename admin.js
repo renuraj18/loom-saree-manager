@@ -9,6 +9,7 @@ const { systemSnapshot, backupFormat, backupNow, snapshot, listBackups, backupPa
   LOG_KEEP_DAYS, logStats, archiveLogs, currentLogsCsv, listLogArchives, logArchivePath } = require("./backup");
 
 const upgrader = require("./upgrade");
+const license = require("./license");
 
 const STARTED_AT = new Date().toISOString();
 // The launcher (launcher.js) restarts the server when it exits with this code.
@@ -92,7 +93,7 @@ module.exports = function adminRouter({ flushToStock, emit } = {}) {
   });
 
   // ---- Factories ----
-  router.post("/factories", (req, res) => {
+  router.post("/factories", license.needRoom("factory"), (req, res) => {
     const accounts = store.readAccounts();
     const f = factoryFields(req.body || {});
     const err = factoryError(f, accounts);
@@ -202,7 +203,7 @@ module.exports = function adminRouter({ flushToStock, emit } = {}) {
   // ---- Parties (job-work givers who use the party app) ----
   // { name, phone?, username, password, factoryIds? } creates the party and its login. factoryIds links
   // existing factories to it: from then on the party sets up looms and designs there.
-  router.post("/parties", (req, res) => {
+  router.post("/parties", license.needPartyEdition, (req, res) => {
     const b = req.body || {};
     const accounts = store.readAccounts();
     const name = text(b.name), username = text(b.username);
@@ -220,7 +221,7 @@ module.exports = function adminRouter({ flushToStock, emit } = {}) {
     res.status(201).json(party);
   });
   // { name?, phone?, factoryIds? }: rename, or change which factories this party gives job work to.
-  router.put("/parties/:id", (req, res) => {
+  router.put("/parties/:id", (req, res, next) => (req.body?.factoryIds !== undefined ? license.needPartyEdition(req, res, next) : next()), (req, res) => {
     const b = req.body || {};
     const accounts = store.readAccounts();
     const party = accounts.parties.find(p => p.id === req.params.id);
@@ -248,6 +249,21 @@ module.exports = function adminRouter({ flushToStock, emit } = {}) {
     store.writeAccounts(accounts);
     res.json({ deleted: party.id });
   });
+
+  // ---- License (license.js) ----
+  router.get("/license", (_req, res) => res.json({ ...license.state(), usage: license.usage() }));
+  // { key }: checks the key is genuine and for this PC, saves it, then checks in online if the license asks for it.
+  router.post("/license", async (req, res) => {
+    const r = license.install(req.body?.key);
+    if (r.error) return res.status(400).json({ error: r.error });
+    await license.checkin(true, require("./package.json").version);
+    res.json({ ...license.state(), usage: license.usage() });
+  });
+  router.post("/license/checkin", async (_req, res) => {
+    await license.checkin(true, require("./package.json").version);
+    res.json({ ...license.state(), usage: license.usage() });
+  });
+  router.delete("/license", (_req, res) => { license.remove(); res.json({ ...license.state(), usage: license.usage() }); });
 
   // ---- Backups ----
   router.post("/backup-now", (_req, res) => {

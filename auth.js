@@ -7,6 +7,7 @@ const crypto = require("crypto");
 const { readSettings, writeSettings } = require("./paths");
 const { readAccounts, writeAccounts, hashPassword, verifyPassword, canAccessFactory, partyFactories, publicUser } = require("./store");
 
+const license = require("./license");
 const SESSION_MS = 7 * 24 * 60 * 60 * 1000;
 
 function secret() {
@@ -79,12 +80,12 @@ function authRouter() {
       return setTimeout(() => res.status(401).json({ error: "Wrong username or password." }), 600);
     }
     const party = user.role === "party" ? readAccounts().parties.find(p => p.id === user.partyId) || null : null;
-    res.json({ token: issueToken(user), user: publicUser(user), factories: factoriesFor(user), ...(party ? { party } : {}) });
+    res.json({ token: issueToken(user), user: publicUser(user), factories: factoriesFor(user), license: license.publicState(), ...(party ? { party } : {}) });
   });
 
   router.get("/me", requireAuth, (req, res) => {
     const party = req.user.role === "party" ? readAccounts().parties.find(p => p.id === req.user.partyId) || null : null;
-    res.json({ user: publicUser(req.user), factories: factoriesFor(req.user), ...(party ? { party } : {}) });
+    res.json({ user: publicUser(req.user), factories: factoriesFor(req.user), license: license.publicState(), ...(party ? { party } : {}) });
   });
 
   router.post("/password", requireAuth, (req, res) => {
