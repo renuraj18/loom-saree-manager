@@ -15,11 +15,30 @@ const STARTED_AT = new Date().toISOString();
 const RESTART_EXIT_CODE = 75;
 const text = v => (typeof v === "string" ? v.trim() : "");
 
-// modules: which parts of the app this factory uses, { stock, wages }; at least one is on.
+// modules: Own factory (Process / Weft / Labour are choices) or Job work (Process only), see store.modulesOf().
 // Not sent (older pages): keep the factory's current setting.
 function factoryFields(body) {
   const f = { name: text(body.name), location: text(body.location), ownerName: text(body.ownerName), ownerPhone: text(body.ownerPhone), ownerEmail: text(body.ownerEmail) };
-  if (body.modules && typeof body.modules === "object") f.modules = { stock: body.modules.stock !== false, wages: body.modules.wages !== false, process: body.modules.process === true };
+  if (body.modules && typeof body.modules === "object") {
+    f.modules = store.normalizeModules(body.modules);
+    if (body.modules.stock === false) f.modulesBad = "Stock is always part of a factory. Choose Own factory or Job work.";
+  }
+  // Loom types the factory defines: { id, name, widthType, needsBobbin }. Adding a loom then picks one of them.
+  if (Array.isArray(body.loomTypes)) {
+    f.loomTypes = body.loomTypes.slice(0, 20).map(x => ({
+      id: text(x?.id).slice(0, 60) || store.newId("LTY"), name: text(x?.name).slice(0, 40),
+      widthType: ["single", "double", "triple"].includes(x?.widthType) ? x.widthType : "", needsBobbin: x?.needsBobbin === true
+    }));
+    const seen = new Set();
+    f.loomTypesBad = "";
+    f.loomTypes.forEach((t, i) => {
+      if (f.loomTypesBad) return;
+      if (!t.name) f.loomTypesBad = `Enter a name for loom type ${i + 1}, or remove the row.`;
+      else if (seen.has(t.name.toLowerCase())) f.loomTypesBad = `Two loom types are called "${t.name}". Give each its own name.`;
+      else if (!t.widthType) f.loomTypesBad = `Choose single, double or triple width for ${t.name}.`;
+      seen.add(t.name.toLowerCase());
+    });
+  }
   // Wage basis ("saree" or "shift") and the factory's shifts: name, start time, hours and wage per shift (₹) each.
   // Most factories run one shift, some two (e.g. Day / Night). A legacy single `shift` becomes "Shift 1".
   if (body.wageBasis !== undefined) f.wageBasis = body.wageBasis === "shift" ? "shift" : "saree";
@@ -45,9 +64,11 @@ function factoryFields(body) {
 }
 function factoryError(f, accounts, selfId) {
   if (!f.name || !f.location || !f.ownerName) return "Enter the factory name, location and owner name.";
-  if (f.modules && !f.modules.stock) return "Choose Stock only or Stock + Wages for this factory.";
-  if (f.shiftBad) return f.shiftBad;
-  if (f.wageBasis === "shift" && !(f.shifts?.length && f.shifts.every(x => x.rate > 0))) return "Add at least one shift and enter the wage per shift to pay by shift.";
+  if (f.modulesBad) return f.modulesBad;
+  if (f.loomTypesBad) return f.loomTypesBad;
+  const labour = f.modules ? f.modules.labour : true;
+  if (labour && f.shiftBad) return f.shiftBad;
+  if (labour && f.wageBasis === "shift" && !(f.shifts?.length && f.shifts.every(x => x.rate > 0))) return "Add at least one shift and enter the wage per shift to pay by shift.";
   if (accounts.factories.some(x => x.id !== selfId && x.name.toLowerCase() === f.name.toLowerCase())) return "A factory with this name already exists.";
   return null;
 }
@@ -59,7 +80,7 @@ function cleanFactoryIds(ids, accounts, role) {
 // Stock + Wages factories have no Process step (sarees count as stock straight after dispatch, see stockFor in
 // server.js). When a factory stops skipping Process (Stock only, or "Include Process" ticked), server.js's
 // flushToStock() turns those sarees into real stock records so counts stay the same.
-const isDirect = f => f?.modules?.stock !== false && f?.modules?.wages !== false && f?.modules?.process !== true;
+const isDirect = f => !store.modulesOf(f).process;
 const otherAdmins = (accounts, id) => accounts.users.filter(u => u.role === "admin" && u.id !== id).length;
 
 module.exports = function adminRouter({ flushToStock } = {}) {
@@ -87,7 +108,7 @@ module.exports = function adminRouter({ flushToStock } = {}) {
     const f = factoryFields(req.body || {});
     const err = factoryError(f, accounts);
     if (err) return res.status(400).json({ error: err });
-    delete f.shiftBad;
+    delete f.shiftBad; delete f.modulesBad; delete f.loomTypesBad;
     const factory = { id: store.newId("FAC"), ...f, createdAt: new Date().toISOString() };
     store.writeFactoryRaw(factory.id, store.emptyFactoryData());
     accounts.factories.push(factory);
@@ -102,7 +123,19 @@ module.exports = function adminRouter({ flushToStock } = {}) {
     const f = factoryFields(req.body || {});
     const err = factoryError(f, accounts, factory.id);
     if (err) return res.status(400).json({ error: err });
-    delete f.shiftBad;
+    delete f.shiftBad; delete f.modulesBad; delete f.loomTypesBad;
+    // A loom type that looms already use can be renamed, but not removed or changed to another width / bobbin setting.
+    if (f.loomTypes) {
+      const looms = (store.readFactoryRaw(factory.id)?.looms) || [];
+      for (const old of factory.loomTypes || []) {
+        const users = looms.filter(l => l.loomTypeId === old.id).map(l => l.name);
+        if (!users.length) continue;
+        const now = f.loomTypes.find(t => t.id === old.id);
+        const where = `${users.slice(0, 3).join(", ")}${users.length > 3 ? "…" : ""}`;
+        if (!now) return res.status(409).json({ error: `Loom type ${old.name} is used by ${where}. Change those looms first.` });
+        if (now.widthType !== old.widthType || now.needsBobbin !== old.needsBobbin) return res.status(409).json({ error: `Loom type ${old.name} is used by ${where}, so its width and bobbin setting can't change. Add a new type instead.` });
+      }
+    }
     const wasDirect = isDirect(factory);
     Object.assign(factory, f);
     if (wasDirect && !isDirect(factory) && flushToStock) flushToStock(factory.id);

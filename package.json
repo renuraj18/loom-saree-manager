@@ -12,7 +12,9 @@
     "dev": "node launcher.js",
     "reset-data": "node scripts/reset-data.js",
     "build:win": "node scripts/build-windows.js",
-    "test": "node --test"
+    "test": "node --test",
+    "e2e:install": "npm --prefix e2e install --no-audit --no-fund",
+    "test:e2e": "node e2e/run.js"
   },
   "engines": {
     "node": ">=18"

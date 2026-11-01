@@ -302,3 +302,60 @@ test("the edit-wages screen only touches dispatches, never shift entries", async
   const r = await f.a.post("/api/wages/edit", { staffId: f.staff.id, dispatches: [{ id: e.id, sarees: 1, rate: 1 }] });
   assert.equal(r.status, 400);
 });
+
+test("a design has a labour wage and a weaver (owner) wage; dispatches snapshot both, payouts use labour only", async () => {
+  const f = await wagesFactory();
+  const post = b => f.a.post("/api/designs", b);
+  assert.equal((await post({ number: "W0", rate: 100, weaverRate: -1 })).status, 400);
+  assert.equal((await post({ number: "W0", rate: 100, weaverRate: "abc" })).status, 400);
+  const none = await post({ number: "W0", rate: 100 });
+  assert.equal(none.body.weaverRate, null, "weaver wage is optional");
+  const d = (await post({ number: "W1", rate: 100, weaverRate: 150.5 })).body;
+  assert.deepEqual([d.rate, d.weaverRate], [100, 150.5]);
+  await f.a.post(`/api/looms/${f.loom.id}/setup`, { designId: d.id, staffId: f.staff.id });
+  const del = (await dispatch(f.a, f.loom.id, 4)).body.delivery;
+  assert.deepEqual([del.wage, del.rate, del.weaverRate, del.weaverWage], [400, 100, 150.5, 602]);
+  // changing the weaver wage later does not touch the saved dispatch
+  const up = await f.a.put(`/api/designs/${d.id}`, { number: "W1", rate: 100, weaverRate: 200 });
+  assert.equal(up.body.weaverRate, 200);
+  assert.equal((await dataOf(f.a)).deliveries.find(x => x.id === del.id).weaverWage, 602);
+  const paid = await settle(f.a);
+  assert.equal(paid.body.total, 400, "labour is paid the labour wage only");
+});
+
+test("weft: designs list the weft per saree and dispatches use it up", async () => {
+  const app2 = await startApp();
+  try {
+    const f = await app2.newFactory({ modules: { stock: true, wages: true } });
+    const a = f.api;
+    assert.equal((await a.post("/api/wefts", { name: "Zari", kg: 0 })).status, 400);
+    assert.equal((await a.post("/api/wefts", { name: "NoParty", kg: 1 })).status, 400, "party is required");
+    const party = (await a.post("/api/clients", { name: "Sri Textiles" })).body;
+    assert.equal((await a.post("/api/wefts", { name: "Bad", kg: 1, partyId: "nope" })).status, 400);
+    const zari = (await a.post("/api/wefts", { name: "Zari", color: "Gold", kg: 2, partyId: party.id })).body;
+    assert.equal(zari.receipts[0].partyName, "Sri Textiles");
+    assert.equal(zari.receivedGrams, 2000);
+    assert.equal((await a.post("/api/wefts", { name: "zari", kg: 1, partyId: party.id })).status, 409, "unique name");
+    const bad = await a.post("/api/designs", { number: "D1", rate: 100, wefts: [{ weftId: zari.id, grams: 0 }] });
+    assert.equal(bad.status, 400);
+    const design = (await a.post("/api/designs", { number: "D1", rate: 100, wefts: [{ weftId: zari.id, grams: 150 }] })).body;
+    assert.deepEqual(design.wefts, [{ weftId: zari.id, grams: 150 }]);
+    assert.equal((await a.del(`/api/wefts/${zari.id}`)).status, 409, "used by a design");
+    const loom = (await a.post("/api/looms", { name: "L1", widthType: "single" })).body;
+    const warp = (await a.post("/api/warps", { name: "W", widthType: "single", meters: 100, bodyColor: "R", borderColor: "G" })).body;
+    await a.post(`/api/warps/${warp.id}/move`, { to: "running", loomId: loom.id });
+    const staff = (await a.post("/api/staff", { name: "Ravi" })).body;
+    await a.post(`/api/looms/${loom.id}/setup`, { designId: design.id, staffId: staff.id });
+    const d = (await a.post("/api/deliveries", { loomId: loom.id, sarees: 4 })).body.delivery;
+    assert.equal(d.wefts[0].used, 600);
+    assert.equal(d.wefts[0].left, 1400);
+    await a.put(`/api/deliveries/${d.id}`, { sarees: 2 });
+    let w = (await a.get("/api/data")).body.wefts[0];
+    assert.equal(w.usedGrams, 300, "editing the dispatch adjusts weft");
+    assert.equal((await a.post(`/api/wefts/${zari.id}/receive`, { kg: 1 })).status, 400, "party is required");
+    const r = await a.post(`/api/wefts/${zari.id}/receive`, { kg: 1, partyId: party.id });
+    assert.equal(r.body.receipts[0].partyId, party.id);
+    assert.equal(r.body.receivedGrams, 3000);
+    assert.equal(r.body.leftGrams, 2700);
+  } finally { await app2.stop(); }
+});

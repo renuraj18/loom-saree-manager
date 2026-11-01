@@ -84,3 +84,46 @@ test("expenses are scoped to their factory and stored newest first", async () =>
   const foreign = (await other.api.post("/api/looms", { name: "Foreign", widthType: "single" })).body;
   assert.equal((await a.post("/api/expenses", { loomId: foreign.id, kind: "maintenance", amount: 5 })).status, 400);
 });
+
+test("factory expenses need no loom and use the factory categories", async () => {
+  const f = (body = {}) => a.post("/api/expenses", { scope: "factory", amount: 500, ...body });
+  assert.equal((await f({ kind: "bogus" })).status, 400, "unknown category");
+  assert.equal((await f({ kind: "spares" })).status, 400, "loom categories are not factory categories");
+  const r = await f({ kind: "rent", vendor: "Landlord", note: "Nov" });
+  assert.equal(r.status, 201);
+  assert.deepEqual([r.body.scope, r.body.loomId, r.body.loomName, r.body.label, r.body.vendor], ["factory", null, "", "Rent", "Landlord"]);
+  // a loom expense still needs a loom, and old entries without a scope read as loom
+  assert.equal((await a.post("/api/expenses", { kind: "maintenance", amount: 5 })).status, 400);
+  assert.equal((await add({ kind: "maintenance" })).body.scope, "loom");
+  const log = (await dataOf(a)).activity.find(x => x.type === "expense");
+  assert.match(log.text, /Expense added: Maintenance/);
+  assert.match((await dataOf(a)).activity.find(x => /Rent/.test(x.text)).text, /Rent ₹500 for the factory/);
+});
+
+test("own expense categories: add per section, use them, rename-proof label, and remove when unused", async () => {
+  const cat = async (name, scope) => a.post("/api/expense-categories", { name, scope });
+  assert.equal((await cat("", "factory")).status, 400, "name needed");
+  assert.equal((await cat("Packing", "nowhere")).status, 400, "section needed");
+  assert.equal((await cat("rent", "factory")).status, 409, "built-in names are taken");
+  const packing = (await cat("Packing", "factory")).body;
+  assert.equal((await cat("packing", "factory")).status, 409, "unique within the section");
+  const loomCat = (await cat("Packing", "loom")).body;
+  assert.notEqual(packing.id, loomCat.id, "the same name can exist in the other section");
+  // used on a factory expense (and refused on a loom expense)
+  const ok = await a.post("/api/expenses", { scope: "factory", kind: packing.id, amount: 90 });
+  assert.equal(ok.status, 201);
+  assert.deepEqual([ok.body.kind, ok.body.label], [packing.id, "Packing"]);
+  assert.equal((await a.post("/api/expenses", { scope: "loom", loomId: loom.id, kind: packing.id, amount: 1 })).status, 400, "factory category on a loom expense");
+  assert.equal((await add({ kind: loomCat.id, item: "tape" })).status, 201, "the loom copy works on a loom expense");
+  // removal
+  assert.equal((await a.del(`/api/expense-categories/${packing.id}`)).status, 409, "in use");
+  await a.del(`/api/expenses/${ok.body.id}`);
+  assert.equal((await a.del(`/api/expense-categories/${packing.id}`)).status, 200);
+  assert.equal((await a.del(`/api/expense-categories/${packing.id}`)).status, 404);
+  assert.ok((await dataOf(a)).expenseCategories.every(c => c.id !== packing.id));
+});
+
+test("expense categories work in every factory type", async () => {
+  const job = await app.newFactory({ modules: { type: "job", process: true } });
+  assert.equal((await job.api.post("/api/expense-categories", { name: "X", scope: "factory" })).status, 201);
+});

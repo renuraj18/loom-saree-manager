@@ -8,6 +8,7 @@ const HOST = "0.0.0.0";
 const { DATA_DIR, backupConfig, writeJsonAtomic } = require("./paths");
 const { backupNow, safeArchiveLogs } = require("./backup");
 const store = require("./store");
+const { modulesOf } = store;
 const { requireAuth, requireAdmin, factoryScope, authRouter } = require("./auth");
 
 // Larger than the default 100kb so a design image (resized in the browser) fits in one request.
@@ -34,8 +35,13 @@ function writeDb(factoryId, db) {
 }
 
 // One saree length. A warp with less than this left cannot produce another saree
-// (or another set of 3 on a triple-width loom), so it counts as used up.
+// (or another set on a double / triple-width loom), so it counts as used up.
 const SAREE_M = 6.3;
+// Loom widths: how many sarees are woven side by side over one saree length (6.3 m). Sarees on a wider loom come in
+// sets of that many, and each set uses 6.3 m of warp.
+const WIDTHS = { single: 1, double: 2, triple: 3 };
+const validWidth = w => Object.hasOwn(WIDTHS, w);
+const sareesPer = w => WIDTHS[w] || 1;
 function isSpent(warp) {
   return warp.remainingMeters < SAREE_M - 1e-9;
 }
@@ -44,9 +50,10 @@ function isSpent(warp) {
 // Brings older data files up to the current shape. Returns true if anything changed.
 function migrateDb(db) {
   let changed = false;
-  for (const key of ["clients", "stockMoves", "staff", "designs", "wagePayouts", "wageDeductions", "wageShifts", "partyPayments", "bobbins", "expenses"]) {
+  for (const key of ["clients", "stockMoves", "staff", "designs", "wagePayouts", "wageDeductions", "wageShifts", "partyPayments", "bobbins", "expenses", "wefts", "expenseCategories"]) {
     if (!Array.isArray(db[key])) { db[key] = []; changed = true; }
   }
+  for (const x of db.expenses) if (!x.scope) { x.scope = "loom"; changed = true; }
   if (!Array.isArray(db.activity)) { db.activity = seedActivity(db); db.activityVersion = 2; changed = true; }
   // Log v2: a loom delivery is now called a dispatch, and stock sent to a party a delivery.
   if ((db.activityVersion || 1) < 2) {
@@ -116,10 +123,10 @@ function logEvent(db, req, type, text) {
 }
 // Builds a log from existing records for data saved before the activity log existed.
 function seedActivity(db) {
-  const width = w => w === "triple" ? "triple width" : "single width";
+  const width = w => `${validWidth(w) ? w : "single"} width`;
   const out = [];
   const add = (type, text, at, by = "") => at && out.push({ id: `LOG-SEED-${out.length}`, type, text, by, at, seeded: true });
-  for (const w of db.warps) add("warp", `Warp ${w.name} added · ${width(w.widthType)} · ${w.originalMeters} m · ${w.bodyColor} / ${w.borderColor}`, w.createdAt);
+  for (const w of db.warps) add("warp", `Warp ${w.name} added · ${width(w.widthType)} · ${w.originalMeters} m${w.warpType === "other" ? " · polyester / other" : ""} · ${[w.bodyColor, w.borderColor].filter(Boolean).join(" / ") || "no colour"}`, w.createdAt);
   for (const l of db.looms) add("loom", `Loom ${l.name} added · ${width(l.widthType)}`, l.createdAt);
   for (const c of db.clients || []) add("party", `Party ${c.name} added`, c.createdAt);
   for (const d of db.deliveries) {
@@ -215,18 +222,19 @@ app.get("/api/health", (_req, res) => res.json({ status: "ok", app: "My Thari" }
 app.use("/api/auth", authRouter());
 app.use("/api/admin", requireAuth, requireAdmin, require("./admin")({ flushToStock: id => flushToStock(id) }));
 // Everything below works on one factory's data and needs a signed-in user with access to it.
-app.use(["/api/data", "/api/warps", "/api/bobbins", "/api/looms", "/api/deliveries", "/api/clients", "/api/stock", "/api/order", "/api/staff", "/api/designs", "/api/wages", "/api/expenses"], requireAuth, factoryScope);
+app.use(["/api/data", "/api/warps", "/api/bobbins", "/api/looms", "/api/deliveries", "/api/clients", "/api/stock", "/api/order", "/api/staff", "/api/designs", "/api/wages", "/api/expenses", "/api/expense-categories", "/api/wefts"], requireAuth, factoryScope);
 // Each factory turns the Stock module (process, stock, parties) and the Wages module (staff, designs,
 // wages) on or off in Settings (factory.modules, missing = on). Production (warps, looms, dispatch) is always on.
 // Stock + Wages factories skip the Process step unless "Include Process" is ticked (modules.process).
-const noProcess = f => !!f && modulesOf(f).stock && modulesOf(f).wages && f?.modules?.process !== true;
-const modulesOf = f => ({ stock: f?.modules?.stock !== false, wages: f?.modules?.wages !== false });
+const noProcess = f => !!f && !modulesOf(f).process;
 const needModule = (name, label) => (req, res, next) => modulesOf(req.factory)[name] ? next()
   : res.status(403).json({ error: `${label} is turned off for this factory. An admin can turn it on in Settings.` });
 app.use(["/api/stock", "/api/clients"], needModule("stock", "Stock"));
-app.use(["/api/staff", "/api/designs", "/api/wages", "/api/looms/:id/setup"], needModule("wages", "Wages"));
+app.use(["/api/staff", "/api/wages"], needModule("labour", "Labour and wages"));
 // Stock-only factories have no looms to cost, so Expenses is off for them too (it follows the Wages module).
-app.use("/api/expenses", needModule("wages", "Expenses"));
+app.use(["/api/expenses", "/api/expense-categories"], needModule("expenses", "Expenses"));
+// Weft belongs to designs, so it follows the Wages module too.
+app.use("/api/wefts", needModule("weft", "Weft"));
 // Design images and staff photos are left out (only hasImage); the page loads each one from
 // /api/designs/:id/image or /api/staff/:id/image.
 const noImage = ({ image, ...rest }) => ({ ...rest, hasImage: !!image });
@@ -235,17 +243,31 @@ app.get("/api/data", (req, res) => {
   res.json({ ...db, designs: db.designs.map(noImage), staff: db.staff.map(noImage) });
 });
 
+// Optional loom a warp / bobbin is ordered for. It must exist, have the same width and (for a bobbin) use bobbins.
+// It is a plan only: the item still goes on the loom through the board.
+function plannedLoom(db, body, widthType, kind) {
+  const loomId = cleanText(body.loomId);
+  if (!loomId) return { loom: null };
+  const loom = db.looms.find(l => l.id === loomId);
+  if (!loom) return { error: "Loom not found." };
+  if (loom.widthType !== widthType) return { error: `${loom.name} is a ${loom.widthType}-width loom, but this ${kind} is ${widthType} width.` };
+  if (kind === "bobbin" && !loom.needsBobbin) return { error: `${loom.name} does not use a bobbin. Set it to "Warp + bobbin" on the Looms page first.` };
+  return { loom };
+}
 app.post("/api/warps", (req, res) => {
   const body = req.body || {};
   const name = cleanText(body.name);
   const widthType = body.widthType;
   const meters = positiveNumber(body.meters);
+  // Two kinds of warp, colours always optional: "tana" is entered with one colour (bodyColor), "other" (polyester / other)
+  // with two (bodyColor and borderColor). A border colour sent with a tana warp is kept (older pages and records have both).
+  const warpType = body.warpType === "other" ? "other" : "tana";
   const bodyColor = cleanText(body.bodyColor);
   const borderColor = cleanText(body.borderColor);
   const orderDate = body.orderDate ? isoDate(body.orderDate) : new Date().toISOString().slice(0, 10);
   const hex = v => typeof v === "string" && /^#[0-9a-f]{6}$/i.test(v) ? v.toLowerCase() : null;
-  if (!name || !["single", "triple"].includes(widthType) || !meters || !bodyColor || !borderColor) {
-    return res.status(400).json({ error: "Enter warp name/ID, width type, meters, body colour, and border colour." });
+  if (!name || !validWidth(widthType) || !meters) {
+    return res.status(400).json({ error: "Enter warp name/ID, width type and meters." });
   }
   if (!orderDate) return res.status(400).json({ error: "Enter a valid warp order date." });
   if (meters < SAREE_M) return res.status(400).json({ error: `A warp must be at least ${SAREE_M} m (one saree length).` });
@@ -253,13 +275,20 @@ app.post("/api/warps", (req, res) => {
   if (db.warps.some(w => w.name.toLowerCase() === name.toLowerCase())) {
     return res.status(409).json({ error: "A warp with this ID/name already exists." });
   }
+  // Optional: the party this warp is ordered for.
+  const partyId = cleanText(body.partyId), party = partyId ? db.clients.find(c => c.id === partyId) : null;
+  if (partyId && !party) return res.status(400).json({ error: "Party not found." });
+  const pl = plannedLoom(db, body, widthType, "warp");
+  if (pl.error) return res.status(400).json({ error: pl.error });
   const warp = {
     id: id("WARP"), name, widthType, originalMeters: meters, remainingMeters: meters,
-    bodyColor, borderColor, bodyHex: hex(body.bodyHex), borderHex: hex(body.borderHex), orderDate, status: "Ordered", assignedLoomId: null,
+    warpType, bodyColor, borderColor, bodyHex: hex(body.bodyHex), borderHex: borderColor ? hex(body.borderHex) : null, orderDate, status: "Ordered", assignedLoomId: null,
+    ...(party ? { partyId: party.id, partyName: party.name, partyAddress: party.address || "" } : {}),
+    ...(pl.loom ? { plannedLoomId: pl.loom.id, plannedLoomName: pl.loom.name } : {}),
     createdAt: new Date().toISOString()
   };
   db.warps.unshift(warp);
-  logEvent(db, req, "warp", `Warp ${name} added · ${widthType} width · ${meters} m · ${bodyColor} / ${borderColor}`);
+  logEvent(db, req, "warp", `Warp ${name} added · ${widthType} width · ${meters} m · ${warpType === "other" ? "polyester / other · " : "tana · "}${[bodyColor, borderColor].filter(Boolean).join(" / ") || "no colour"}${party ? ` · for ${party.name}` : ""}${pl.loom ? ` · for ${pl.loom.name}` : ""}`);
   writeDb(req.factoryId, db);
   res.status(201).json(warp);
 });
@@ -270,32 +299,56 @@ app.post("/api/bobbins", (req, res) => {
   const name = cleanText(body.name), widthType = body.widthType, meters = positiveNumber(body.meters), color = cleanText(body.color);
   const orderDate = body.orderDate ? isoDate(body.orderDate) : new Date().toISOString().slice(0, 10);
   const colorHex = typeof body.colorHex === "string" && /^#[0-9a-f]{6}$/i.test(body.colorHex) ? body.colorHex.toLowerCase() : null;
-  if (!name || !["single", "triple"].includes(widthType) || !meters || !color) {
+  if (!name || !validWidth(widthType) || !meters || !color) {
     return res.status(400).json({ error: "Enter bobbin name/ID, width type, meters and colour." });
   }
   if (!orderDate) return res.status(400).json({ error: "Enter a valid bobbin order date." });
   if (meters < SAREE_M) return res.status(400).json({ error: `A bobbin must be at least ${SAREE_M} m (one saree length).` });
   const db = readDb(req.factoryId);
   if (db.bobbins.some(b => b.name.toLowerCase() === name.toLowerCase())) return res.status(409).json({ error: "A bobbin with this ID/name already exists." });
+  const pl = plannedLoom(db, body, widthType, "bobbin");
+  if (pl.error) return res.status(400).json({ error: pl.error });
   const bobbin = { id: id("BOB"), name, widthType, originalMeters: meters, remainingMeters: meters, color, colorHex, orderDate,
-    status: "Ordered", assignedLoomId: null, createdAt: new Date().toISOString() };
+    status: "Ordered", assignedLoomId: null, ...(pl.loom ? { plannedLoomId: pl.loom.id, plannedLoomName: pl.loom.name } : {}), createdAt: new Date().toISOString() };
   db.bobbins.unshift(bobbin);
-  logEvent(db, req, "bobbin", `Bobbin ${name} added · ${widthType} width · ${meters} m · ${color}`);
+  logEvent(db, req, "bobbin", `Bobbin ${name} added · ${widthType} width · ${meters} m · ${color}${pl.loom ? ` · for ${pl.loom.name}` : ""}`);
   writeDb(req.factoryId, db);
   res.status(201).json(bobbin);
 });
 
+// A loom's width and bobbin setting come from a loom type when the factory defines types (factory.loomTypes);
+// without types the request carries them directly (older pages / API).
+// Hook information of a loom (the number of hooks, e.g. on a Jacquard): optional, a whole number above zero.
+function hooksField(raw) {
+  if (raw === "" || raw == null) return { value: null };
+  const n = Number(raw);
+  if (!Number.isInteger(n) || n <= 0 || n > 100000) return { error: "Hooks must be a whole number above zero." };
+  return { value: n };
+}
+function loomKind(req, body) {
+  const types = req.factory?.loomTypes || [];
+  if (types.length) {
+    const t = types.find(x => x.id === cleanText(body.loomTypeId));
+    if (!t) return { error: "Choose the loom type." };
+    return { widthType: t.widthType, needsBobbin: t.needsBobbin === true, loomTypeId: t.id, loomTypeName: t.name };
+  }
+  return { widthType: body.widthType, needsBobbin: body.needsBobbin === true };
+}
 app.post("/api/looms", (req, res) => {
   const body = req.body || {};
   const name = cleanText(body.name);
-  const widthType = body.widthType;
+  const kind = loomKind(req, body);
+  if (kind.error) return res.status(400).json({ error: kind.error });
+  const hooks = hooksField(body.hooks);
+  if (hooks.error) return res.status(400).json({ error: hooks.error });
+  const widthType = kind.widthType;
   const plan = cleanText(body.plan);
   const warpId = cleanText(body.warpId);
   const plannedMeters = body.plannedMeters === "" || body.plannedMeters == null ? null : positiveNumber(body.plannedMeters);
   const bodyColor = cleanText(body.bodyColor);
   const borderColor = cleanText(body.borderColor);
   // Only number and width are required; plan/colours are optional extras kept for older records.
-  if (!name || !["single", "triple"].includes(widthType)) {
+  if (!name || !validWidth(widthType)) {
     return res.status(400).json({ error: "Enter loom number and width type." });
   }
   if (body.plannedMeters != null && body.plannedMeters !== "" && !plannedMeters) {
@@ -316,7 +369,8 @@ app.post("/api/looms", (req, res) => {
   }
   const loom = {
     id: id("LOOM"), name, widthType, plan, bodyColor, borderColor,
-    plannedMeters, wovenMeters: 0, warpId: warp ? warp.id : null, needsBobbin: body.needsBobbin === true,
+    plannedMeters, wovenMeters: 0, warpId: warp ? warp.id : null, needsBobbin: kind.needsBobbin, hooks: hooks.value,
+    ...(kind.loomTypeId ? { loomTypeId: kind.loomTypeId, loomTypeName: kind.loomTypeName } : {}),
     status: warp ? "Running" : "Available", createdAt: new Date().toISOString()
   };
   if (warp) {
@@ -325,7 +379,7 @@ app.post("/api/looms", (req, res) => {
     warp.startedAt = loom.createdAt;
   }
   db.looms.unshift(loom);
-  logEvent(db, req, "loom", `Loom ${name} added · ${widthType} width · ${loom.needsBobbin ? "warp + bobbin" : "warp only"}${warp ? ` · running ${warp.name}` : ""}`);
+  logEvent(db, req, "loom", `Loom ${name} added · ${kind.loomTypeName ? `${kind.loomTypeName} · ` : ""}${widthType} width · ${loom.needsBobbin ? "warp + bobbin" : "warp only"}${loom.hooks ? ` · ${loom.hooks} hooks` : ""}${warp ? ` · running ${warp.name}` : ""}`);
   writeDb(req.factoryId, db);
   res.status(201).json(loom);
 });
@@ -351,10 +405,11 @@ app.post("/api/deliveries", (req, res) => {
 
   // Standard saree length is 6.3 m. A triple-width loom produces three saree widths
   // together over the same woven length, so total sarees must be in groups of three.
-  if (loom.widthType === "triple" && quantity % 3 !== 0) {
-    return res.status(400).json({ error: "For a triple-width loom, enter the total sarees in multiples of 3 (one from each width)." });
+  const per = sareesPer(loom.widthType);
+  if (quantity % per !== 0) {
+    return res.status(400).json({ error: `For a ${loom.widthType}-width loom, enter the total sarees in multiples of ${per} (one from each width).` });
   }
-  const metersToReduce = quantity * SAREE_M / (loom.widthType === "triple" ? 3 : 1);
+  const metersToReduce = quantity * SAREE_M / per;
   if (metersToReduce > warp.remainingMeters + 1e-9) {
     return res.status(400).json({ error: `Not enough warp meters. Available: ${warp.remainingMeters.toFixed(2)} m; required: ${metersToReduce.toFixed(2)} m.` });
   }
@@ -372,12 +427,14 @@ app.post("/api/deliveries", (req, res) => {
     widthType: loom.widthType, sarees: quantity, metersReduced: Number(metersToReduce.toFixed(2)),
     remainingMeters: warp.remainingMeters, note, lrNumber, createdAt: new Date().toISOString(),
     ...(bobbin ? { bobbinId: bobbin.id, bobbinName: bobbin.name, bobbinRemaining: bobbin.remainingMeters } : {}),
-    ...(modulesOf(req.factory).wages ? dispatchWage(req.factory, db, loom, quantity, designId || loom.designId) : {})
+    ...dispatchWage(req.factory, db, loom, quantity, designId || loom.designId)
   };
+  const weftUse = delivery.designId && modulesOf(req.factory).weft ? useWefts(db, db.designs.find(d => d.id === delivery.designId), quantity) : [];
+  if (weftUse.length) delivery.wefts = weftUse;
   db.deliveries.unshift(delivery);
   if (delivery.designId && loom.designId !== delivery.designId) loom.designId = delivery.designId; // the loom is now weaving this design
   const wageText = delivery.wage != null ? ` · wage ${money(delivery.wage)} to ${delivery.staffName} (${delivery.designNo})` : "";
-  logEvent(db, req, "dispatch", `${sarees(quantity)} dispatched from ${loom.name} (${warp.name}) · ${delivery.metersReduced} m used, ${warp.remainingMeters} m left${lrNumber ? ` · LR ${lrNumber}` : ""}${bobbin ? ` · bobbin ${bobbin.name} ${bobbin.remainingMeters} m left` : ""}${wageText}${warp.status === "Completed" ? ` · ${warp.name} completed, ${loom.name} free` : ""}${bobbin && bobbin.status === "Completed" ? ` · bobbin ${bobbin.name} completed` : ""}${loomState(db, loom).running ? "" : ` · ${loom.name} stopped: ${loomState(db, loom).reason}`}`);
+  logEvent(db, req, "dispatch", `${sarees(quantity)} dispatched from ${loom.name} (${warp.name}) · ${delivery.metersReduced} m used, ${warp.remainingMeters} m left${lrNumber ? ` · LR ${lrNumber}` : ""}${bobbin ? ` · bobbin ${bobbin.name} ${bobbin.remainingMeters} m left` : ""}${wageText}${weftText(db, weftUse)}${warp.status === "Completed" ? ` · ${warp.name} completed, ${loom.name} free` : ""}${bobbin && bobbin.status === "Completed" ? ` · bobbin ${bobbin.name} completed` : ""}${loomState(db, loom).running ? "" : ` · ${loom.name} stopped: ${loomState(db, loom).reason}`}`);
   writeDb(req.factoryId, db);
   res.status(201).json({ delivery, loom, warp, bobbin });
 });
@@ -389,9 +446,9 @@ app.put("/api/warps/:id/balance", (req, res) => {
   const warp = db.warps.find(w => w.id === req.params.id);
   if (!warp) return res.status(404).json({ error: "Warp not found." });
   if (!warp.assignedLoomId || warp.status !== "In Use") return res.status(409).json({ error: "Only a warp running on a loom can be corrected." });
-  const left = Number(req.body?.leftSarees), per = warp.widthType === "triple" ? 3 : 1;
+  const left = Number(req.body?.leftSarees), per = sareesPer(warp.widthType);
   if (!Number.isInteger(left) || left < 0) return res.status(400).json({ error: "Enter the sarees left as a whole number (0 or more)." });
-  if (left % per) return res.status(400).json({ error: "For a triple-width warp, enter the sarees in multiples of 3." });
+  if (left % per) return res.status(400).json({ error: `For a ${warp.widthType}-width warp, enter the sarees in multiples of ${per}.` });
   const offcut = round2(warp.remainingMeters - Math.floor((warp.remainingMeters + 1e-9) / SAREE_M) * SAREE_M);
   const next = round2(left / per * SAREE_M + Math.max(0, offcut));
   if (next > warp.originalMeters + 1e-9) return res.status(400).json({ error: `${warp.name} was only ${warp.originalMeters} m long. At most ${Math.floor(warp.originalMeters / SAREE_M) * per} sarees can be left.` });
@@ -415,8 +472,8 @@ app.put("/api/deliveries/:id", (req, res) => {
   if (!d) return res.status(404).json({ error: "Dispatch not found." });
   const n = body.sarees == null || body.sarees === "" ? d.sarees : Number(body.sarees);
   if (!Number.isInteger(n) || n <= 0) return res.status(400).json({ error: "Number of sarees must be a positive whole number." });
-  const triple = d.widthType === "triple";
-  if (triple && n % 3 !== 0) return res.status(400).json({ error: "For a triple-width loom, enter the total sarees in multiples of 3." });
+  const per = sareesPer(d.widthType);
+  if (n % per !== 0) return res.status(400).json({ error: `For a ${d.widthType}-width loom, enter the total sarees in multiples of ${per}.` });
   const changes = [];
   if (n !== d.sarees) {
     if (d.payoutId) return res.status(409).json({ error: "The wages for this dispatch are already settled, so its sarees can't be changed." });
@@ -424,7 +481,7 @@ app.put("/api/deliveries/:id", (req, res) => {
     if (!warp || !["In Use", "Ready"].includes(warp.status)) return res.status(409).json({ error: "This dispatch's warp is completed or removed, so its sarees can't be changed." });
     const bobbin = d.bobbinId ? db.bobbins.find(b => b.id === d.bobbinId) : null;
     if (d.bobbinId && (!bobbin || !["In Use", "Ready"].includes(bobbin.status))) return res.status(409).json({ error: "This dispatch's bobbin is completed or removed, so its sarees can't be changed." });
-    const delta = (n - d.sarees) * SAREE_M / (triple ? 3 : 1);
+    const delta = (n - d.sarees) * SAREE_M / per;
     if (delta > warp.remainingMeters + 1e-9) return res.status(400).json({ error: `Not enough warp meters on ${warp.name}. Available: ${warp.remainingMeters.toFixed(2)} m; extra needed: ${delta.toFixed(2)} m.` });
     if (bobbin && delta > bobbin.remainingMeters + 1e-9) return res.status(400).json({ error: `Not enough bobbin ${bobbin.name}. Available: ${bobbin.remainingMeters.toFixed(2)} m; extra needed: ${delta.toFixed(2)} m.` });
     const moved = { ...d, sarees: n };
@@ -438,6 +495,7 @@ app.put("/api/deliveries/:id", (req, res) => {
     d.remainingMeters = fix(d.remainingMeters - delta);
     d.metersReduced = fix(d.metersReduced + delta);
     changes.push(`${d.sarees} → ${n} sarees`);
+    adjustWefts(db, d, n - d.sarees);
     d.sarees = n;
     if (d.wage != null) { delete d.wageSarees; d.wage = round2(n * d.rate); }
     settleSpentWarps(db);
@@ -569,8 +627,13 @@ app.put("/api/looms/:id", (req, res) => {
   const db = readDb(req.factoryId);
   const loom = db.looms.find(l => l.id === req.params.id);
   if (!loom) return res.status(404).json({ error: "Loom not found." });
-  const name = cleanText(body.name), widthType = body.widthType, needsBobbin = body.needsBobbin === true;
-  if (!name || !["single", "triple"].includes(widthType)) return res.status(400).json({ error: "Enter loom number and width type." });
+  const kind = loomKind(req, body);
+  if (kind.error) return res.status(400).json({ error: kind.error });
+  // hooks: omitted = keep what is recorded; "" clears it
+  const hooks = body.hooks === undefined ? { value: loom.hooks ?? null } : hooksField(body.hooks);
+  if (hooks.error) return res.status(400).json({ error: hooks.error });
+  const name = cleanText(body.name), widthType = kind.widthType, needsBobbin = kind.needsBobbin;
+  if (!name || !validWidth(widthType)) return res.status(400).json({ error: "Enter loom number and width type." });
   if (db.looms.some(l => l !== loom && l.name.toLowerCase() === name.toLowerCase())) return res.status(409).json({ error: "A loom with this number/name already exists." });
   if (widthType !== loom.widthType && (loom.warpId || loom.bobbinId)) return res.status(409).json({ error: "Take the warp and bobbin off this loom before changing its width." });
   if (!needsBobbin && loom.bobbinId) return res.status(409).json({ error: "Take the bobbin off this loom before setting it to warp only." });
@@ -578,8 +641,11 @@ app.put("/api/looms/:id", (req, res) => {
   if (name !== loom.name) changes.push(`renamed ${name}`);
   if (widthType !== loom.widthType) changes.push(`${widthType} width`);
   if (needsBobbin !== !!loom.needsBobbin) changes.push(needsBobbin ? "now needs a bobbin" : "now warp only");
+  if (kind.loomTypeId && kind.loomTypeId !== loom.loomTypeId) changes.push(`loom type ${kind.loomTypeName}`);
+  if (hooks.value !== (loom.hooks ?? null)) changes.push(hooks.value ? `${hooks.value} hooks` : "hooks cleared");
   const old = loom.name;
-  Object.assign(loom, { name, widthType, needsBobbin });
+  Object.assign(loom, { name, widthType, needsBobbin, hooks: hooks.value });
+  if (kind.loomTypeId) Object.assign(loom, { loomTypeId: kind.loomTypeId, loomTypeName: kind.loomTypeName });
   if (changes.length) logEvent(db, req, "loom", `Loom ${old} updated · ${changes.join(", ")}`);
   writeDb(req.factoryId, db);
   res.json(loom);
@@ -723,7 +789,7 @@ app.delete("/api/clients/:id", requireAdmin, (req, res) => {
 const money = n => `₹${Number(n).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 const round2 = n => Math.round(n * 100) / 100;
 // A loom can have several designs (designIds); designId is the one weaving now and is what a dispatch uses.
-// How a factory pays its weavers (factory settings): "saree" = sarees dispatched × the design's rate,
+// How a factory pays its labourers (factory settings): "saree" = sarees dispatched × the design's rate,
 // "shift" = shifts worked (entered on the Wages page) × the factory's wage per shift.
 const wageBasisOf = f => f?.wageBasis === "shift" ? "shift" : "saree";
 // The factory's shifts [{ name, start, hours, rate }] (an older single `shift` counts as "Shift 1").
@@ -736,11 +802,15 @@ function wageFor(db, loom, quantity, designId = loom.designId) {
   if (design) Object.assign(out, { designId: design.id, designNo: design.number, designName: design.name, rate: design.rate });
   if (staff) Object.assign(out, { staffId: staff.id, staffName: staff.name });
   if (staff && design) out.wage = round2(quantity * design.rate);
+  // The owner-weaver's wage for the same sarees, saved for reference. It is not part of the labour payouts.
+  if (design?.weaverRate > 0) Object.assign(out, { weaverRate: design.weaverRate, weaverWage: round2(quantity * design.weaverRate) });
   return out;
 }
-// In shift mode a dispatch records the weaver and design but no per-saree wage.
+// In shift mode a dispatch records the labourer and design but no per-saree wage.
 function dispatchWage(factory, db, loom, quantity, designId) {
   const out = wageFor(db, loom, quantity, designId);
+  // Without the Labour option only the design is recorded: no labourer, rate or wage.
+  if (!modulesOf(factory).labour) { for (const k of ["staffId", "staffName", "rate", "wage", "weaverRate", "weaverWage"]) delete out[k]; return out; }
   if (wageBasisOf(factory) === "shift") { delete out.wage; delete out.rate; }
   return out;
 }
@@ -801,36 +871,36 @@ function rateField(value) {
 // Staff: name, optional phone and optional photo (same rules as a design image).
 app.post("/api/staff", (req, res) => {
   const name = cleanText(req.body?.name), phone = cleanText(req.body?.phone), image = imageField(req.body?.image);
-  if (!name) return res.status(400).json({ error: "Enter the weaver's name." });
+  if (!name) return res.status(400).json({ error: "Enter the labourer's name." });
   if (image === false) return res.status(400).json({ error: "The photo could not be used. Choose a JPG or PNG photo." });
   const db = readDb(req.factoryId);
-  if (db.staff.some(s => s.name.toLowerCase() === name.toLowerCase())) return res.status(409).json({ error: "A weaver with this name already exists." });
+  if (db.staff.some(s => s.name.toLowerCase() === name.toLowerCase())) return res.status(409).json({ error: "A labourer with this name already exists." });
   const now = new Date().toISOString();
   const staff = { id: id("STF"), name, phone, image: image || null, imageAt: image ? now : null, createdAt: now };
   db.staff.unshift(staff);
-  logEvent(db, req, "wages", `Weaver ${name} added${phone ? ` · ${phone}` : ""}`);
+  logEvent(db, req, "wages", `Labourer ${name} added${phone ? ` · ${phone}` : ""}`);
   writeDb(req.factoryId, db);
   res.status(201).json(noImage(staff));
 });
 
 app.get("/api/staff/:id/image", (req, res) => {
   const staff = readDb(req.factoryId).staff.find(s => s.id === req.params.id);
-  if (!staff || !staff.image) return res.status(404).json({ error: "No photo for this weaver." });
+  if (!staff || !staff.image) return res.status(404).json({ error: "No photo for this labourer." });
   res.json({ image: staff.image });
 });
 
 app.put("/api/staff/:id", (req, res) => {
   const name = cleanText(req.body?.name), phone = cleanText(req.body?.phone), image = imageField(req.body?.image);
-  if (!name) return res.status(400).json({ error: "Enter the weaver's name." });
+  if (!name) return res.status(400).json({ error: "Enter the labourer's name." });
   if (image === false) return res.status(400).json({ error: "The photo could not be used. Choose a JPG or PNG photo." });
   const db = readDb(req.factoryId);
   const staff = db.staff.find(s => s.id === req.params.id);
-  if (!staff) return res.status(404).json({ error: "Weaver not found." });
-  if (db.staff.some(s => s !== staff && s.name.toLowerCase() === name.toLowerCase())) return res.status(409).json({ error: "A weaver with this name already exists." });
+  if (!staff) return res.status(404).json({ error: "Labourer not found." });
+  if (db.staff.some(s => s !== staff && s.name.toLowerCase() === name.toLowerCase())) return res.status(409).json({ error: "A labourer with this name already exists." });
   const old = staff.name;
   Object.assign(staff, { name, phone });
   if (image !== undefined && image !== staff.image) Object.assign(staff, { image, imageAt: image ? new Date().toISOString() : null });
-  logEvent(db, req, "wages", `Weaver ${old}${old !== name ? ` renamed to ${name}` : " updated"}${phone ? ` · ${phone}` : ""}`);
+  logEvent(db, req, "wages", `Labourer ${old}${old !== name ? ` renamed to ${name}` : " updated"}${phone ? ` · ${phone}` : ""}`);
   writeDb(req.factoryId, db);
   res.json(noImage(staff));
 });
@@ -839,11 +909,11 @@ app.put("/api/staff/:id", (req, res) => {
 app.delete("/api/staff/:id", requireAdmin, (req, res) => {
   const db = readDb(req.factoryId);
   const staff = db.staff.find(s => s.id === req.params.id);
-  if (!staff) return res.status(404).json({ error: "Weaver not found." });
+  if (!staff) return res.status(404).json({ error: "Labourer not found." });
   const looms = db.looms.filter(l => l.staffId === staff.id);
-  if (looms.length) return res.status(409).json({ error: `${staff.name} still runs ${looms.map(l => l.name).join(", ")}. Change the weaver on those looms first.` });
+  if (looms.length) return res.status(409).json({ error: `${staff.name} still runs ${looms.map(l => l.name).join(", ")}. Change the labourer on those looms first.` });
   db.staff = db.staff.filter(s => s !== staff);
-  logEvent(db, req, "wages", `Weaver ${staff.name} removed`);
+  logEvent(db, req, "wages", `Labourer ${staff.name} removed`);
   writeDb(req.factoryId, db);
   res.json({ removed: staff.id });
 });
@@ -854,11 +924,21 @@ const EXPENSE_KINDS = {
   warp_join: "Warp join", bobbin_join: "Bobbin join", spares: "Spares", maintenance: "Maintenance"
 };
 const EXPENSE_SUBTYPES = { maintenance: ["Routine service", "Repair", "Breakdown", "Other"] };
+// Expenses are either for one loom (scope "loom": the kinds above) or for the whole factory (scope "factory": the
+// kinds below). Each scope also takes the user's own categories (db.expenseCategories { id, name, scope }); an
+// expense stores the category id as its kind and the name as its label.
+const FACTORY_EXPENSE_KINDS = { rent: "Rent", electricity: "Electricity", transport: "Transport", other: "Other" };
+const expenseKinds = (db, scope) => ({
+  ...(scope === "factory" ? FACTORY_EXPENSE_KINDS : EXPENSE_KINDS),
+  ...Object.fromEntries(db.expenseCategories.filter(c => c.scope === scope).map(c => [c.id, c.name]))
+});
 function expenseBody(db, body) {
-  const loom = db.looms.find(l => l.id === cleanText(body.loomId));
-  if (!loom) return { error: "Select the loom." };
+  const scope = body.scope === "factory" ? "factory" : "loom";
+  const loom = scope === "loom" ? db.looms.find(l => l.id === cleanText(body.loomId)) : null;
+  if (scope === "loom" && !loom) return { error: "Select the loom." };
+  const kinds = expenseKinds(db, scope);
   const kind = cleanText(body.kind);
-  if (!EXPENSE_KINDS[kind]) return { error: "Select the type of expense." };
+  if (!kinds[kind]) return { error: "Select the type of expense." };
   const amount = rateField(body.amount);
   if (amount == null) return { error: "Enter the amount spent." };
   const date = body.date ? isoDate(body.date) : new Date().toISOString().slice(0, 10);
@@ -866,22 +946,22 @@ function expenseBody(db, body) {
   const qtyRaw = body.qty;
   const qty = qtyRaw === "" || qtyRaw == null ? null : positiveNumber(qtyRaw);
   if (qtyRaw !== "" && qtyRaw != null && qty == null) return { error: "Quantity must be a number above zero." };
-  const out = { loomId: loom.id, loomName: loom.name, kind, label: EXPENSE_KINDS[kind], amount, date, qty,
+  const out = { scope, loomId: loom ? loom.id : null, loomName: loom ? loom.name : "", kind, label: kinds[kind], amount, date, qty,
     item: cleanText(body.item).slice(0, 120), vendor: cleanText(body.vendor).slice(0, 120), billNo: cleanText(body.billNo).slice(0, 60),
     subtype: EXPENSE_SUBTYPES[kind]?.includes(cleanText(body.subtype)) ? cleanText(body.subtype) : "",
     note: cleanText(body.note).slice(0, 500), warpId: null, warpName: "", bobbinId: null, bobbinName: "" };
-  if ((kind === "spares") && !out.item) return { error: "Enter the spare part." };
-  if (kind === "warp_join") {
+  if (scope === "loom" && kind === "spares" && !out.item) return { error: "Enter the spare part." };
+  if (scope === "loom" && kind === "warp_join") {
     const w = db.warps.find(x => x.id === cleanText(body.warpId));
     if (w) { out.warpId = w.id; out.warpName = w.name; }
   }
-  if (kind === "bobbin_join") {
+  if (scope === "loom" && kind === "bobbin_join") {
     const b = db.bobbins.find(x => x.id === cleanText(body.bobbinId));
     if (b) { out.bobbinId = b.id; out.bobbinName = b.name; }
   }
   return { value: out };
 }
-const expenseText = x => `${x.label} ${money(x.amount)} on ${x.loomName}` +
+const expenseText = x => `${x.label} ${money(x.amount)} ${x.scope === "factory" ? "for the factory" : `on ${x.loomName}`}` +
   `${x.warpName ? ` · warp ${x.warpName}` : ""}${x.bobbinName ? ` · bobbin ${x.bobbinName}` : ""}${x.subtype ? ` · ${x.subtype}` : ""}` +
   `${x.item ? ` · ${x.item}${x.qty ? ` × ${x.qty}` : ""}` : ""}${x.vendor ? ` · ${x.vendor}` : ""}`;
 app.post("/api/expenses", (req, res) => {
@@ -915,8 +995,154 @@ app.delete("/api/expenses/:id", (req, res) => {
   res.json({ removed: x.id });
 });
 
-function designBody(body) {
-  const number = cleanText(body.number), name = cleanText(body.name), rate = rateField(body.rate), image = imageField(body.image);
+// Own expense categories: { name, scope: "factory" | "loom" }. Names are unique per scope (built-ins included).
+app.post("/api/expense-categories", (req, res) => {
+  const db = readDb(req.factoryId);
+  const scope = req.body?.scope === "factory" ? "factory" : req.body?.scope === "loom" ? "loom" : null;
+  const name = cleanText(req.body?.name).slice(0, 60);
+  if (!scope) return res.status(400).json({ error: "Choose factory or loom expenses for this category." });
+  if (!name) return res.status(400).json({ error: "Enter the category name." });
+  if (Object.values(expenseKinds(db, scope)).some(n => n.toLowerCase() === name.toLowerCase())) return res.status(409).json({ error: `There is already a ${scope} expense category called ${name}.` });
+  const cat = { id: id("ECT"), name, scope, createdAt: new Date().toISOString() };
+  db.expenseCategories.push(cat);
+  logEvent(db, req, "expense", `Expense category ${name} added (${scope})`);
+  writeDb(req.factoryId, db);
+  res.status(201).json(cat);
+});
+app.delete("/api/expense-categories/:id", (req, res) => {
+  const db = readDb(req.factoryId);
+  const cat = db.expenseCategories.find(c => c.id === req.params.id);
+  if (!cat) return res.status(404).json({ error: "Category not found." });
+  const used = db.expenses.filter(x => x.kind === cat.id).length;
+  if (used) return res.status(409).json({ error: `${cat.name} is used by ${used} expense${used === 1 ? "" : "s"}. Remove or change those first.` });
+  db.expenseCategories = db.expenseCategories.filter(c => c !== cat);
+  logEvent(db, req, "expense", `Expense category ${cat.name} removed (${cat.scope})`);
+  writeDb(req.factoryId, db);
+  res.json({ removed: cat.id });
+});
+
+// ---- Weft (yarn for the cross threads) ----
+// A weft is a yarn stock { name, color, receivedGrams, usedGrams }. A design lists the wefts one saree needs
+// (design.wefts = [{ weftId, grams }], grams per saree, every saree counted also on triple width). A dispatch of
+// that design uses sarees × grams from each weft and keeps the snapshot on the delivery (delivery.wefts), so the
+// Weft page shows received, woven (used) and pending (left to weave) per weft.
+const round1 = n => Math.round(n * 10) / 10;
+const kgText = g => `${round2(g / 1000)} kg`;
+function weftRows(db, raw) {
+  if (raw == null || raw === "") return { rows: [] };
+  if (!Array.isArray(raw)) return { error: "Weft must be a list." };
+  const rows = [];
+  for (const r of raw) {
+    const weft = db.wefts.find(w => w.id === cleanText(r?.weftId));
+    if (!weft) return { error: "Choose a weft from the list for every weft row." };
+    if (rows.some(x => x.weftId === weft.id)) return { error: `${weft.name} is added twice. Use one row per weft.` };
+    const grams = Number(r.grams);
+    if (!Number.isFinite(grams) || grams <= 0) return { error: `Enter the weight in grams per saree for ${weft.name}.` };
+    rows.push({ weftId: weft.id, grams: round1(grams) });
+  }
+  return { rows };
+}
+const weftLine = (db, rows) => (rows || []).map(r => `${db.wefts.find(w => w.id === r.weftId)?.name || "?"} ${r.grams} g`).join(", ");
+function useWefts(db, design, quantity) {
+  const out = [];
+  for (const r of design?.wefts || []) {
+    const weft = db.wefts.find(w => w.id === r.weftId);
+    if (!weft) continue;
+    const used = round1(quantity * r.grams);
+    weft.usedGrams = round1(weft.usedGrams + used);
+    out.push({ weftId: weft.id, name: weft.name, perSaree: r.grams, used, left: round1(weft.receivedGrams - weft.usedGrams) });
+  }
+  return out;
+}
+function adjustWefts(db, delivery, deltaSarees) {
+  for (const r of delivery.wefts || []) {
+    const amount = round1(deltaSarees * r.perSaree), weft = db.wefts.find(w => w.id === r.weftId);
+    r.used = round1(r.used + amount);
+    if (weft) { weft.usedGrams = round1(weft.usedGrams + amount); r.left = round1(weft.receivedGrams - weft.usedGrams); }
+  }
+}
+const weftText = (db, used) => used.length ? ` · weft used ${used.map(u => `${u.name} ${kgText(u.used)} (${kgText(u.left)} in hand)`).join(", ")}` : "";
+function weftBody(body, needStock) {
+  const name = cleanText(body.name);
+  if (!name) return { error: "Enter the weft name." };
+  const color = cleanText(body.color), note = cleanText(body.note);
+  const colorHex = typeof body.colorHex === "string" && /^#[0-9a-f]{6}$/i.test(body.colorHex) ? body.colorHex.toLowerCase() : null;
+  let grams = 0;
+  if (needStock || (body.kg !== undefined && body.kg !== "")) {
+    const kg = Number(body.kg);
+    if (!Number.isFinite(kg) || kg <= 0) return { error: "Enter the weight received in kg (more than 0)." };
+    grams = round1(kg * 1000);
+  }
+  return { name, color, colorHex, note, grams };
+}
+// The party the weft came from (party-supplied yarn) is required, so every weft can be tracked per party.
+const weftParty = (db, raw) => {
+  const partyId = cleanText(raw);
+  if (!partyId) return { error: "Choose the party this weft is received from." };
+  const party = db.clients.find(c => c.id === partyId);
+  return party ? { party } : { error: "Party not found." };
+};
+const weftOut = w => ({ ...w, leftGrams: round1(w.receivedGrams - w.usedGrams) });
+app.post("/api/wefts", (req, res) => {
+  const v = weftBody(req.body || {}, true);
+  if (v.error) return res.status(400).json({ error: v.error });
+  const db = readDb(req.factoryId);
+  if (db.wefts.some(w => w.name.toLowerCase() === v.name.toLowerCase())) return res.status(409).json({ error: "A weft with this name already exists." });
+  const wp = weftParty(db, req.body.partyId);
+  if (wp.error) return res.status(400).json({ error: wp.error });
+  const now = new Date().toISOString();
+  const partyBits = wp.party ? { partyId: wp.party.id, partyName: wp.party.name } : {};
+  const weft = { id: id("WEF"), name: v.name, color: v.color, colorHex: v.colorHex, note: v.note, receivedGrams: v.grams, usedGrams: 0, receipts: [{ grams: v.grams, note: v.note, ...partyBits, at: now, by: actor(req) }], createdAt: now };
+  db.wefts.unshift(weft);
+  logEvent(db, req, "weft", `Weft ${weft.name} added · ${kgText(v.grams)} received${wp.party ? ` from ${wp.party.name}` : ""}`);
+  writeDb(req.factoryId, db);
+  res.status(201).json(weftOut(weft));
+});
+// Rename / recolour a weft (stock is changed by receiving more or correcting the used weight).
+app.put("/api/wefts/:id", (req, res) => {
+  const v = weftBody(req.body || {}, false);
+  if (v.error) return res.status(400).json({ error: v.error });
+  const db = readDb(req.factoryId);
+  const weft = db.wefts.find(w => w.id === req.params.id);
+  if (!weft) return res.status(404).json({ error: "Weft not found." });
+  if (db.wefts.some(w => w !== weft && w.name.toLowerCase() === v.name.toLowerCase())) return res.status(409).json({ error: "A weft with this name already exists." });
+  Object.assign(weft, { name: v.name, color: v.color, colorHex: v.colorHex, note: v.note });
+  logEvent(db, req, "weft", `Weft ${weft.name} updated`);
+  writeDb(req.factoryId, db);
+  res.json(weftOut(weft));
+});
+// More weft received: { kg, note }.
+app.post("/api/wefts/:id/receive", (req, res) => {
+  const kg = Number(req.body?.kg);
+  if (!Number.isFinite(kg) || kg <= 0) return res.status(400).json({ error: "Enter the weight received in kg (more than 0)." });
+  const db = readDb(req.factoryId);
+  const weft = db.wefts.find(w => w.id === req.params.id);
+  if (!weft) return res.status(404).json({ error: "Weft not found." });
+  const wp = weftParty(db, req.body?.partyId);
+  if (wp.error) return res.status(400).json({ error: wp.error });
+  const grams = round1(kg * 1000), note = cleanText(req.body?.note);
+  weft.receivedGrams = round1(weft.receivedGrams + grams);
+  (weft.receipts ||= []).unshift({ grams, note, ...(wp.party ? { partyId: wp.party.id, partyName: wp.party.name } : {}), at: new Date().toISOString(), by: actor(req) });
+  logEvent(db, req, "weft", `${kgText(grams)} of weft ${weft.name} received${wp.party ? ` from ${wp.party.name}` : ""} · ${kgText(weft.receivedGrams - weft.usedGrams)} left to weave${note ? ` · ${note}` : ""}`);
+  writeDb(req.factoryId, db);
+  res.json(weftOut(weft));
+});
+app.delete("/api/wefts/:id", requireAdmin, (req, res) => {
+  const db = readDb(req.factoryId);
+  const weft = db.wefts.find(w => w.id === req.params.id);
+  if (!weft) return res.status(404).json({ error: "Weft not found." });
+  const designs = db.designs.filter(d => (d.wefts || []).some(r => r.weftId === weft.id));
+  if (designs.length) return res.status(409).json({ error: `${weft.name} is used by design ${designs.map(d => d.number).join(", ")}. Take it off those designs first.` });
+  db.wefts = db.wefts.filter(w => w !== weft);
+  logEvent(db, req, "weft", `Weft ${weft.name} removed`);
+  writeDb(req.factoryId, db);
+  res.json({ removed: weft.id });
+});
+
+function designBody(body, mods = { labour: true }) {
+  const number = cleanText(body.number), name = cleanText(body.name), image = imageField(body.image);
+  // The labour wage per saree is only asked for (and required) when the factory has the Labour option.
+  const rate = mods.labour ? rateField(body.rate) : 0;
   if (!number) return { error: "Enter the design number." };
   if (rate == null) return { error: "Enter the wage per saree (more than 0)." };
   if (image === false) return { error: "The image could not be used. Choose a JPG or PNG photo." };
@@ -928,20 +1154,25 @@ function designBody(body) {
     const k = 10 ** places;
     return { value: Math.round(n * k) / k };
   };
+  // Weaver wage per saree (the owner weaving on the loom). Optional; `rate` stays the labour wage paid to staff.
+  const weaverRate = mods.labour ? opt(body.weaverRate, "Weaver wage", false, 2) : { value: null };
+  if (weaverRate.error) return { error: weaverRate.error };
   const picks = opt(body.picks, "Number of picks", true, 0), timing = opt(body.timing, "Timing", false, 2), pickCost = opt(body.pickCost, "Cost per pick", false, 4);
   for (const x of [picks, timing, pickCost]) if (x.error) return { error: x.error };
-  return { number, name, rate, image, picks: picks.value, timing: timing.value, pickCost: pickCost.value };
+  return { number, name, rate, weaverRate: weaverRate.value, image, picks: picks.value, timing: timing.value, pickCost: pickCost.value };
 }
 
 app.post("/api/designs", (req, res) => {
-  const v = designBody(req.body || {});
+  const v = designBody(req.body || {}, modulesOf(req.factory));
   if (v.error) return res.status(400).json({ error: v.error });
   const db = readDb(req.factoryId);
+  const wf = modulesOf(req.factory).weft ? weftRows(db, req.body.wefts) : { rows: [] };
+  if (wf.error) return res.status(400).json({ error: wf.error });
   if (db.designs.some(d => d.number.toLowerCase() === v.number.toLowerCase())) return res.status(409).json({ error: "A design with this number already exists." });
   const now = new Date().toISOString();
-  const design = { id: id("DSN"), number: v.number, name: v.name, rate: v.rate, picks: v.picks, timing: v.timing, pickCost: v.pickCost, image: v.image || null, imageAt: v.image ? now : null, createdAt: now };
+  const design = { id: id("DSN"), number: v.number, name: v.name, rate: v.rate, weaverRate: v.weaverRate, picks: v.picks, timing: v.timing, pickCost: v.pickCost, wefts: wf.rows, image: v.image || null, imageAt: v.image ? now : null, createdAt: now };
   db.designs.unshift(design);
-  logEvent(db, req, "wages", `Design ${v.number}${v.name ? ` (${v.name})` : ""} added · ${money(v.rate)} per saree`);
+  logEvent(db, req, "wages", `Design ${v.number}${v.name ? ` (${v.name})` : ""} added · labour ${money(v.rate)}${v.weaverRate ? `, weaver ${money(v.weaverRate)}` : ""} per saree`);
   writeDb(req.factoryId, db);
   const { image, ...rest } = design;
   res.status(201).json({ ...rest, hasImage: !!image });
@@ -949,20 +1180,24 @@ app.post("/api/designs", (req, res) => {
 
 // A new rate applies to dispatches from now on; wages already earned keep the old rate.
 app.put("/api/designs/:id", (req, res) => {
-  const v = designBody(req.body || {});
+  const v = designBody(req.body || {}, modulesOf(req.factory));
   if (v.error) return res.status(400).json({ error: v.error });
   const db = readDb(req.factoryId);
   const design = db.designs.find(d => d.id === req.params.id);
   if (!design) return res.status(404).json({ error: "Design not found." });
+  const wf = req.body.wefts === undefined || !modulesOf(req.factory).weft ? { rows: design.wefts || [] } : weftRows(db, req.body.wefts);
+  if (wf.error) return res.status(400).json({ error: wf.error });
   if (db.designs.some(d => d !== design && d.number.toLowerCase() === v.number.toLowerCase())) return res.status(409).json({ error: "A design with this number already exists." });
   const changes = [];
   if (design.number !== v.number) changes.push(`renumbered ${v.number}`);
-  if (design.rate !== v.rate) changes.push(`wage ${money(design.rate)} → ${money(v.rate)} per saree`);
+  if (design.rate !== v.rate) changes.push(`labour wage ${money(design.rate)} → ${money(v.rate)} per saree`);
+  if ((design.weaverRate ?? null) !== v.weaverRate) changes.push(`weaver wage ${design.weaverRate != null ? money(design.weaverRate) : "—"} → ${v.weaverRate != null ? money(v.weaverRate) : "—"} per saree`);
   if (v.image !== undefined && v.image !== design.image) changes.push(v.image ? "image updated" : "image removed");
   for (const [k, label] of [["picks", "picks"], ["timing", "timing"], ["pickCost", "cost per pick"]]) {
     if ((design[k] ?? null) !== v[k]) changes.push(`${label} ${design[k] ?? "—"} → ${v[k] ?? "—"}`);
   }
-  Object.assign(design, { number: v.number, name: v.name, rate: v.rate, picks: v.picks, timing: v.timing, pickCost: v.pickCost });
+  if (weftLine(db, design.wefts) !== weftLine(db, wf.rows)) changes.push(`weft ${weftLine(db, design.wefts) || "—"} → ${weftLine(db, wf.rows) || "—"}`);
+  Object.assign(design, { number: v.number, name: v.name, rate: v.rate, weaverRate: v.weaverRate, picks: v.picks, timing: v.timing, pickCost: v.pickCost, wefts: wf.rows });
   if (v.image !== undefined && v.image !== design.image) Object.assign(design, { image: v.image, imageAt: v.image ? new Date().toISOString() : null });
   logEvent(db, req, "wages", `Design ${design.number} updated${changes.length ? ` · ${changes.join(", ")}` : ""}`);
   writeDb(req.factoryId, db);
@@ -993,7 +1228,7 @@ app.post("/api/looms/:id/setup", (req, res) => {
   const db = readDb(req.factoryId);
   const loom = db.looms.find(l => l.id === req.params.id);
   if (!loom) return res.status(404).json({ error: "Loom not found." });
-  const staffId = cleanText(req.body?.staffId);
+  const staffId = modulesOf(req.factory).labour ? cleanText(req.body?.staffId) : "";
   // designIds: every design this loom can weave; designId: the one weaving now (one of them). Sending only designId sets a single design.
   const rawIds = Array.isArray(req.body?.designIds) ? req.body.designIds : cleanText(req.body?.designId) ? [req.body.designId] : [];
   const designIds = [...new Set(rawIds.map(cleanText).filter(Boolean))];
@@ -1004,13 +1239,13 @@ app.post("/api/looms/:id/setup", (req, res) => {
   if (!designId) designId = designIds[0] || "";
   const design = designs.find(d => d.id === designId) || null;
   const staff = staffId ? db.staff.find(s => s.id === staffId) : null;
-  if (staffId && !staff) return res.status(404).json({ error: "Weaver not found." });
+  if (staffId && !staff) return res.status(404).json({ error: "Labourer not found." });
   const parts = [];
   const before = loomDesignIds(loom).join(), now = designIds.join();
   if ((loom.designId || null) !== (design?.id || null) || before !== now) {
-    parts.push(designs.length ? `design${designs.length > 1 ? "s" : ""} ${designs.map(d => d.number).join(", ")}${designs.length > 1 ? ` (weaving ${design.number})` : ` (${money(design.rate)} per saree)`}` : "no design");
+    parts.push(designs.length ? `design${designs.length > 1 ? "s" : ""} ${designs.map(d => d.number).join(", ")}${designs.length > 1 ? ` (weaving ${design.number})` : ` ${design.rate > 0 ? `(${money(design.rate)} per saree)` : ""}`}` : "no design");
   }
-  if ((loom.staffId || null) !== (staff?.id || null)) parts.push(staff ? `weaver ${staff.name}` : "no weaver");
+  if ((loom.staffId || null) !== (staff?.id || null)) parts.push(staff ? `labourer ${staff.name}` : "no labourer");
   loom.designIds = designIds;
   loom.designId = design ? design.id : null;
   loom.staffId = staff ? staff.id : null;
@@ -1021,7 +1256,7 @@ app.post("/api/looms/:id/setup", (req, res) => {
   res.json(loom);
 });
 
-// Shift pay: enter the shifts a weaver worked in the open period. The factory's wage per shift (Settings) is
+// Shift pay: enter the shifts a labourer worked in the open period. The factory's wage per shift (Settings) is
 // copied onto the entry, so changing it later doesn't alter shifts already entered. Only unpaid entries can be removed.
 app.post("/api/wages/shifts", (req, res) => {
   const body = req.body || {};
@@ -1034,7 +1269,7 @@ app.post("/api/wages/shifts", (req, res) => {
   if (!(rate > 0)) return res.status(409).json({ error: `Set the wage per shift for ${shift.name} in the factory settings first.` });
   const db = readDb(req.factoryId);
   const staff = db.staff.find(s => s.id === cleanText(body.staffId));
-  if (!staff) return res.status(400).json({ error: "Select the weaver." });
+  if (!staff) return res.status(400).json({ error: "Select the labourer." });
   const shifts = Number(body.shifts);
   if (!Number.isFinite(shifts) || shifts <= 0 || shifts > 100 || Math.round(shifts * 2) !== shifts * 2) return res.status(400).json({ error: "Enter the number of shifts (whole or half shifts, above 0)." });
   const entry = { id: id("SFT"), staffId: staff.id, staffName: staff.name, shifts, shiftName: shift.name, shiftRate: rate, wage: round2(shifts * rate), sarees: 0, wageSarees: 0,
@@ -1061,7 +1296,7 @@ app.post("/api/wages/deductions", (req, res) => {
   const body = req.body || {};
   const db = readDb(req.factoryId);
   const staff = db.staff.find(s => s.id === cleanText(body.staffId));
-  if (!staff) return res.status(400).json({ error: "Select the weaver." });
+  if (!staff) return res.status(400).json({ error: "Select the labourer." });
   const items = [];
   for (const kind of Object.keys(DAMAGE_KINDS)) {
     const raw = body[`${kind}Sarees`], n = raw === "" || raw == null ? 0 : Number(raw);
@@ -1147,7 +1382,7 @@ app.post("/api/wages/edit", (req, res) => {
     }
   }
   if (!changes.length) return res.json({ changed: 0 });
-  logEvent(db, req, "wages", `Wages edited for ${staffName || "weaver"} · ${changes.join(" · ")}`);
+  logEvent(db, req, "wages", `Wages edited for ${staffName || "labourer"} · ${changes.join(" · ")}`);
   writeDb(req.factoryId, db);
   res.json({ changed: changes.length });
 });
@@ -1158,11 +1393,11 @@ app.post("/api/wages/edit", (req, res) => {
 app.post("/api/wages/settle", (req, res) => {
   const db = readDb(req.factoryId);
   const pick = Array.isArray(req.body?.staffIds) ? new Set(req.body.staffIds.map(String)) : null;
-  if (pick && !pick.size) return res.status(400).json({ error: "Select the weavers to settle." });
+  if (pick && !pick.size) return res.status(400).json({ error: "Select the labourers to settle." });
   const due = new Set([...unpaid(db).map(d => d.staffId), ...unpaidDeductions(db).filter(x => !x.carry).map(x => x.staffId)]);
   const mine = x => due.has(x.staffId) && (!pick || pick.has(x.staffId));
   const list = unpaid(db).filter(mine), cuts = unpaidDeductions(db).filter(mine);
-  if (!list.length && !cuts.length) return res.status(400).json({ error: pick ? "The selected weavers have no unpaid wages to settle." : "There are no unpaid wages to settle." });
+  if (!list.length && !cuts.length) return res.status(400).json({ error: pick ? "The selected labourers have no unpaid wages to settle." : "There are no unpaid wages to settle." });
   const at = new Date().toISOString();
   // Other deductions typed in while settling ({ staffId: { amount, note } }, e.g. an advance): saved as
   // deductions of kind "other" and settled in this payout.
@@ -1173,7 +1408,7 @@ app.post("/api/wages/settle", (req, res) => {
     const amount = rateField(raw);
     if (amount == null) return res.status(400).json({ error: "Other deductions must be an amount above 0." });
     const staff = db.staff.find(s => s.id === staffId);
-    if (!staff || !mine({ staffId })) return res.status(400).json({ error: "Other deductions can only be for weavers being settled." });
+    if (!staff || !mine({ staffId })) return res.status(400).json({ error: "Other deductions can only be for labourers being settled." });
     const note = cleanText(a.note) || "Other deduction";
     cuts.push({ id: id("DED"), staffId, staffName: staff.name, items: [{ kind: "other", label: note, sarees: 0, rate: 0, amount }],
       amount, note: "", by: actor(req), createdAt: at });
@@ -1202,7 +1437,7 @@ app.post("/api/wages/settle", (req, res) => {
   for (const d of [...list, ...cuts]) d.payoutId = payout.id;
   db.wageDeductions.unshift(...carries);
   db.wagePayouts.unshift(payout);
-  logEvent(db, req, "wages", `Wages settled${payout.partial ? ` for ${lines.map(l => l.staffName).join(", ")}` : ""} · ${money(payout.total)} to ${payout.lines.length} weaver${payout.lines.length === 1 ? "" : "s"} for ${shiftTotal ? `${shiftTotal} shift${shiftTotal === 1 ? "" : "s"}${payout.sarees ? ` + ${sarees(payout.sarees)}` : ""}` : sarees(payout.sarees)}${deducted ? ` (${money(earned)} earned − ${money(deducted)} deductions)` : ""}${payout.carried ? ` · ${money(payout.carried)} carried to next period` : ""}${payout.note ? ` · ${payout.note}` : ""}`);
+  logEvent(db, req, "wages", `Wages settled${payout.partial ? ` for ${lines.map(l => l.staffName).join(", ")}` : ""} · ${money(payout.total)} to ${payout.lines.length} labourer${payout.lines.length === 1 ? "" : "s"} for ${shiftTotal ? `${shiftTotal} shift${shiftTotal === 1 ? "" : "s"}${payout.sarees ? ` + ${sarees(payout.sarees)}` : ""}` : sarees(payout.sarees)}${deducted ? ` (${money(earned)} earned − ${money(deducted)} deductions)` : ""}${payout.carried ? ` · ${money(payout.carried)} carried to next period` : ""}${payout.note ? ` · ${payout.note}` : ""}`);
   writeDb(req.factoryId, db);
   res.status(201).json(payout);
 });
@@ -1261,6 +1496,12 @@ function flushToStock(factoryId) {
   writeDb(factoryId, db);
 }
 // Sarees a party still holds: dispatched to them minus their returns.
+// Sarees of one warp still in stock for parties: its stock bucket less what went from it to parties (deliveries
+// name a source warp), plus party returns of it.
+function warpStockLeft(db, warpId) {
+  const out = m => m.to === "dispatched" ? m.qty : m.from === "dispatched" ? -m.qty : 0;
+  return stockFor(db, warpId).stock - db.stockMoves.filter(m => m.sourceWarpId === warpId).reduce((s, m) => s + out(m), 0);
+}
 function partyHolds(db, clientId) {
   return db.stockMoves.filter(m => m.clientId === clientId)
     .reduce((s, m) => s + (m.to === "dispatched" ? m.qty : m.from === "dispatched" ? -m.qty : 0), 0);
@@ -1314,6 +1555,17 @@ app.post("/api/stock/move", (req, res) => {
     const available = from === "dispatched" ? partyHolds(db, client.id) : stockFor(db).stock;
     if (qty > available) return res.status(400).json({ error: from === "dispatched" ? `${client.name} has only ${sarees(available)} to return.` : onlyLeft(available, "stock") });
     Object.assign(move, { clientId: client.id, clientName: client.name, lrNumber: cleanText(body.lrNumber) });
+    // Optional source warp, for the per-warp account on the Parties page. Not `warpId`, so stock counts per warp are untouched.
+    const srcId = cleanText(body.warpId);
+    if (srcId) {
+      const src = db.warps.find(w => w.id === srcId);
+      if (!src) return res.status(400).json({ error: "Warp not found." });
+      if (to === "dispatched") {
+        const left = Math.max(0, warpStockLeft(db, src.id));
+        if (qty > left) return res.status(400).json({ error: `Warp ${src.name} has only ${sarees(left)} in stock.` });
+      }
+      Object.assign(move, { sourceWarpId: src.id, sourceWarpName: src.name });
+    }
     // Optional design on a delivery: priced with this party's rate for it (rate and amount are saved on the move).
     // A party return can name a design too: its amount is credited to the party's balance.
     const designId = cleanText(body.designId);

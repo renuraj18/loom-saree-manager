@@ -1,0 +1,8 @@
+{
+  "name": "my-thari-e2e",
+  "private": true,
+  "description": "Selenium browser tests for My Thari. Kept apart from the app so selenium never ends up in the Windows package.",
+  "dependencies": {
+    "selenium-webdriver": "4.27.0"
+  }
+}

@@ -165,3 +165,47 @@ test("Stock only: parties work, but design rates are not offered (no designs)", 
   assert.equal((await f.api.put(`/api/clients/${c.id}`, { name: "Plain", rates: { x: 5 } })).status, 200);
   assert.deepEqual((await dataOf(f.api)).clients[0].rates, {});
 });
+
+test("party cost = sarees × rate per delivery, summed over mixed designs, partial returns and payments", async () => {
+  const p = await partyFactory();
+  await p.a.put(`/api/clients/${p.party.id}`, { name: "Sri Silks", rates: { [p.d1.id]: 450, [p.d2.id]: 120.5 } });
+  const m1 = await give(p, 3, { designId: p.d1.id });          // 1350
+  const m2 = await give(p, 7, { designId: p.d2.id });          // 843.5
+  const m3 = await give(p, 2);                                  // unpriced, not billed
+  assert.deepEqual([m1, m2, m3].map(r => r.body.move.amount), [1350, 843.5, undefined]);
+  assert.equal((await payment(p, { amount: 0.5 })).body.balanceBefore, 2193.5, "1350 + 843.5");
+  const r = await back(p, 2, { designId: p.d1.id });            // credit 900
+  assert.equal(r.body.move.amount, 900);
+  const last = await payment(p, { amount: 1 });
+  assert.equal(last.body.balanceBefore, 1293, "2193.5 - 0.5 paid - 900 returned");
+  assert.equal(last.body.balanceAfter, 1292);
+  const party = (await dataOf(p.a)).stockMoves.filter(m => m.clientId === p.party.id);
+  const net = party.filter(m => m.amount != null).reduce((n, m) => n + (m.to === "dispatched" ? m.qty : -m.qty), 0);
+  assert.equal(net, 8, "net priced sarees: 3 + 7 - 2");
+});
+
+test("deliveries and returns can name the source warp (for the per-warp account); unknown warp is refused", async () => {
+  const p = await partyFactory();
+  await p.a.put(`/api/clients/${p.party.id}`, { name: "Sri Silks", rates: { [p.d1.id]: 100 } });
+  const warpId = (await dataOf(p.a)).warps[0].id;
+  const r = await give(p, 4, { designId: p.d1.id, warpId });
+  assert.equal(r.status, 201);
+  assert.equal(r.body.move.sourceWarpId, warpId);
+  assert.equal(r.body.move.amount, 400);
+  assert.equal((await back(p, 1, { designId: p.d1.id, warpId })).body.move.sourceWarpId, warpId);
+  assert.equal((await give(p, 1, { warpId: "nope" })).status, 400);
+  assert.equal((await give(p, 1)).body.move.sourceWarpId, undefined, "warp stays optional");
+});
+
+test("a delivery cannot take more from a warp than it has in stock", async () => {
+  const p = await partyFactory();
+  await p.a.put(`/api/clients/${p.party.id}`, { name: "Sri Silks", rates: { [p.d1.id]: 100 } });
+  const warpId = (await dataOf(p.a)).warps[0].id;   // made 20 sarees, none with a design
+  assert.equal((await give(p, 21, { warpId })).status, 400, "more than the warp has");
+  assert.equal((await give(p, 20, { warpId })).status, 201);
+  const again = await give(p, 1, { warpId });
+  assert.equal(again.status, 400);
+  assert.match(again.body.error, /only 0/i);
+  assert.equal((await back(p, 3, { warpId })).status, 201, "returns are not limited by the warp");
+  assert.equal((await give(p, 3, { warpId })).status, 201, "returned sarees are available again");
+});

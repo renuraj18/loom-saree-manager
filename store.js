@@ -69,7 +69,31 @@ function writeFactoryRaw(id, data) {
 const canAccessFactory = (user, factoryId) => user.role === "admin" || (user.factoryIds || []).includes(factoryId);
 const publicUser = u => ({ id: u.id, username: u.username, name: u.name || "", role: u.role, factoryIds: u.factoryIds || [], defaultPassword: !!u.defaultPassword });
 
+// What a factory uses. Stored as factory.modules { type: "own" | "job", process, weft, labour } (stock is always on and
+// so is Warp: production runs on warps). An Own factory picks Process / Weft / Labour; a Job work factory picks
+// Process only (no labour or weft). Designs and Expenses are always available. Older factories stored
+// { stock, wages, process }: wages meant labour + weft, and Stock only always kept the Process step.
+function modulesOf(f) {
+  const m = f?.modules || {};
+  if (m.type === "own" || m.type === "job") {
+    const own = m.type === "own";
+    return { type: m.type, stock: true, warp: true, process: m.process === true, labour: own && m.labour === true, weft: own && m.weft === true, designs: true, expenses: true };
+  }
+  const wages = m.wages !== false;
+  return { type: "own", stock: true, warp: true, process: m.process === true || !wages, labour: wages, weft: wages, designs: true, expenses: true };
+}
+// The stored shape for a factory dialog / API payload (accepts the old { stock, wages, process } too).
+function normalizeModules(input) {
+  const m = input || {};
+  if (m.type === "own" || m.type === "job") {
+    const own = m.type === "own";
+    return { type: m.type, stock: true, process: m.process === true, labour: own && m.labour === true, weft: own && m.weft === true };
+  }
+  const wages = m.wages !== false;
+  return { type: "own", stock: true, process: m.process === true || !wages, labour: wages, weft: wages };
+}
 module.exports = {
+  modulesOf, normalizeModules,
   emptyFactoryData, newId, hashPassword, verifyPassword, initAccounts, readAccounts, writeAccounts,
   factoryFile, readFactoryRaw, writeFactoryRaw, canAccessFactory, publicUser
 };
