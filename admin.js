@@ -60,9 +60,18 @@ function cleanFactoryIds(ids, accounts, role) {
 // server.js). When a factory stops skipping Process (Stock only, or "Include Process" ticked), server.js's
 // flushToStock() turns those sarees into real stock records so counts stay the same.
 const isDirect = f => f?.modules?.stock !== false && f?.modules?.wages !== false && f?.modules?.process !== true;
+// Sets exactly which factories list partyId in factory.partyIds.
+function linkFactories(accounts, partyId, ids) {
+  const want = new Set((Array.isArray(ids) ? ids : []).filter(id => accounts.factories.some(f => f.id === id)));
+  for (const f of accounts.factories) {
+    const has = (f.partyIds || []).includes(partyId);
+    if (want.has(f.id) && !has) f.partyIds = [...(f.partyIds || []), partyId];
+    if (!want.has(f.id) && has) f.partyIds = f.partyIds.filter(x => x !== partyId);
+  }
+}
 const otherAdmins = (accounts, id) => accounts.users.filter(u => u.role === "admin" && u.id !== id).length;
 
-module.exports = function adminRouter({ flushToStock } = {}) {
+module.exports = function adminRouter({ flushToStock, emit } = {}) {
   const router = express.Router();
 
   router.get("/info", async (_req, res) => {
@@ -77,7 +86,8 @@ module.exports = function adminRouter({ flushToStock } = {}) {
       backups: listBackups(),
       logs: { keepDays: LOG_KEEP_DAYS, dir: path.join(cfg.dir, "logs"), factories: logFactories, archives: listLogArchives() },
       factories: accounts.factories,
-      users: accounts.users.map(store.publicUser)
+      users: accounts.users.map(store.publicUser),
+      parties: accounts.parties
     });
   });
 
@@ -160,7 +170,8 @@ module.exports = function adminRouter({ flushToStock } = {}) {
     const accounts = store.readAccounts();
     const user = accounts.users.find(u => u.id === req.params.id);
     if (!user) return res.status(404).json({ error: "User not found." });
-    const role = b.role === "admin" ? "admin" : "user";
+    // A party login stays a party login (manage it under Parties); others are admin or user.
+    const role = user.role === "party" ? "party" : b.role === "admin" ? "admin" : "user";
     if (user.role === "admin" && role !== "admin" && !otherAdmins(accounts, user.id)) return res.status(400).json({ error: "There must be at least one admin." });
     if (user.id === req.user.id && role !== "admin") return res.status(400).json({ error: "You cannot remove your own admin role." });
     const username = text(b.username) || user.username;
@@ -168,7 +179,7 @@ module.exports = function adminRouter({ flushToStock } = {}) {
     if (accounts.users.some(u => u.id !== user.id && u.username.toLowerCase() === username.toLowerCase())) return res.status(409).json({ error: "That username is already taken." });
     const password = String(b.password || "");
     if (password && password.length < 4) return res.status(400).json({ error: "Password must be at least 4 characters." });
-    Object.assign(user, { username, name: text(b.name), role, factoryIds: cleanFactoryIds(b.factoryIds, accounts, role) });
+    Object.assign(user, { username, name: text(b.name), role, factoryIds: role === "party" ? [] : cleanFactoryIds(b.factoryIds, accounts, role) });
     if (password) { Object.assign(user, store.hashPassword(password)); delete user.defaultPassword; }
     // Access changed: sign the user out so their next request picks up the new rights.
     // (Not for the admin editing their own name, which would sign them out of this page.)
@@ -186,6 +197,56 @@ module.exports = function adminRouter({ flushToStock } = {}) {
     accounts.users = accounts.users.filter(u => u.id !== user.id);
     store.writeAccounts(accounts);
     res.json({ deleted: user.id });
+  });
+
+  // ---- Parties (job-work givers who use the party app) ----
+  // { name, phone?, username, password, factoryIds? } creates the party and its login. factoryIds links
+  // existing factories to it: from then on the party sets up looms and designs there.
+  router.post("/parties", (req, res) => {
+    const b = req.body || {};
+    const accounts = store.readAccounts();
+    const name = text(b.name), username = text(b.username);
+    if (!name) return res.status(400).json({ error: "Enter the party name." });
+    if (accounts.parties.some(p => p.name.toLowerCase() === name.toLowerCase())) return res.status(409).json({ error: "A party with this name already exists." });
+    if (!/^[A-Za-z0-9._-]{3,32}$/.test(username)) return res.status(400).json({ error: "Username must be 3–32 letters, numbers, dots, dashes or underscores." });
+    if (accounts.users.some(u => u.username.toLowerCase() === username.toLowerCase())) return res.status(409).json({ error: "That username is already taken." });
+    if (String(b.password || "").length < 4) return res.status(400).json({ error: "Password must be at least 4 characters." });
+    const now = new Date().toISOString();
+    const party = { id: store.newId("PTY"), name, phone: text(b.phone), createdAt: now };
+    accounts.parties.push(party);
+    accounts.users.push({ id: store.newId("USR"), username, name, role: "party", partyId: party.id, factoryIds: [], ...store.hashPassword(b.password), tokenVersion: 0, createdAt: now });
+    linkFactories(accounts, party.id, b.factoryIds);
+    store.writeAccounts(accounts);
+    res.status(201).json(party);
+  });
+  // { name?, phone?, factoryIds? }: rename, or change which factories this party gives job work to.
+  router.put("/parties/:id", (req, res) => {
+    const b = req.body || {};
+    const accounts = store.readAccounts();
+    const party = accounts.parties.find(p => p.id === req.params.id);
+    if (!party) return res.status(404).json({ error: "Party not found." });
+    if (b.name !== undefined) {
+      const name = text(b.name);
+      if (!name) return res.status(400).json({ error: "Enter the party name." });
+      if (accounts.parties.some(p => p !== party && p.name.toLowerCase() === name.toLowerCase())) return res.status(409).json({ error: "A party with this name already exists." });
+      party.name = name;
+    }
+    if (b.phone !== undefined) party.phone = text(b.phone);
+    if (b.factoryIds !== undefined) linkFactories(accounts, party.id, b.factoryIds);
+    store.writeAccounts(accounts);
+    for (const f of accounts.factories) if (emit) emit(f.id);
+    res.json(party);
+  });
+  // Removes the party and its logins. Its looms, orders and records stay in the factories.
+  router.delete("/parties/:id", (req, res) => {
+    const accounts = store.readAccounts();
+    const party = accounts.parties.find(p => p.id === req.params.id);
+    if (!party) return res.status(404).json({ error: "Party not found." });
+    linkFactories(accounts, party.id, []);
+    accounts.parties = accounts.parties.filter(p => p !== party);
+    accounts.users = accounts.users.filter(u => u.partyId !== party.id);
+    store.writeAccounts(accounts);
+    res.json({ deleted: party.id });
   });
 
   // ---- Backups ----

@@ -130,3 +130,33 @@ test("card and table renderers pass record names through esc() before putting th
     assert.deepEqual(bad, [], `${name}() interpolates user text without esc(): ${bad.join(" | ")}`);
   }
 });
+
+// ---- party.html (the party app) ----
+const partyHtml = fs.readFileSync(path.join(ROOT, "public", "party.html"), "utf8");
+const partyJs = [...partyHtml.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]).join("\n");
+
+test("the party app script parses and every $('id') it uses exists", () => {
+  assert.doesNotThrow(() => new Function(partyJs));
+  const present = new Set([...partyHtml.matchAll(/\sid="([^"$]+)"/g)].map(m => m[1]));
+  // ids of fields built inside dialogs at run time
+  const dynamic = /^(ap|rj|sh|lm|ds|jo|rf|pw)[A-Z]/;
+  const wanted = [...new Set([...partyJs.matchAll(/\$\("([A-Za-z][\w-]*)"\)/g)].map(m => m[1]))];
+  const missing = wanted.filter(id => !present.has(id) && !dynamic.test(id));
+  assert.deepEqual(missing, [], `party.html uses missing ids: ${missing.join(", ")}`);
+});
+
+test("every API route the party app calls exists", () => {
+  const party = fs.readFileSync(path.join(ROOT, "party.js"), "utf8");
+  const routes = new Set([...party.matchAll(/router\.(get|post|put|delete)\("(\/[^"]+)"/g)].map(m => "/api/party" + m[2].replace(/:[A-Za-z]+/g, ":p")));
+  ["/api/auth/me", "/api/auth/password"].forEach(r => routes.add(r));
+  const called = [...new Set([...partyJs.matchAll(/api\((?:`|")(\/api\/[^`"?]+)/g)].map(m => m[1].replace(/\$\{[^}]+\}/g, ":p")))];
+  const missing = called.filter(c => !routes.has(c));
+  assert.deepEqual(missing, [], `party.html calls missing routes: ${missing.join(", ")}`);
+});
+
+test("party log types are known to the Log page", () => {
+  const party = fs.readFileSync(path.join(ROOT, "party.js"), "utf8");
+  const used = new Set([...party.matchAll(/logEvent\(db, req, "([a-z]+)"/g)].map(m => m[1]));
+  const known = new Set([...js.match(/const LOG_TYPE=\{([^}]*)\}/)[1].matchAll(/(\w+):\[/g)].map(m => m[1]));
+  for (const t of used) assert.ok(known.has(t), `log type "${t}" missing from LOG_TYPE`);
+});

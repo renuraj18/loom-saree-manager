@@ -267,6 +267,31 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
 .dlgbody{padding:8px 22px 22px}.dlgfoot{display:flex;gap:10px;margin-top:16px}.btn.ghostbtn{background:#f1effa;color:var(--ink);box-shadow:none}
 @media(max-width:850px){.homegrid{grid-template-columns:minmax(0,1fr)}}
 </style>
+<style>
+/* ---- Layout: grouped sidebar on wide screens, one scrolling tab row on phones ---- */
+.navgroup{display:none}
+.livedot{display:inline-flex;align-items:center;gap:6px;font-size:12px;opacity:.9;margin-left:10px}.livedot i{width:8px;height:8px;border-radius:50%;background:#5ee0a8;display:inline-block}.livedot.off i{background:#c9c4dc}
+@media(max-width:999px){nav.tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;-webkit-overflow-scrolling:touch}nav.tabs::-webkit-scrollbar{display:none}nav.tabs .tab{flex-shrink:0}}
+@media(min-width:1000px){
+  body:not(.signed-out){padding-left:236px}
+  header{border-radius:0 0 0 22px;padding-top:14px;padding-bottom:14px}
+  main{max-width:1500px;margin:18px auto;padding:0 28px 48px}
+  nav.tabs{position:fixed;left:0;top:0;bottom:0;width:236px;margin:0;padding:20px 12px;box-sizing:border-box;flex-direction:column;flex-wrap:nowrap;gap:2px;background:#1a1050;overflow-y:auto;z-index:30}
+  nav.tabs .tab{background:transparent;border:0;box-shadow:none;color:#d6cff8;border-radius:10px;padding:9px 12px;font-weight:600;font-size:14px}
+  nav.tabs .tab:hover{transform:none;background:rgba(255,255,255,.08);color:#fff}
+  nav.tabs .tab.active{background:rgba(255,255,255,.16);color:#fff;box-shadow:none}
+  nav.tabs .navgroup{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#a79ee0;padding:14px 12px 4px}
+  nav.tabs .navbrand{display:flex;align-items:center;gap:10px;padding:0 10px 6px;color:#fff;font-weight:700;font-size:16px;text-decoration:none}
+  nav.tabs .navbrand img{width:30px;height:30px;border-radius:8px;background:#fff;padding:2px}
+}
+.navbrand{display:none}
+/* Party orders */
+.pwann{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:10px}
+.pwann.new{border-color:var(--brand)}.pwann h3{margin:2px 0 4px;font-size:15px}.pwann p{margin:0;font-size:13px;color:#3e3b5a}
+.pwrow{display:flex;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding:10px 0;font-size:13px}.pwrow:first-child{border-top:0}
+.pwbar{display:flex;height:9px;border-radius:5px;overflow:hidden;background:#eeebf7;min-width:140px}.pwbar span{height:100%}
+.lockednote{background:#eeeaff;color:#3a248f;border-radius:12px;padding:10px 12px;font-size:13px;margin:0 0 12px}
+</style>
 </head>
 <body>
 <div class="loginscreen" id="loginScreen" hidden>
@@ -281,7 +306,7 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
   </form>
 </div>
 <header>
-  <div class="factorybar"><span aria-hidden="true">🏭</span><select id="factorySelect" aria-label="Factory"></select><span id="factoryLoc"></span></div>
+  <div class="factorybar"><span aria-hidden="true">🏭</span><select id="factorySelect" aria-label="Factory"></select><span id="factoryLoc"></span><span class="livedot off" id="liveDot" title="Live updates"><i></i><span id="liveText">Offline</span></span></div>
   <a href="#home" class="brand"><span class="logocard"><img src="img/thari-logo-640.png" srcset="img/thari-logo-640.png 640w, img/thari-logo-1280.png 1280w" sizes="180px" alt="Thari logo"></span><span class="brandtext"><h1>My Thari</h1><p>Track all my loom production</p></span></a>
   <div class="usermenu">
     <button class="adminbtn" id="userBtn" type="button" aria-haspopup="true" aria-expanded="false">👤 <span id="userBtnName"></span> ▾</button>
@@ -297,19 +322,26 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
   <div class="notice err show" id="pwWarn" hidden>You are using the default password. <button class="smallbtn" type="button" data-menu="password">Change it now</button></div>
   <section class="panel empty" id="noFactory" hidden></section>
   <div class="lowalert" id="lowAlert" hidden></div>
-  <nav class="tabs">
+  <div class="lowalert" id="partyAlert" hidden></div>
+  <nav class="tabs" aria-label="Sections">
+    <a class="navbrand" href="#home"><img src="img/thari-icon-64.png" alt="">My Thari</a>
+    <span class="navgroup">Floor</span>
     <a class="tab" href="#home">Home</a>
     <a class="tab" href="#loomlist">Looms</a>
-    <a class="tab" href="#warps">Warp</a>
-    <a class="tab" href="#bobbins">Bobbin</a>
+    <a class="tab" href="#warps">Warps</a>
+    <a class="tab" href="#bobbins">Weft (bobbins)</a>
     <a class="tab" href="#looms">Production</a>
+    <a class="tab" href="#partywork" data-party hidden>Party orders</a>
+    <span class="navgroup">Stock</span>
     <a class="tab" href="#process" data-mod="stock" data-direct-hide>Process</a>
     <a class="tab" href="#stock" data-mod="stock">Stock</a>
     <a class="tab" href="#parties" data-mod="stock">Parties</a>
+    <span class="navgroup">People</span>
     <a class="tab" href="#designs" data-mod="wages">Designs</a>
     <a class="tab" href="#staff" data-mod="wages">Weavers</a>
     <a class="tab" href="#wages" data-mod="wages">Wages</a>
     <a class="tab" href="#expenses" data-mod="wages">Expenses</a>
+    <span class="navgroup">Records</span>
     <a class="tab" href="#log">Log</a>
   </nav>
 
@@ -771,7 +803,7 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
       <div><h2>Log</h2><p class="sub">Every activity in this factory, newest first. <span id="logCount"></span></p></div>
     </div>
     <div class="logbar">
-      <select id="logType" aria-label="Activity type"><option value="">All activity</option><option value="warp">Warps</option><option value="bobbin">Bobbins</option><option value="loom">Looms</option><option value="dispatch">Dispatches (from looms)</option><option value="delivery">Deliveries (to parties)</option><option value="process">Process</option><option value="stock">Stock</option><option value="party">Parties</option><option value="wages">Wages, weavers &amp; designs</option><option value="expense">Expenses</option></select>
+      <select id="logType" aria-label="Activity type"><option value="">All activity</option><option value="warp">Warps</option><option value="bobbin">Bobbins</option><option value="loom">Looms</option><option value="dispatch">Dispatches (from looms)</option><option value="delivery">Deliveries (to parties)</option><option value="process">Process</option><option value="stock">Stock</option><option value="party">Parties</option><option value="wages">Wages, weavers &amp; designs</option><option value="expense">Expenses</option><option value="request">Warp &amp; weft requests</option><option value="shipment">Sent to parties</option><option value="notice">Party notices &amp; orders</option></select>
       <input id="logSearch" type="search" placeholder="Search (warp, loom, party, LR…)" aria-label="Search the log">
     </div>
     <section class="panel"><div id="logTable" class="tablewrap"></div><div class="logmore" id="logMore"></div></section>
@@ -838,6 +870,56 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
     </form>
   </dialog>
 
+  <section id="view-partywork" hidden>
+    <div class="boardhead">
+      <div><h2>Party orders</h2><p class="sub">Job orders, warp &amp; weft requests and announcements from the parties who give this factory work. They see every update here live.</p></div>
+      <div class="headbtns"><button class="btn btn-inline ghostbtn" type="button" id="openRequest">Request warp / weft</button><button class="btn btn-inline" type="button" id="openShipment">Send sarees to party</button></div>
+    </div>
+    <div id="pwAnnouncements"></div>
+    <section class="panel homepanel">
+      <div class="sectionhead"><h2>Job orders</h2><span id="pwJobCount"></span></div>
+      <div id="pwJobs" class="tablewrap"></div>
+    </section>
+    <div class="homegrid">
+      <section class="panel"><div class="sectionhead"><h2>Warp &amp; weft requests</h2><span>The party approves each one</span></div><div id="pwRequests"></div></section>
+      <section class="panel"><div class="sectionhead"><h2>Sent to parties</h2><span>The party confirms when it arrives</span></div><div id="pwShipments"></div></section>
+    </div>
+  </section>
+
+  <dialog id="requestDialog" aria-labelledby="requestDialogTitle">
+    <div class="dlghead"><h2 id="requestDialogTitle">Request warp or weft</h2><p>Sent to the loom's party for approval. Once approved it appears on the board as ordered.</p></div>
+    <form id="requestForm" class="dlgbody">
+      <div class="field"><label>What *</label>
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="reqKind" value="warp" checked><span>Warp</span></label>
+          <label><input type="radio" name="reqKind" value="bobbin"><span>Weft (bobbin)</span></label>
+        </div>
+      </div>
+      <div class="field"><label for="reqLoom">Loom *</label><select id="reqLoom" required></select></div>
+      <div class="two">
+        <div class="field"><label for="reqSarees">Sarees *</label><input id="reqSarees" type="number" min="1" step="1" required inputmode="numeric"><div class="hint" id="reqMeters"></div></div>
+        <div class="field"><label for="reqNeedBy">Needed by</label><input id="reqNeedBy" type="date"></div>
+      </div>
+      <div class="field"><label for="reqNote">Note to the party</label><input id="reqNote" placeholder="e.g. W-118 finishes tomorrow evening"></div>
+      <div class="notice" id="requestNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit">Send for approval</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="shipmentDialog" aria-labelledby="shipmentDialogTitle">
+    <div class="dlghead"><h2 id="shipmentDialogTitle">Send sarees to party</h2><p>Woven sarees of a job order going to its party. The party confirms when they arrive.</p></div>
+    <form id="shipmentForm" class="dlgbody">
+      <div class="field"><label for="shipJob">Job order *</label><select id="shipJob" required></select><div class="hint" id="shipAvail"></div></div>
+      <div class="two">
+        <div class="field"><label for="shipQty">Sarees *</label><input id="shipQty" type="number" min="1" step="1" required inputmode="numeric"></div>
+        <div class="field"><label for="shipLr">LR number</label><input id="shipLr"></div>
+      </div>
+      <div class="field"><label for="shipNote">Note</label><input id="shipNote"></div>
+      <div class="notice" id="shipmentNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit">Send</button></div>
+    </form>
+  </dialog>
+
   <section id="view-settings" hidden>
     <div class="boardhead">
       <div><h2>Settings</h2><p class="sub">Factories, users, backups and the app. Only admins can see this page.</p></div>
@@ -851,6 +933,11 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
       <div class="sectionhead"><h2>Users</h2><div class="actions"><span id="setUserCount"></span><button class="btn btn-inline" type="button" id="addUserBtn">+ Add user</button></div></div>
       <p class="sub">Admins can open every factory and use Settings. Users only see the factories assigned to them and cannot discard warps or remove looms.</p>
       <div id="setUserTable" class="tablewrap"></div>
+    </section>
+    <section class="panel homepanel">
+      <div class="sectionhead"><h2>Parties</h2><div class="actions"><span id="setPartyCount"></span><button class="btn btn-inline" type="button" id="addPartyBtn">+ Add party</button></div></div>
+      <p class="sub">A party gives job work. It signs in to the party app (same address, its own login) to register factories, set up looms and designs, approve warp &amp; weft requests, send announcements and watch production live. In a factory linked to a party, looms and designs are set up by the party.</p>
+      <div id="setPartyTable" class="tablewrap"></div>
     </section>
     <section class="panel homepanel">
       <div class="sectionhead"><h2>Backups</h2><div class="actions"><span id="adminBackupCount"></span><button class="btn btn-inline" type="button" id="adminBackupNow">Back up now</button></div></div>
@@ -950,6 +1037,23 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
       <div class="field" id="usrFactoriesField"><label>Factories this user can open</label><div class="checklist" id="usrFactories"></div></div>
       <div class="notice" id="userNotice"></div>
       <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="userSubmit">Add user</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="partyAcctDialog" aria-labelledby="partyAcctTitle">
+    <div class="dlghead"><h2 id="partyAcctTitle">Add party</h2><p>The party signs in with this username and password and lands in the party app.</p></div>
+    <form id="partyAcctForm" class="dlgbody">
+      <div class="two">
+        <div class="field"><label for="ptyName">Party name *</label><input id="ptyName" required placeholder="e.g. Sri Lakshmi Silks"></div>
+        <div class="field"><label for="ptyPhone">Phone</label><input id="ptyPhone" type="tel" inputmode="tel"></div>
+      </div>
+      <div class="two" id="ptyLoginRow">
+        <div class="field"><label for="ptyUser">Username *</label><input id="ptyUser" autocapitalize="none" autocomplete="off"></div>
+        <div class="field"><label for="ptyPass">Password *</label><input id="ptyPass" type="password" autocomplete="new-password"></div>
+      </div>
+      <div class="field"><label>Factories this party gives work to</label><div class="checklist" id="ptyFactories"></div><div class="hint">The party can also register new factories itself from its app.</div></div>
+      <div class="notice" id="partyAcctNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="partyAcctSubmit">Add party</button></div>
     </form>
   </dialog>
 
@@ -1372,10 +1476,10 @@ $("waDashboard").addEventListener("click",e=>{
 async function refresh() {
   if(!currentFactoryId||!session.user) return;
   db=await api("/api/data");
-  renderStats();renderWarpOptions();renderHome();renderProduction();renderLooms();renderLoomList();if($("manageLoomsDialog").open) renderManageLooms();renderWarps();renderProcess();renderStock();renderParties();renderDesigns();renderStaff();renderWages();renderExpenses();renderLog();applyModules();renderLowAlert();updatePreview();loadDesignImages();
+  renderStats();renderWarpOptions();renderHome();renderProduction();renderLooms();renderLoomList();if($("manageLoomsDialog").open) renderManageLooms();renderWarps();renderProcess();renderStock();renderParties();renderDesigns();renderStaff();renderWages();renderExpenses();renderLog();applyModules();renderLowAlert();renderPartyWork();updatePreview();loadDesignImages();
   if(flashIds.size) setTimeout(()=>flashIds=new Set(),1600);
 }
-const views=["home","loomlist","warps","bobbins","looms","process","stock","parties","designs","staff","wages","expenses","log","settings"];
+const views=["home","loomlist","warps","bobbins","looms","partywork","process","stock","parties","designs","staff","wages","expenses","log","settings"];
 // Parts of the app a factory can turn off in Settings (factory.modules, missing = on).
 const VIEW_MODULE={process:"stock",stock:"stock",parties:"stock",designs:"wages",staff:"wages",wages:"wages",expenses:"wages"};
 const mods=()=>{ const m=currentFactory()?.modules; return {stock:m?.stock!==false,wages:m?.wages!==false,process:m?.process===true}; };
@@ -1763,7 +1867,7 @@ function renderManageLooms() {
   $("manageLoomsList").innerHTML=list.length?list.map(l=>{
     const st=loomState(l);
     return `<div class="mlrow" data-id="${esc(l.id)}"><div><strong>${esc(l.name)}</strong> ${loomPill(l)}<div class="meta">${widthLabel(l.widthType)} · ${l.needsBobbin?"warp + bobbin":"warp only"}${st.running?"":` · ${esc(st.reason)}`}</div></div>
-      <div class="rowacts"><button class="smallbtn" type="button" data-lm="edit">Edit</button>${st.manual?`<button class="smallbtn" type="button" data-lm="resume">Resume</button>`:`<button class="smallbtn" type="button" data-lm="stop">Stop</button>`}${wages?`<button class="smallbtn" type="button" data-lm="setup">Designs &amp; weaver</button>`:""}${!st.running&&isAdmin()?`<button class="smallbtn danger" type="button" data-lm="remove" title="Remove">${TRASH_ICON}</button>`:""}</div></div>`;
+      <div class="rowacts">${setupLocked()?"":'<button class="smallbtn" type="button" data-lm="edit">Edit</button>'}${st.manual?`<button class="smallbtn" type="button" data-lm="resume">Resume</button>`:`<button class="smallbtn" type="button" data-lm="stop">Stop</button>`}${wages?`<button class="smallbtn" type="button" data-lm="setup">Designs &amp; weaver</button>`:""}${!st.running&&isAdmin()?`<button class="smallbtn danger" type="button" data-lm="remove" title="Remove">${TRASH_ICON}</button>`:""}</div></div>`;
   }).join(""):'<div class="empty">No looms yet.</div>';
 }
 $("openManageLooms").addEventListener("click",()=>{ hideNotice("manageLoomsNotice"); renderManageLooms(); $("manageLoomsDialog").showModal(); });
@@ -2722,7 +2826,7 @@ $("setupForm").addEventListener("submit",async e=>{
   }catch(err){notice("setupNotice",err.message)}
 });
 // ---- Log: every activity, newest first (stored server-side in db.activity) ----
-const LOG_TYPE={warp:["Warp","violet"],bobbin:["Bobbin","blue"],loom:["Loom","blue"],dispatch:["Dispatch","green"],delivery:["Delivery","red"],process:["Process",""],stock:["Stock","teal"],party:["Party","amber"],wages:["Wages","green"],expense:["Expense","amber"]};
+const LOG_TYPE={request:["Request","amber"],shipment:["To party","green"],notice:["Party","violet"],warp:["Warp","violet"],bobbin:["Bobbin","blue"],loom:["Loom","blue"],dispatch:["Dispatch","green"],delivery:["Delivery","red"],process:["Process",""],stock:["Stock","teal"],party:["Party","amber"],wages:["Wages","green"],expense:["Expense","amber"]};
 // Expenses: per-loom costs (warp join, bobbin join, spares, maintenance).
 const EXP_KINDS={warp_join:"Warp join",bobbin_join:"Bobbin join",spares:"Spares",maintenance:"Maintenance"};
 const EXP_SUBTYPES=["Routine service","Repair","Breakdown","Other"];
@@ -2991,11 +3095,14 @@ function showLogin(message) {
   setTimeout(()=>($("loginUser").value?$("loginPass"):$("loginUser")).focus(),0);
 }
 function signOut(message) {
+  stopLive();
   session={token:null,user:null,factories:[]}; currentFactoryId=null; store_.set("loom.token",null);
   db={warps:[],bobbins:[],looms:[],deliveries:[],clients:[],stockMoves:[],staff:[],designs:[],wagePayouts:[],wageDeductions:[],expenses:[]};
   $("userMenu").hidden=true; showLogin(message);
 }
 function applySession({user,factories}) {
+  // Party accounts use the party app (same sign-in, same token).
+  if(user.role==="party"){ location.replace("party.html"); return; }
   session.user=user; session.factories=factories;
   document.body.classList.remove("signed-out"); $("loginScreen").hidden=true;
   // Keep the factory in use if still allowed, else the last one used on this device, else the first.
@@ -3009,6 +3116,7 @@ function applySession({user,factories}) {
   $("menuSettings").hidden=!isAdmin(); $("footerBackup").hidden=!isAdmin();
   $("pwWarn").hidden=!user.defaultPassword;
   renderFactorySelect();
+  startLive();
 }
 function renderFactorySelect() {
   const sel=$("factorySelect"), f=currentFactory();
@@ -3077,7 +3185,7 @@ async function loadSettings() {
   $("setUserCount").textContent=plural(i.users.length,"user");
   $("setUserTable").innerHTML=`<table><thead><tr><th>User</th><th>Role</th><th>Factories</th><th></th></tr></thead><tbody>${i.users.map(u=>{
     const facs=u.role==="admin"?"All factories":(u.factoryIds.map(facName).filter(Boolean).join(", ")||'<span style="color:var(--muted)">None</span>');
-    return `<tr data-id="${esc(u.id)}"><td><strong>${esc(u.username)}</strong>${u.name?`<br><span style="color:var(--muted)">${esc(u.name)}</span>`:""}${u.id===session.user.id?' <span class="pill gray">You</span>':""}</td><td><span class="pill ${u.role==="admin"?"":"green"}">${u.role==="admin"?"Admin":"User"}</span></td><td>${u.role==="admin"?facs:facs.startsWith("<")?facs:esc(facs)}</td><td class="rowacts"><button class="smallbtn" data-usr="edit">Edit</button>${u.id===session.user.id?"":'<button class="smallbtn danger" data-usr="delete">Delete</button>'}</td></tr>`;
+    return `<tr data-id="${esc(u.id)}"><td><strong>${esc(u.username)}</strong>${u.name?`<br><span style="color:var(--muted)">${esc(u.name)}</span>`:""}${u.id===session.user.id?' <span class="pill gray">You</span>':""}</td><td><span class="pill ${u.role==="admin"?"":u.role==="party"?"amber":"green"}">${u.role==="admin"?"Admin":u.role==="party"?"Party":"User"}</span></td><td>${u.role==="admin"?facs:facs.startsWith("<")?facs:esc(facs)}</td><td class="rowacts"><button class="smallbtn" data-usr="edit">Edit</button>${u.id===session.user.id?"":'<button class="smallbtn danger" data-usr="delete">Delete</button>'}</td></tr>`;
   }).join("")}</tbody></table>`;
   $("adminBackupWhere").textContent=`${i.backupDir} · daily backups kept for ${plural(i.keepDays,"day")}${i.backupDirSource==="settings"?"":i.backupDirSource==="environment"?" (from settings.bat / environment)":" (default folder)"} · each backup covers every factory`;
   $("adminBackupCount").textContent=plural(i.backups.length,"file");
@@ -3106,6 +3214,7 @@ async function loadSettings() {
   $("adminUpgradeWhere").textContent=`Installs the latest ${a.mode==="git"?`version from GitHub (${a.repo||"repository not set"}, branch ${a.branch})`:`Windows release from GitHub (${a.repo||"repository not set"}), built automatically on every push`}. A full data backup is taken first${a.mode==="git"?"":" and the current app files are copied to the backup folder"}; then the app restarts. Your data and settings are not changed.`;
   $("adminTokenState").textContent=st.hasToken?"(a token is saved)":"(not set)";
   $("adminTokenClear").hidden=!st.hasToken;
+  renderSettingsParties(i);
   $("adminRestart").disabled=!i.canRestart;
   $("adminRestartHint").textContent=i.canRestart?"Stops and starts the app server. Open pages reconnect automatically.":"Not available: the app was started directly with node server.js. Use npm start or the Windows launcher.";
 }
@@ -3320,6 +3429,154 @@ $("adminRestart").addEventListener("click",async e=>{
     await waitForRestart(before);
     toast("App restarted."); await refresh(); await loadSettings();
   });
+});
+
+// ---- Party work: parties who give this factory job work (party app) ----
+// db.parties [{id,name,perms}], db.jobOrders (with woven/sent/received/toWeave/atFactory/onWay/pending),
+// db.requests, db.shipments, db.announcements. In a party-managed factory (db.partyManaged) looms and designs
+// are set up by the party, so non-admins don't get the add/edit buttons (the server refuses them too).
+const setupLocked=()=>!!db.partyManaged&&!isAdmin();
+const partyName=id=>(db.parties||[]).find(p=>p.id===id)?.name||"Party";
+const partyPerm=(partyId,perm)=>isAdmin()||!partyId||(db.parties||[]).find(p=>p.id===partyId)?.perms?.[perm]!==false;
+const REQ_PILL={pending:["Waiting for party","amber"],approved:["Approved","green"],rejected:["Rejected","red"],cancelled:["Withdrawn","gray"]};
+function renderPartyWork() {
+  const parties=db.parties||[], me=session.user?.id;
+  document.querySelectorAll("[data-party]").forEach(el=>el.hidden=!parties.length);
+  const locked=setupLocked();
+  document.querySelectorAll("[data-open-loom],[data-open-design]").forEach(b=>b.hidden=locked);
+  const anns=db.announcements||[], open=anns.filter(a=>a.ackRequired&&!a.acks.some(k=>k.userId===me));
+  $("partyAlert").hidden=!open.length;
+  $("partyAlert").innerHTML=open.length?`📣 <b>${esc(open[0].partyName||partyName(open[0].partyId))}:</b> ${esc(open[0].title)}${open.length>1?` · and ${open.length-1} more`:""} · <a href="#partywork">Open party orders</a>`:"";
+  $("pwAnnouncements").innerHTML=(locked?`<p class="lockednote">Looms and designs in this factory are set up by ${esc(parties.map(p=>p.name).join(", ")||"the party")}. You run them: dispatch, stop/resume, warps and bobbins, and you set the weaver's wage on each design.</p>`:"")
+    +anns.slice(0,6).map(a=>{ const isNew=a.ackRequired&&!a.acks.some(k=>k.userId===me);
+      return `<div class="pwann${isNew?" new":""}" data-ann="${esc(a.id)}"><span aria-hidden="true">📣</span><div style="flex:1"><span class="pill ${a.kind==="holiday"?"amber":a.kind==="warp"?"":"green"}">${esc({warp:"Warp ready",design:"Design change",holiday:"Holiday / pause",general:"Notice"}[a.kind]||"Notice")}</span> <span class="hint">${esc(a.partyName||partyName(a.partyId))} · ${esc(whenFull(a.createdAt))}</span><h3>${esc(a.title)}</h3>${a.body?`<p>${esc(a.body)}</p>`:""}</div>${isNew?'<button class="btn btn-inline" type="button" data-ack>Got it</button>':'<span class="hint">✓ Seen</span>'}</div>`; }).join("");
+  const jobs=db.jobOrders||[];
+  $("pwJobCount").textContent=plural(jobs.filter(j=>j.status!=="closed").length,"open order");
+  const loomName=id=>db.looms.find(l=>l.id===id)?.name||"";
+  $("pwJobs").innerHTML=jobs.length?`<table><thead><tr><th>Order</th><th>Party</th><th>Looms</th><th>Target</th><th>Woven</th><th>At factory</th><th>On the way</th><th>Received</th><th>Progress</th></tr></thead><tbody>${jobs.map(j=>{
+    const seg=(n,c)=>`<span style="width:${Math.min(100,n/j.target*100)}%;background:${c}"></span>`;
+    return `<tr><td><strong>${esc(j.code)}</strong>${j.designNo?`<br><span style="color:var(--muted)">${esc(j.designNo)}${j.designName?` · ${esc(j.designName)}`:""}</span>`:""}${j.status==="closed"?' <span class="pill gray">Closed</span>':""}</td><td>${esc(partyName(j.partyId))}</td><td>${esc((j.loomIds||[]).map(loomName).filter(Boolean).join(", ")||"—")}</td><td>${fmt(j.target)}</td><td>${fmt(j.woven)}</td><td><b>${fmt(j.atFactory)}</b></td><td>${fmt(j.onWay)}</td><td>${fmt(j.received)}</td><td><div class="pwbar">${seg(j.received,"#12a06e")}${seg(j.onWay,"#c9640f")}${seg(j.atFactory,"#f2b24c")}</div><span class="hint">${fmt(j.toWeave)} to weave</span></td></tr>`;
+  }).join("")}</tbody></table>`:'<div class="empty">No job orders yet. The party creates them in its app.</div>';
+  const reqs=(db.requests||[]).slice(0,30);
+  $("pwRequests").innerHTML=reqs.length?reqs.map(r=>{ const [lbl,cls]=REQ_PILL[r.status]||[r.status,"gray"];
+    return `<div class="pwrow" data-req="${esc(r.id)}"><div><strong>${r.kind==="bobbin"?"Weft":"Warp"} for ${esc(r.loomName)} · ${fmt(r.sarees)} sarees</strong><br><span class="hint">${esc(partyName(r.partyId))} · ${fmt(r.meters)} m${r.needBy?` · need by ${esc(fmtDate(r.needBy))}`:""}${r.itemName?` · ${esc(r.itemName)} on order`:""}${r.reason?` · ${esc(r.reason)}`:""}</span></div><div style="display:flex;gap:6px;align-items:center"><span class="pill ${cls}">${lbl}</span>${r.status==="pending"?'<button class="smallbtn" type="button" data-withdraw>Withdraw</button>':""}</div></div>`; }).join(""):'<div class="empty">No requests yet. Use <b>Request warp / weft</b> when a loom runs low.</div>';
+  const ships=(db.shipments||[]).slice(0,30);
+  $("pwShipments").innerHTML=ships.length?ships.map(x=>`<div class="pwrow"><div><strong>${fmt(x.qty)} sarees · ${esc(x.jobCode)}</strong><br><span class="hint">${esc(partyName(x.partyId))} · ${esc(whenFull(x.createdAt))}${x.lrNumber?` · LR ${esc(x.lrNumber)}`:""}${x.issue?` · issue: ${esc(x.issue)}`:""}</span></div><span class="pill ${x.receivedAt?(x.issue?"red":"green"):"amber"}">${x.receivedAt?(x.issue?"Issue reported":"Received"):"On the way"}</span></div>`).join(""):'<div class="empty">Nothing sent yet.</div>';
+  $("openRequest").hidden=!db.looms.some(l=>l.partyId);
+  $("openShipment").hidden=!jobs.some(j=>j.atFactory>0);
+}
+$("pwAnnouncements").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-ack]"); if(!b) return;
+  const annId=b.closest("[data-ann]").dataset.ann;
+  try{ await api(`/api/announcements/${annId}/ack`,{method:"POST"}); toast("The party can see you got it."); await refresh(); }catch(err){ toast(err.message); }
+});
+$("pwRequests").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-withdraw]"); if(!b) return;
+  if(!await ask({title:"Withdraw this request?",text:"The party will see it was withdrawn.",ok:"Withdraw"})) return;
+  const reqId=b.closest("[data-req]").dataset.req;
+  try{ await api(`/api/requests/${reqId}`,{method:"DELETE"}); await refresh(); }catch(err){ toast(err.message); }
+});
+const reqKind=()=>$("requestForm").querySelector("input[name=reqKind]:checked").value;
+function fillRequestLooms(loomId) {
+  const kind=reqKind(), looms=db.looms.filter(l=>l.partyId&&partyPerm(l.partyId,"request")&&(kind==="warp"||l.needsBobbin));
+  $("reqLoom").innerHTML=looms.map(l=>{ const item=kind==="warp"?db.warps.find(w=>w.id===l.warpId):db.bobbins.find(b=>b.id===l.bobbinId);
+    return `<option value="${esc(l.id)}">${esc(l.name)} · ${esc(partyName(l.partyId))}${item?` · ${esc(item.name)} ${fmt(warpSarees(item))} left`:""}</option>`; }).join("")||'<option value="">No party looms</option>';
+  if(loomId&&looms.some(l=>l.id===loomId)) $("reqLoom").value=loomId;
+  updateReqMeters();
+}
+function updateReqMeters() {
+  const l=db.looms.find(x=>x.id===$("reqLoom").value), n=Number($("reqSarees").value);
+  $("reqSarees").step=l?.widthType==="triple"?3:1;
+  $("reqMeters").textContent=l&&n>0?`${fmt(n*SAREE_M/(l.widthType==="triple"?3:1))} m · ${l.widthType==="triple"?"triple width, multiples of 3":"single width"}`:"";
+}
+function openRequest(loomId, kind="warp") {
+  $("requestForm").reset(); hideNotice("requestNotice");
+  $("requestForm").querySelector(`input[name=reqKind][value=${kind}]`).checked=true;
+  fillRequestLooms(loomId); $("requestDialog").showModal(); $("reqSarees").focus();
+}
+$("openRequest").addEventListener("click",()=>openRequest());
+$("requestForm").addEventListener("change",e=>{ if(e.target.name==="reqKind") fillRequestLooms($("reqLoom").value); else updateReqMeters(); });
+$("reqSarees").addEventListener("input",updateReqMeters);
+$("requestForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("requestNotice");
+  try{
+    await api("/api/requests",{method:"POST",body:JSON.stringify({kind:reqKind(),loomId:$("reqLoom").value,sarees:Number($("reqSarees").value),needBy:$("reqNeedBy").value,note:$("reqNote").value})});
+    $("requestDialog").close(); toast("Sent to the party for approval."); await refresh();
+  }catch(err){ notice("requestNotice",err.message); }
+});
+function openShipment() {
+  $("shipmentForm").reset(); hideNotice("shipmentNotice");
+  const jobs=(db.jobOrders||[]).filter(j=>j.atFactory>0&&partyPerm(j.partyId,"ship"));
+  $("shipJob").innerHTML=jobs.map(j=>`<option value="${esc(j.id)}">${esc(j.code)} · ${esc(partyName(j.partyId))} · ${fmt(j.atFactory)} ready</option>`).join("")||'<option value="">Nothing woven to send</option>';
+  updateShipAvail(); $("shipmentDialog").showModal(); $("shipQty").focus();
+}
+function updateShipAvail() {
+  const j=(db.jobOrders||[]).find(x=>x.id===$("shipJob").value);
+  $("shipAvail").textContent=j?`${fmt(j.atFactory)} woven and not yet sent · ${fmt(j.received)} of ${fmt(j.target)} received by the party`:"";
+  if(j&&!$("shipQty").value) $("shipQty").value=j.atFactory;
+}
+$("openShipment").addEventListener("click",openShipment);
+$("shipJob").addEventListener("change",()=>{ $("shipQty").value=""; updateShipAvail(); });
+$("shipmentForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("shipmentNotice");
+  try{
+    await api("/api/shipments",{method:"POST",body:JSON.stringify({jobOrderId:$("shipJob").value,qty:Number($("shipQty").value),lrNumber:$("shipLr").value,note:$("shipNote").value})});
+    $("shipmentDialog").close(); toast("Sent. The party sees it on the way."); await refresh();
+  }catch(err){ notice("shipmentNotice",err.message); }
+});
+// ---- Live updates: the server pushes a message whenever this factory's data changes (events.js) ----
+let liveSrc=null, liveTimer=null;
+function setLive(on) { $("liveDot").classList.toggle("off",!on); $("liveText").textContent=on?"Live":"Offline"; }
+function startLive() {
+  stopLive();
+  if(!session.token||typeof EventSource==="undefined") return;
+  liveSrc=new EventSource(`/api/events?token=${encodeURIComponent(session.token)}`);
+  liveSrc.onopen=()=>setLive(true);
+  liveSrc.onerror=()=>setLive(false);
+  liveSrc.onmessage=e=>{
+    let m; try{ m=JSON.parse(e.data); }catch{ return; }
+    if(m.factoryId!==currentFactoryId) return;
+    clearTimeout(liveTimer); liveTimer=setTimeout(()=>refresh().catch(()=>{}),500);
+  };
+}
+function stopLive() { if(liveSrc){ liveSrc.close(); liveSrc=null; } clearTimeout(liveTimer); setLive(false); }
+// ---- Settings: party accounts ----
+let editingPartyAcct=null;
+function renderSettingsParties(i) {
+  const parties=i.parties||[], facName=id=>i.factories.find(f=>f.id===id)?.name;
+  $("setPartyCount").textContent=plural(parties.length,"party").replace(/ys$/,"ies");
+  $("setPartyTable").innerHTML=parties.length?`<table><thead><tr><th>Party</th><th>Login</th><th>Factories</th><th></th></tr></thead><tbody>${parties.map(p=>{
+    const facs=i.factories.filter(f=>(f.partyIds||[]).includes(p.id)).map(f=>f.name);
+    const login=i.users.filter(u=>u.partyId===p.id).map(u=>u.username).join(", ");
+    return `<tr data-id="${esc(p.id)}"><td><strong>${esc(p.name)}</strong>${p.phone?`<br><span style="color:var(--muted)">${esc(p.phone)}</span>`:""}</td><td>${esc(login||"—")}</td><td>${facs.length?esc(facs.join(", ")):'<span style="color:var(--muted)">None yet</span>'}</td><td class="rowacts"><button class="smallbtn" data-pty="edit">Edit</button><button class="smallbtn danger" data-pty="delete">Delete</button></td></tr>`;
+  }).join("")}</tbody></table>`:'<div class="empty">No parties yet. Add one to give it the party app.</div>';
+}
+function openPartyAcct(p) {
+  editingPartyAcct=p||null; $("partyAcctForm").reset(); hideNotice("partyAcctNotice");
+  $("partyAcctTitle").textContent=p?`Edit ${p.name}`:"Add party"; $("partyAcctSubmit").textContent=p?"Save changes":"Add party";
+  $("ptyLoginRow").hidden=!!p; $("ptyUser").required=!p; $("ptyPass").required=!p;
+  if(p){ $("ptyName").value=p.name; $("ptyPhone").value=p.phone||""; }
+  const facs=settingsInfo.factories;
+  $("ptyFactories").innerHTML=facs.map(f=>`<label class="check"><input type="checkbox" value="${esc(f.id)}"${p&&(f.partyIds||[]).includes(p.id)?" checked":""}> ${esc(f.name)}</label>`).join("")||'<span class="hint">No factories yet.</span>';
+  $("partyAcctDialog").showModal(); $("ptyName").focus();
+}
+$("addPartyBtn").addEventListener("click",()=>openPartyAcct(null));
+$("setPartyTable").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-pty]"); if(!b) return;
+  const p=settingsInfo.parties.find(x=>x.id===b.closest("tr").dataset.id); if(!p) return;
+  if(b.dataset.pty==="edit") return openPartyAcct(p);
+  if(!await ask({title:`Delete ${p.name}?`,text:"Its login stops working and its factories become normal factories again. Looms, orders and records stay.",ok:"Delete party"})) return;
+  try{ await api(`/api/admin/parties/${p.id}`,{method:"DELETE"}); toast("Party deleted."); await loadSettings(); }catch(err){ notice("settingsNotice",err.message); }
+});
+$("partyAcctForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("partyAcctNotice");
+  const factoryIds=[...$("ptyFactories").querySelectorAll("input:checked")].map(x=>x.value);
+  const body={name:$("ptyName").value,phone:$("ptyPhone").value,factoryIds};
+  try{
+    if(editingPartyAcct) await api(`/api/admin/parties/${editingPartyAcct.id}`,{method:"PUT",body:JSON.stringify(body)});
+    else await api("/api/admin/parties",{method:"POST",body:JSON.stringify({...body,username:$("ptyUser").value,password:$("ptyPass").value})});
+    $("partyAcctDialog").close(); toast(editingPartyAcct?"Party saved.":"Party added. It can sign in now."); await loadSettings(); await reloadSession(); await refresh();
+  }catch(err){ notice("partyAcctNotice",err.message); }
 });
 async function boot() {
   if(!session.token) return showLogin();
