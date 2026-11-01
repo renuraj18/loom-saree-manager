@@ -274,16 +274,45 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
 @media(max-width:999px){nav.tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;-webkit-overflow-scrolling:touch}nav.tabs::-webkit-scrollbar{display:none}nav.tabs .tab{flex-shrink:0}}
 @media(min-width:1000px){
   body:not(.signed-out){padding-left:236px}
-  header{border-radius:0 0 0 22px;padding-top:14px;padding-bottom:14px}
+  body:not(.signed-out) header{margin-left:-236px;padding-left:264px;border-radius:0 0 28px 0;padding-top:14px;padding-bottom:14px;transition:margin-left .2s,padding-left .2s}
   main{max-width:1500px;margin:18px auto;padding:0 28px 48px}
-  nav.tabs{position:fixed;left:0;top:0;bottom:0;width:236px;margin:0;padding:20px 12px;box-sizing:border-box;flex-direction:column;flex-wrap:nowrap;gap:2px;background:#1a1050;overflow-y:auto;z-index:30}
+  nav.tabs{position:fixed;left:0;bottom:0;width:236px;margin:0;padding:20px 12px;box-sizing:border-box;flex-direction:column;flex-wrap:nowrap;gap:2px;top:var(--hh,0px);background:#1a1050;overflow-y:auto;z-index:30}
   nav.tabs .tab{background:transparent;border:0;box-shadow:none;color:#d6cff8;border-radius:10px;padding:9px 12px;font-weight:600;font-size:14px}
   nav.tabs .tab:hover{transform:none;background:rgba(255,255,255,.08);color:#fff}
   nav.tabs .tab.active{background:rgba(255,255,255,.16);color:#fff;box-shadow:none}
   nav.tabs .navgroup{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#a79ee0;padding:14px 12px 4px}
-  nav.tabs .navbrand{display:flex;align-items:center;gap:10px;padding:0 10px 6px;color:#fff;font-weight:700;font-size:16px;text-decoration:none}
+  nav.tabs .navbrand{display:flex;align-items:center;gap:10px;position:fixed;left:0;top:0;width:236px;height:var(--hh,64px);padding:0 22px;box-sizing:border-box;color:#fff;font-weight:700;font-size:16px;text-decoration:none;z-index:40;transition:width .2s}
   nav.tabs .navbrand img{width:30px;height:30px;border-radius:8px;background:#fff;padding:2px}
 }
+.ic{font-style:normal;display:none;width:22px;text-align:center;flex:none}.navtoggle{display:none}
+@media(max-width:999px){.ic{display:inline-block;margin-right:6px;font-size:14px}}
+@media(min-width:1000px){
+  nav.tabs .tab{display:flex;align-items:center;gap:10px}.ic{display:inline-block;font-size:16px}
+  .navtoggle{display:block;position:fixed;top:calc(var(--hh,64px) + 10px);left:202px;z-index:41;background:rgba(255,255,255,.12);border:0;color:#fff;border-radius:8px;width:26px;height:26px;cursor:pointer;font-size:14px;line-height:1}
+  .navtoggle:hover{background:rgba(255,255,255,.25)}
+  nav.tabs,body:not(.signed-out){transition:width .2s,padding-left .2s}
+  nav.tabs{padding-top:44px!important}
+  body.nav-collapsed:not(.signed-out){padding-left:68px}
+  body.nav-collapsed:not(.signed-out) header{margin-left:-68px;padding-left:96px}
+  body.nav-collapsed nav.tabs{width:68px;padding:20px 8px}
+  body.nav-collapsed nav.tabs .lb{display:none}
+  body.nav-collapsed nav.tabs .navgroup{font-size:0;padding:6px 0 2px;border-top:1px solid rgba(255,255,255,.15);margin:6px 8px 0}
+  body.nav-collapsed nav.tabs .tab{justify-content:center;padding:9px 0}
+  body.nav-collapsed nav.tabs .navbrand{justify-content:center;padding:0;width:68px}
+  body.nav-collapsed .navtoggle{left:21px}
+}
+/* ---- Friendlier: bigger text, clearer focus, quick actions, stronger active item ---- */
+body{font-size:15px;line-height:1.45}
+table{font-size:14px}th,td{padding:13px 12px}
+tbody tr:hover td{background:#faf8ff}
+.btn,.smallbtn,.actbtn,button.qbtn,.qbtn{min-height:40px}
+a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #ffb703;outline-offset:2px}
+.quick{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px}
+.qbtn{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:10px 16px;font:inherit;font-weight:700;color:var(--ink);text-decoration:none;cursor:pointer;box-shadow:0 6px 16px -12px rgba(76,52,180,.5);transition:transform .15s,border-color .15s}
+.qbtn:hover{transform:translateY(-2px);border-color:var(--brand)}
+.qbtn .ic{display:inline-block;font-size:18px;width:auto}
+@media(max-width:600px){.qbtn{flex:1 1 calc(50% - 10px);justify-content:center;padding:12px 8px}}
+@media(min-width:1000px){nav.tabs .tab.active{box-shadow:inset 3px 0 0 #ffb703;font-weight:700}nav.tabs .tab{padding:11px 12px;font-size:15px}}
 .navbrand{display:none}
 /* Party orders */
 .pwann{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:10px}
@@ -324,31 +353,39 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
   <div class="lowalert" id="lowAlert" hidden></div>
   <div class="lowalert" id="partyAlert" hidden></div>
   <nav class="tabs" aria-label="Sections">
-    <a class="navbrand" href="#home"><img src="img/thari-icon-64.png" alt="">My Thari</a>
+    <a class="navbrand" href="#home"><img src="img/thari-icon-64.png" alt=""><span class="lb">My Thari</span></a>
+    <button type="button" class="navtoggle" id="navToggle" title="Collapse menu" aria-label="Collapse menu">«</button>
     <span class="navgroup">Floor</span>
-    <a class="tab" href="#home">Home</a>
-    <a class="tab" href="#loomlist">Looms</a>
-    <a class="tab" href="#warps">Warps</a>
-    <a class="tab" href="#bobbins">Weft (bobbins)</a>
-    <a class="tab" href="#looms">Production</a>
-    <a class="tab" href="#partywork" data-party hidden>Party orders</a>
+    <a class="tab" href="#home" title="Home"><i class="ic">🏠</i><span class="lb">Home</span></a>
+    <a class="tab" href="#loomlist" title="Looms"><i class="ic">🧵</i><span class="lb">Looms</span></a>
+    <a class="tab" href="#warps" title="Warps"><i class="ic">📏</i><span class="lb">Warps</span></a>
+    <a class="tab" href="#bobbins" title="Weft (bobbins)"><i class="ic">🪡</i><span class="lb">Weft (bobbins)</span></a>
+    <a class="tab" href="#looms" title="Production"><i class="ic">🏭</i><span class="lb">Production</span></a>
+    <a class="tab" href="#partywork" data-party hidden title="Party orders"><i class="ic">🤝</i><span class="lb">Party orders</span></a>
     <span class="navgroup">Stock</span>
-    <a class="tab" href="#process" data-mod="stock" data-direct-hide>Process</a>
-    <a class="tab" href="#stock" data-mod="stock">Stock</a>
-    <a class="tab" href="#parties" data-mod="stock">Parties</a>
+    <a class="tab" href="#process" data-mod="stock" data-direct-hide title="Process"><i class="ic">⚙️</i><span class="lb">Process</span></a>
+    <a class="tab" href="#stock" data-mod="stock" title="Stock"><i class="ic">📦</i><span class="lb">Stock</span></a>
+    <a class="tab" href="#parties" data-mod="stock" title="Parties"><i class="ic">👥</i><span class="lb">Parties</span></a>
     <span class="navgroup">People</span>
-    <a class="tab" href="#designs" data-mod="wages">Designs</a>
-    <a class="tab" href="#staff" data-mod="wages">Weavers</a>
-    <a class="tab" href="#wages" data-mod="wages">Wages</a>
-    <a class="tab" href="#expenses" data-mod="wages">Expenses</a>
+    <a class="tab" href="#designs" data-mod="wages" title="Designs"><i class="ic">🎨</i><span class="lb">Designs</span></a>
+    <a class="tab" href="#staff" data-mod="wages" title="Weavers"><i class="ic">🧑‍🏭</i><span class="lb">Weavers</span></a>
+    <a class="tab" href="#wages" data-mod="wages" title="Wages"><i class="ic">💰</i><span class="lb">Wages</span></a>
+    <a class="tab" href="#expenses" data-mod="wages" title="Expenses"><i class="ic">🧾</i><span class="lb">Expenses</span></a>
     <span class="navgroup">Records</span>
-    <a class="tab" href="#log">Log</a>
+    <a class="tab" href="#log" title="Log"><i class="ic">📜</i><span class="lb">Log</span></a>
   </nav>
 
   <div id="view-home">
     <div class="boardhead">
       <div><h2>Dashboard</h2><p class="sub" id="homeAsOf"></p></div>
       <div class="headbtns"><button class="btn btn-inline ghostbtn" type="button" id="dlDashboard">⬇ Download</button><button class="btn btn-inline wa" type="button" id="waDashboard">Share on WhatsApp</button></div>
+    </div>
+    <div class="quick" id="quickActions" aria-label="Quick actions">
+      <a class="qbtn" href="#looms"><i class="ic">🏭</i><span>Dispatch sarees</span></a>
+      <button class="qbtn" type="button" id="qaWarp"><i class="ic">📏</i><span>Add warp</span></button>
+      <button class="qbtn" type="button" id="qaBobbin"><i class="ic">🪡</i><span>Add weft</span></button>
+      <a class="qbtn" href="#stock" data-mod="stock"><i class="ic">📦</i><span>Stock</span></a>
+      <a class="qbtn" href="#wages" data-mod="wages"><i class="ic">💰</i><span>Wages</span></a>
     </div>
     <div id="homeReport">
       <section class="panel homepanel" id="homeStockPanel">
@@ -1506,6 +1543,8 @@ function route() {
   views.forEach(x=>$("view-"+x).hidden=noFactory||x!==v);
   if(v==="settings") loadSettings();
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.getAttribute("href")==="#"+v));
+  const cur=document.querySelector('nav.tabs .tab[href="#'+v+'"] .lb');
+  document.title=(cur?cur.textContent+" · ":"")+"My Thari";
   window.scrollTo(0,0);
 }
 window.addEventListener("hashchange",route);
@@ -1799,6 +1838,7 @@ $("warpForm").addEventListener("submit",async e=>{
     notice("warpListNotice",`${name} added to Ordered.`,true);await refresh();
   }catch(err){notice("warpNotice",err.message)}
 });
+$("qaWarp").onclick=()=>openWarpForm(); $("qaBobbin").onclick=()=>openBobbinForm();
 function openBobbinForm() { hideNotice("bobbinNotice"); $("bobbinDialog").showModal(); $("bobbinName").focus(); }
 $("openBobbinForm").addEventListener("click",openBobbinForm);
 $("bobbinForm").addEventListener("submit",async e=>{
@@ -3584,6 +3624,15 @@ async function boot() {
   route(); await refresh();
 }
 boot().catch(err=>toast("Could not load app data: "+err.message));
+
+(function(){
+  const hd=document.querySelector("header"), setH=()=>document.documentElement.style.setProperty("--hh",hd.offsetHeight+"px");
+  setH(); if(window.ResizeObserver) new ResizeObserver(setH).observe(hd); else addEventListener("resize",setH);
+  const t=$("navToggle"); if(!t) return;
+  const set=c=>{document.body.classList.toggle("nav-collapsed",c);t.textContent=c?"»":"«";t.title=t.ariaLabel=c?"Expand menu":"Collapse menu";try{localStorage.setItem("loom.navCollapsed",c?"1":"")}catch(e){}};
+  let c=false; try{c=!!localStorage.getItem("loom.navCollapsed")}catch(e){}
+  set(c); t.onclick=()=>set(!document.body.classList.contains("nav-collapsed"));
+})();
 </script>
 </body>
 </html>

@@ -1518,13 +1518,13 @@ const server = app.listen(PORT, HOST, () => {
   safeArchiveLogs();
   // Hourly: refresh today's backup and move log entries older than 30 days to a CSV archive.
   setInterval(() => { backupNow(); safeArchiveLogs(); }, 60 * 60 * 1000);
-  if (process.env.OPEN_BROWSER) openBrowser(`http://localhost:${PORT}`);
+  if (process.env.OPEN_BROWSER) openBrowser(`http://localhost:${PORT}${process.env.OPEN_PATH || ""}`);
 });
 server.on("error", err => {
   // Double-clicking the launcher while the app is already running: just show the open app.
   if (err.code === "EADDRINUSE") {
     console.log(`My Thari is already running on port ${PORT}. Opening it in the browser.`);
-    if (process.env.OPEN_BROWSER) openBrowser(`http://localhost:${PORT}`);
+    if (process.env.OPEN_BROWSER) openBrowser(`http://localhost:${PORT}${process.env.OPEN_PATH || ""}`);
     setTimeout(() => process.exit(0), 1500);
     return;
   }
