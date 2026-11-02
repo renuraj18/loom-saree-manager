@@ -159,7 +159,7 @@ function copyDir(src, dest) {
   fs.rmSync(DIST, { recursive: true, force: true });
   fs.mkdirSync(path.join(APP, "node"), { recursive: true });
 
-  for (const f of ["launcher.js", "server.js", "auth.js", "store.js", "admin.js", "backup.js", "paths.js", "upgrade.js", "package.json", "package-lock.json"]) {
+  for (const f of ["launcher.js", "server.js", "auth.js", "store.js", "admin.js", "backup.js", "paths.js", "upgrade.js", "party.js", "events.js", "license.js", "license-key.js", "package.json", "package-lock.json"]) {
     if (fs.existsSync(path.join(ROOT, f))) fs.copyFileSync(path.join(ROOT, f), path.join(APP, f));
   }
   // Settings → App → Upgrade compares this commit with the latest release on GitHub.

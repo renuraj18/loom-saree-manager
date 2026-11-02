@@ -41,6 +41,23 @@ The master logo is `public/Thari Logo.png` (transparent). `python3 scripts/build
 - **Users** only see their assigned factories and cannot discard warps or remove looms.
 - Upgrading from the single-factory version: on first start the old data becomes a factory called "My factory" and the old admin login becomes the admin user.
 
+## Party app (job work)
+A **party** gives job work to one or more factories. Admins add a party in **Settings → Parties** (name, login, and optionally existing factories to link). The party signs in on the same page and lands in the party app (`/party.html`, works on phones too):
+- **Register factories** and create each owner's login; set up **looms** and **designs** there, and choose what the owner may do (dispatch, stop/resume, put warps on, mark warp received, request warp/weft, send sarees).
+- **Job orders**: what to weave (design, number of sarees) on which looms. Dispatches from those looms count as woven.
+- **Pending sarees** for every factory and order: to weave → at the factory → on the way → received.
+- **Warp & weft requests** from factory owners to approve or reject; approved ones appear on the factory's board as ordered.
+- **Sarees & receipts**: confirm each delivery from a factory or report short/damaged sarees.
+- **Announcements** (e.g. "warp ready") that owners see at the top of their app and acknowledge.
+
+Factory owners see a **Party orders** page: announcements, job orders, requests (Request warp / weft) and **Send sarees to party**. In a factory linked to a party, looms and designs are set up by the party. Both apps update live: a change on one side shows on the other within a second.
+
+## Licensing
+- **Factory** license: one weaving unit (one factory, a set number of looms). **Party** license: the party app and job work across several factories (set numbers of factories and looms).
+- A new install runs a 30-day trial. Settings → **License** shows this PC's install ID; send it to your supplier and paste the key you get back.
+- Before the expiry date the app warns for 15 days; after it there are 15 days of grace, then the app becomes read-only (everything can be viewed, nothing new entered) until a new key is added. Licenses with online check-in also turn read-only if the PC can't verify them online for 30 days, or if the supplier withdraws them.
+- Vendor: run `node scripts/license-keygen.js` once (keep the private key safe, commit `license-key.js`), then issue keys with `node scripts/issue-license.js` and optionally run `node scripts/license-server.js` for check-ins.
+
 ## Backups
 - While the app runs it saves a daily copy of all factories to `backups/db-YYYY-MM-DD.json` (refreshed every hour; the last 30 days are kept). User accounts are not part of backups.
 - Use another disk or a cloud-synced folder: set it in Settings, or start with `BACKUP_DIR=/path/to/folder npm start`. `BACKUP_KEEP_DAYS` changes how many days are kept; `DATA_DIR` moves the data folder.

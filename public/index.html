@@ -267,6 +267,116 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
 .dlgbody{padding:8px 22px 22px}.dlgfoot{display:flex;gap:10px;margin-top:16px}.btn.ghostbtn{background:#f1effa;color:var(--ink);box-shadow:none}
 @media(max-width:850px){.homegrid{grid-template-columns:minmax(0,1fr)}}
 </style>
+<style>
+/* ---- Layout: grouped sidebar on wide screens, one scrolling tab row on phones ---- */
+.navgroup{display:none}
+.livedot{display:inline-flex;align-items:center;gap:6px;font-size:12px;opacity:.9;margin-left:10px}.livedot i{width:8px;height:8px;border-radius:50%;background:#5ee0a8;display:inline-block}.livedot.off i{background:#c9c4dc}
+@media(max-width:999px){nav.tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;-webkit-overflow-scrolling:touch}nav.tabs::-webkit-scrollbar{display:none}nav.tabs .tab{flex-shrink:0}}
+@media(min-width:1000px){
+  body:not(.signed-out){padding-left:236px}
+  body:not(.signed-out) header{margin-left:-236px;padding-left:264px;border-radius:0 0 28px 0;padding-top:14px;padding-bottom:14px;transition:margin-left .2s,padding-left .2s}
+  main{max-width:1500px;margin:18px auto;padding:0 28px 48px}
+  nav.tabs{position:fixed;left:0;bottom:0;width:236px;margin:0;padding:20px 12px;box-sizing:border-box;flex-direction:column;flex-wrap:nowrap;gap:2px;top:var(--hh,0px);background:#1a1050;overflow-y:auto;z-index:30}
+  nav.tabs .tab{background:transparent;border:0;box-shadow:none;color:#d6cff8;border-radius:10px;padding:9px 12px;font-weight:600;font-size:14px}
+  nav.tabs .tab:hover{transform:none;background:rgba(255,255,255,.08);color:#fff}
+  nav.tabs .tab.active{background:rgba(255,255,255,.16);color:#fff;box-shadow:none}
+  nav.tabs .navgroup{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#a79ee0;padding:14px 12px 4px}
+  nav.tabs .navbrand{display:flex;align-items:center;gap:10px;position:fixed;left:0;top:0;width:236px;height:var(--hh,64px);padding:0 22px;box-sizing:border-box;color:#fff;font-weight:700;font-size:16px;text-decoration:none;z-index:40;transition:width .2s}
+  nav.tabs .navbrand img{width:30px;height:30px;border-radius:8px;background:#fff;padding:2px}
+}
+.ic{font-style:normal;display:none;width:22px;text-align:center;flex:none}.navtoggle{display:none}
+@media(max-width:999px){.ic{display:inline-block;margin-right:6px;font-size:14px}}
+@media(min-width:1000px){
+  nav.tabs .tab{display:flex;align-items:center;gap:10px}.ic{display:inline-block;font-size:16px}
+  .navtoggle{display:block;position:fixed;top:calc(var(--hh,64px) + 10px);left:202px;z-index:41;background:rgba(255,255,255,.12);border:0;color:#fff;border-radius:8px;width:26px;height:26px;cursor:pointer;font-size:14px;line-height:1}
+  .navtoggle:hover{background:rgba(255,255,255,.25)}
+  nav.tabs,body:not(.signed-out){transition:width .2s,padding-left .2s}
+  nav.tabs{padding-top:44px!important}
+  body.nav-collapsed:not(.signed-out){padding-left:68px}
+  body.nav-collapsed:not(.signed-out) header{margin-left:-68px;padding-left:96px}
+  body.nav-collapsed nav.tabs{width:68px;padding:20px 8px}
+  body.nav-collapsed nav.tabs .lb{display:none}
+  body.nav-collapsed nav.tabs .navgroup{font-size:0;padding:6px 0 2px;border-top:1px solid rgba(255,255,255,.15);margin:6px 8px 0}
+  body.nav-collapsed nav.tabs .tab{justify-content:center;padding:9px 0}
+  body.nav-collapsed nav.tabs .navbrand{justify-content:center;padding:0;width:68px}
+  body.nav-collapsed .navtoggle{left:21px}
+}
+/* ---- Friendlier: bigger text, clearer focus, quick actions, stronger active item ---- */
+body{font-size:15px;line-height:1.45}
+table{font-size:14px}th,td{padding:13px 12px}
+tbody tr:hover td{background:#faf8ff}
+.btn,.smallbtn,.actbtn,button.qbtn,.qbtn{min-height:40px}
+a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #ffb703;outline-offset:2px}
+.quick{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px}
+.qbtn{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:10px 16px;font:inherit;font-weight:700;color:var(--ink);text-decoration:none;cursor:pointer;box-shadow:0 6px 16px -12px rgba(76,52,180,.5);transition:transform .15s,border-color .15s}
+.qbtn:hover{transform:translateY(-2px);border-color:var(--brand)}
+.qbtn .ic{display:inline-block;font-size:18px;width:auto}
+@media(max-width:600px){.qbtn{flex:1 1 calc(50% - 10px);justify-content:center;padding:12px 8px}}
+@media(min-width:1000px){nav.tabs .tab.active{box-shadow:inset 3px 0 0 #ffb703;font-weight:700}nav.tabs .tab{padding:11px 12px;font-size:15px}}
+.navbrand{display:none}
+/* ---- Compact header: one 56px row (logo, factory, live, user), fixed while scrolling ---- */
+:root{--hh:56px}
+body:not(.signed-out){padding-top:56px}
+header,body:not(.signed-out) header{position:fixed;top:0;left:0;right:0;height:56px;margin:0!important;padding:0 16px!important;border-radius:0!important;display:flex;align-items:center;gap:14px;z-index:50;background:linear-gradient(90deg,#1a1050 0%,#2e1a8f 60%,#5532e0 100%);box-shadow:0 2px 14px -4px rgba(26,16,80,.45)}
+header .brand{flex:none;display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800;color:#fff;letter-spacing:.01em}
+.brandlogo{width:34px;height:34px;border-radius:9px;background:#fff;padding:2px;display:block}
+header .factorybar{margin:0;flex:0 1 auto;min-width:0}
+header .usermenu{position:relative!important;top:auto!important;right:auto!important;margin-left:auto;flex:none}
+header .usermenu .menu{right:0;top:calc(100% + 8px)}
+@media(min-width:1000px){header .brand{width:204px}nav.tabs{top:56px!important;padding-top:44px!important}.navtoggle{top:66px!important}}
+@media(max-width:600px){header,body:not(.signed-out) header{padding:0 10px!important;gap:8px}header .brandname{display:none}#liveText{display:none}.livedot{margin-left:4px}header .adminbtn{padding:7px 10px}}
+
+/* ---- Home: today at a glance ---- */
+.qbtn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.h-title{display:flex;align-items:center;gap:10px;margin:0 0 10px}.h-title h3{margin:0;font-size:17px}
+.h-count{font-size:12px;font-weight:700;color:#9c1c12;background:#fdecea;padding:2px 9px;border-radius:999px}
+.h-attn{margin:0 0 16px}
+.h-attngrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.h-acard{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.h-aicon{width:34px;height:34px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;font-size:16px}
+.h-aicon.red{background:#fdecea;color:#9c1c12}.h-aicon.amber{background:#fff1dc;color:#7f4a05}.h-aicon.violet{background:#eeeaff;color:#4325c2}
+.h-acard b{display:block;font-size:14px}.h-acard p{margin:4px 0 8px;font-size:12px;color:var(--muted);line-height:1.4}
+.h-ok{background:#e3f5ec;color:#0f6a4a;border-radius:14px;padding:12px 14px;font-weight:600}
+.h-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:0 0 16px}
+.h-kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.h-kpi small{display:block;color:var(--muted);font-size:12px}.h-kpi strong{font-size:28px;font-weight:800;margin-right:6px}.h-kpi em{font-style:normal;font-size:12px;font-weight:700}
+.h-kpi em.up{color:#0f6a4a}.h-kpi em.down{color:#9c1c12}.h-kpi span{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.h-cols{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.h-floor{flex:999 1 560px;min-width:0}.h-side{flex:1 1 330px;min-width:0;display:flex;flex-direction:column;gap:16px}.h-side .panel,.h-floor{margin:0}
+.h-seg{display:flex;flex-wrap:wrap;gap:4px;background:#eceaf4;padding:3px;border-radius:11px}
+.h-seg button{min-height:32px;padding:0 11px;border:0;border-radius:8px;background:transparent;color:var(--muted);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+#view-home .sectionhead{flex-wrap:wrap;row-gap:8px}#view-home .sectionhead h2{white-space:nowrap}.h-seg{flex-wrap:nowrap}.h-seg button{white-space:nowrap}
+@media(max-width:600px){.h-floor .h-seg{width:100%}.h-floor .h-seg button{flex:1;padding:0 4px}}
+.h-seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(28,24,56,.12)}
+.h-group{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:12px 0 8px}.h-group span{letter-spacing:0;text-transform:none;font-weight:600}
+.h-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.h-loom{border:1px solid var(--line);border-radius:14px;padding:11px 12px;display:flex;flex-direction:column;gap:8px;background:#fff}
+.h-loom.low{border-color:#f5c2bc}.h-loom .hd{display:flex;align-items:center;gap:8px}.h-loom .hd b{flex:1;font-size:15px}.h-loom .hd strong{font-size:20px}.h-loom .hd small{color:var(--muted);font-size:11px}
+.h-dot{width:9px;height:9px;border-radius:50%;background:#12a06e;flex:none}.h-dot.stop{background:#d98a0b}
+.h-loom .st{font-size:12px;color:var(--muted)}.h-loom .st.stop{color:#7f4a05}
+.h-y .t{display:flex;justify-content:space-between;gap:6px;font-size:11px;color:var(--muted)}.h-y .t.low{color:#9c1c12}
+.h-y .b{height:5px;background:#eeebf7;border-radius:3px;overflow:hidden;margin-top:3px}.h-y .b i{display:block;height:100%;background:var(--brand)}.h-y .b i.low{background:#b42318}
+.h-loom .actbtn{width:100%;margin:0}
+.h-chart{display:flex;align-items:flex-end;height:130px;border-bottom:1px solid var(--line)}
+.h-chart div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
+.h-chart i{display:block;width:100%;max-width:30px;border-radius:5px 5px 0 0;background:#b9a8ff}.h-chart div.today i{background:var(--brand)}
+.h-chart small{font-size:10px;font-weight:700;color:#4b4867}
+.h-days{display:flex}.h-days span{flex:1;text-align:center;font-size:10px;color:var(--muted)}
+.h-total{display:flex;align-items:baseline;gap:8px;margin:0 0 10px}.h-total b{font-size:26px}.h-total span{font-size:12px;color:var(--muted)}
+.h-flow{display:flex;gap:6px;margin:0 0 8px}.h-flow span{flex:1;background:#f3f1f9;border-radius:10px;padding:8px 4px;text-align:center;font-size:12px;color:var(--muted)}.h-flow b{display:block;font-size:17px;color:var(--ink)}
+.h-buckets{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:6px}
+.h-buckets div{border-radius:10px;padding:8px 4px;text-align:center;font-size:10px;color:#4b4867}.h-buckets b{display:block;font-size:18px}
+.h-job{margin:0 0 12px}.h-job .t{display:flex;justify-content:space-between;font-size:13px}.h-job .bar2{display:flex;height:8px;border-radius:4px;overflow:hidden;background:#eeebf7;margin:5px 0 3px}.h-job .bar2 span{height:100%}.h-job small{font-size:11px;color:var(--muted)}
+.h-feed div{display:flex;gap:10px;padding:8px 0;border-top:1px solid #f0eef7}.h-feed div:first-child{border-top:0}
+.h-feed i{width:8px;height:8px;border-radius:50%;margin-top:6px;flex:none;background:var(--brand)}.h-feed p{margin:0;font-size:13px;line-height:1.4}.h-feed small{font-size:11px;color:var(--muted)}
+@media(max-width:600px){.h-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.h-kpi strong{font-size:23px}#quickActions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}#quickActions .qbtn{flex-direction:column;gap:4px;font-size:12px;padding:10px 4px;text-align:center}}
+/* Party orders */
+.pwann{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:10px}
+.pwann.new{border-color:var(--brand)}.pwann h3{margin:2px 0 4px;font-size:15px}.pwann p{margin:0;font-size:13px;color:#3e3b5a}
+.pwrow{display:flex;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding:10px 0;font-size:13px}.pwrow:first-child{border-top:0}
+.pwbar{display:flex;height:9px;border-radius:5px;overflow:hidden;background:#eeebf7;min-width:140px}.pwbar span{height:100%}
+.lockednote{background:#eeeaff;color:#3a248f;border-radius:12px;padding:10px 12px;font-size:13px;margin:0 0 12px}
+</style>
 </head>
 <body>
 <div class="loginscreen" id="loginScreen" hidden>
@@ -281,8 +391,8 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
   </form>
 </div>
 <header>
-  <div class="factorybar"><span aria-hidden="true">🏭</span><select id="factorySelect" aria-label="Factory"></select><span id="factoryLoc"></span></div>
-  <a href="#home" class="brand"><span class="logocard"><img src="img/thari-logo-640.png" srcset="img/thari-logo-640.png 640w, img/thari-logo-1280.png 1280w" sizes="180px" alt="Thari logo"></span><span class="brandtext"><h1>My Thari</h1><p>Track all my loom production</p></span></a>
+  <a href="#home" class="brand" title="My Thari · Track all my loom production"><img class="brandlogo" src="img/thari-icon-64.png" alt=""><span class="brandname">My Thari</span></a>
+  <div class="factorybar"><span aria-hidden="true">🏭</span><select id="factorySelect" aria-label="Factory"></select><span id="factoryLoc"></span><span class="livedot off" id="liveDot" title="Live updates"><i></i><span id="liveText">Offline</span></span></div>
   <div class="usermenu">
     <button class="adminbtn" id="userBtn" type="button" aria-haspopup="true" aria-expanded="false">👤 <span id="userBtnName"></span> ▾</button>
     <div class="menu" id="userMenu" hidden>
@@ -295,75 +405,75 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
 </header>
 <main>
   <div class="notice err show" id="pwWarn" hidden>You are using the default password. <button class="smallbtn" type="button" data-menu="password">Change it now</button></div>
+  <div class="notice" id="licenseBar"></div>
   <section class="panel empty" id="noFactory" hidden></section>
   <div class="lowalert" id="lowAlert" hidden></div>
-  <nav class="tabs">
-    <a class="tab" href="#home">Home</a>
-    <a class="tab" href="#loomlist">Looms</a>
-    <a class="tab" href="#warps">Warp</a>
-    <a class="tab" href="#bobbins">Bobbin</a>
-    <a class="tab" href="#looms">Production</a>
-    <a class="tab" href="#process" data-mod="stock" data-direct-hide>Process</a>
-    <a class="tab" href="#stock" data-mod="stock">Stock</a>
-    <a class="tab" href="#parties" data-mod="stock">Parties</a>
-    <a class="tab" href="#designs" data-mod="wages">Designs</a>
-    <a class="tab" href="#staff" data-mod="wages">Weavers</a>
-    <a class="tab" href="#wages" data-mod="wages">Wages</a>
-    <a class="tab" href="#expenses" data-mod="wages">Expenses</a>
-    <a class="tab" href="#log">Log</a>
+  <div class="lowalert" id="partyAlert" hidden></div>
+  <nav class="tabs" aria-label="Sections">
+    <button type="button" class="navtoggle" id="navToggle" title="Collapse menu" aria-label="Collapse menu">«</button>
+    <span class="navgroup">Floor</span>
+    <a class="tab" href="#home" title="Home"><i class="ic">🏠</i><span class="lb">Home</span></a>
+    <a class="tab" href="#loomlist" title="Looms"><i class="ic">🧵</i><span class="lb">Looms</span></a>
+    <a class="tab" href="#warps" title="Warps"><i class="ic">📏</i><span class="lb">Warps</span></a>
+    <a class="tab" href="#bobbins" title="Weft (bobbins)"><i class="ic">🪡</i><span class="lb">Weft (bobbins)</span></a>
+    <a class="tab" href="#looms" title="Production"><i class="ic">🏭</i><span class="lb">Production</span></a>
+    <a class="tab" href="#partywork" data-party hidden title="Party orders"><i class="ic">🤝</i><span class="lb">Party orders</span></a>
+    <span class="navgroup">Stock</span>
+    <a class="tab" href="#process" data-mod="stock" data-direct-hide title="Process"><i class="ic">⚙️</i><span class="lb">Process</span></a>
+    <a class="tab" href="#stock" data-mod="stock" title="Stock"><i class="ic">📦</i><span class="lb">Stock</span></a>
+    <a class="tab" href="#parties" data-mod="stock" title="Parties"><i class="ic">👥</i><span class="lb">Parties</span></a>
+    <span class="navgroup">People</span>
+    <a class="tab" href="#designs" data-mod="wages" title="Designs"><i class="ic">🎨</i><span class="lb">Designs</span></a>
+    <a class="tab" href="#staff" data-mod="wages" title="Weavers"><i class="ic">🧑‍🏭</i><span class="lb">Weavers</span></a>
+    <a class="tab" href="#wages" data-mod="wages" title="Wages"><i class="ic">💰</i><span class="lb">Wages</span></a>
+    <a class="tab" href="#expenses" data-mod="wages" title="Expenses"><i class="ic">🧾</i><span class="lb">Expenses</span></a>
+    <span class="navgroup">Records</span>
+    <a class="tab" href="#log" title="Log"><i class="ic">📜</i><span class="lb">Log</span></a>
   </nav>
 
   <div id="view-home">
     <div class="boardhead">
-      <div><h2>Dashboard</h2><p class="sub" id="homeAsOf"></p></div>
-      <div class="headbtns"><button class="btn btn-inline ghostbtn" type="button" id="dlDashboard">⬇ Download</button><button class="btn btn-inline wa" type="button" id="waDashboard">Share on WhatsApp</button></div>
+      <div><h2 id="homeHello">Home</h2><p class="sub" id="homeAsOf"></p></div>
+      <div class="headbtns"><button class="btn btn-inline ghostbtn" type="button" id="dlDashboard">⬇ Download report</button><button class="btn btn-inline wa" type="button" id="waDashboard">Share on WhatsApp</button></div>
     </div>
-    <div id="homeReport">
-      <section class="panel homepanel" id="homeStockPanel">
-        <div class="sectionhead"><h2>Stock</h2><a class="smallbtn" href="#stock">Open stock →</a></div>
-        <div class="chips">
-          <div class="chip st-sent" data-direct-hide><strong id="hsSent">0</strong>Dispatched</div>
-          <div class="chip st-del" data-direct-hide><strong id="hsDelivered">0</strong>At godown</div>
-          <div class="chip st-proc" data-direct-hide><strong id="hsProcess">0</strong>In process</div>
-          <div class="chip st-fold" data-direct-hide><strong id="hsFolding">0</strong>In folding</div>
-          <div class="chip st-stk"><strong id="hsStock">0</strong>In stock</div>
-          <div class="chip st-mai"><strong id="hsMai">0</strong>Mai</div>
-          <div class="chip st-lot"><strong id="hsLot">0</strong>Lot</div>
-          <div class="chip st-dmg"><strong id="hsDamage">0</strong>Damage</div>
-        </div>
-        <div id="homeStockTable" class="tablewrap"></div>
+    <div class="quick" id="quickActions" aria-label="Quick actions">
+      <a class="qbtn primary" href="#looms"><i class="ic">🏭</i><span>Dispatch sarees</span></a>
+      <button class="qbtn" type="button" id="qaWarp"><i class="ic">📏</i><span>Add warp</span></button>
+      <button class="qbtn" type="button" id="qaBobbin"><i class="ic">🪡</i><span>Add weft</span></button>
+      <button class="qbtn" type="button" id="qaRequest" data-party hidden><i class="ic">🤝</i><span>Request warp / weft</span></button>
+      <a class="qbtn" href="#stock" data-mod="stock"><i class="ic">📦</i><span>Stock</span></a>
+      <a class="qbtn" href="#wages" data-mod="wages"><i class="ic">💰</i><span>Wages</span></a>
+    </div>
+    <div class="notice" id="homeNotice"></div>
+    <section class="h-attn" id="homeAttn" aria-labelledby="homeAttnTitle">
+      <div class="h-title"><h3 id="homeAttnTitle">Needs attention</h3><span class="h-count" id="homeAttnCount"></span></div>
+      <div class="h-attngrid" id="homeAttnList"></div>
+    </section>
+    <div class="h-kpis" id="homeKpis"></div>
+    <div class="h-cols">
+      <section class="panel h-floor">
+        <div class="sectionhead"><h2>Loom floor</h2><div class="h-seg" role="group" aria-label="Filter looms" id="homeLoomFilter"></div></div>
+        <div id="homeFloor"></div>
       </section>
-      <section class="stats">
-        <div class="stat"><small>Total looms</small><strong id="statLooms">0</strong></div>
-        <div class="stat"><small>Running looms</small><strong id="statRunning">0</strong></div>
-        <div class="stat"><small>Active warp meters</small><strong id="statMeters">0</strong></div>
-        <div class="stat"><small>Sarees dispatched</small><strong id="statSarees">0</strong></div>
-      </section>
-      <section class="panel homepanel">
-        <div class="sectionhead"><h2>Production</h2><span>Sarees dispatched from looms</span></div>
-        <div class="chips prodchips">
-          <div class="chip"><strong id="pdToday">0</strong>Today<span id="pdTodayNote"></span></div>
-          <div class="chip"><strong id="pd7">0</strong>Last 7 days<span id="pd7Note"></span></div>
-          <div class="chip"><strong id="pd30">0</strong>Last 30 days<span id="pd30Note"></span></div>
-          <div class="chip"><strong id="pdAll">0</strong>All time<span>sarees</span></div>
-        </div>
-        <div class="sub" style="margin:4px 2px 6px">Per day for each loom and all looms together · last 7 days, with 7 and 30 day totals</div>
-        <div id="prodTable" class="tablewrap"></div>
-      </section>
-      <section class="panel homepanel">
-        <div class="sectionhead"><h2>Loom status</h2><span id="homeLoomCount">0 looms</span></div>
-        <div id="homeLoomTables"></div>
-      </section>
-      <section class="panel homepanel">
-        <div class="sectionhead"><h2>Warp status</h2><span id="homeWarpCount"></span></div>
-        <div class="chips">
-          <div class="chip"><strong id="warpOrdered">0</strong>Ordered</div>
-          <div class="chip"><strong id="warpReady">0</strong>Ready</div>
-          <div class="chip"><strong id="warpRunning">0</strong>Running</div>
-          <div class="chip"><strong id="warpDone">0</strong>Done</div>
-        </div>
-        <div id="homeWarpTables"></div>
-      </section>
+      <div class="h-side">
+        <section class="panel">
+          <div class="sectionhead"><h2>Sarees dispatched</h2><div class="h-seg" role="group" aria-label="Period" id="homePeriod"></div></div>
+          <div id="homeChart"></div>
+        </section>
+        <section class="panel" id="homeStockPanel" data-mod="stock">
+          <div class="sectionhead"><h2>Stock</h2><a class="smallbtn" href="#stock">Open stock →</a></div>
+          <div class="h-flow" id="homeStockFlow" data-direct-hide></div>
+          <div class="h-buckets" id="homeStockBuckets"></div>
+        </section>
+        <section class="panel" id="homePartyPanel" data-party hidden>
+          <div class="sectionhead"><h2>Party orders</h2><a class="smallbtn" href="#partywork">All orders →</a></div>
+          <div id="homeJobs"></div>
+        </section>
+        <section class="panel">
+          <div class="sectionhead"><h2>Recent activity</h2><a class="smallbtn" href="#log">Log →</a></div>
+          <div class="h-feed" id="homeFeed"></div>
+        </section>
+      </div>
     </div>
   </div>
 
@@ -771,7 +881,7 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
       <div><h2>Log</h2><p class="sub">Every activity in this factory, newest first. <span id="logCount"></span></p></div>
     </div>
     <div class="logbar">
-      <select id="logType" aria-label="Activity type"><option value="">All activity</option><option value="warp">Warps</option><option value="bobbin">Bobbins</option><option value="loom">Looms</option><option value="dispatch">Dispatches (from looms)</option><option value="delivery">Deliveries (to parties)</option><option value="process">Process</option><option value="stock">Stock</option><option value="party">Parties</option><option value="wages">Wages, weavers &amp; designs</option><option value="expense">Expenses</option></select>
+      <select id="logType" aria-label="Activity type"><option value="">All activity</option><option value="warp">Warps</option><option value="bobbin">Bobbins</option><option value="loom">Looms</option><option value="dispatch">Dispatches (from looms)</option><option value="delivery">Deliveries (to parties)</option><option value="process">Process</option><option value="stock">Stock</option><option value="party">Parties</option><option value="wages">Wages, weavers &amp; designs</option><option value="expense">Expenses</option><option value="request">Warp &amp; weft requests</option><option value="shipment">Sent to parties</option><option value="notice">Party notices &amp; orders</option></select>
       <input id="logSearch" type="search" placeholder="Search (warp, loom, party, LR…)" aria-label="Search the log">
     </div>
     <section class="panel"><div id="logTable" class="tablewrap"></div><div class="logmore" id="logMore"></div></section>
@@ -838,11 +948,69 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
     </form>
   </dialog>
 
+  <section id="view-partywork" hidden>
+    <div class="boardhead">
+      <div><h2>Party orders</h2><p class="sub">Job orders, warp &amp; weft requests and announcements from the parties who give this factory work. They see every update here live.</p></div>
+      <div class="headbtns"><button class="btn btn-inline ghostbtn" type="button" id="openRequest">Request warp / weft</button><button class="btn btn-inline" type="button" id="openShipment">Send sarees to party</button></div>
+    </div>
+    <div id="pwAnnouncements"></div>
+    <section class="panel homepanel">
+      <div class="sectionhead"><h2>Job orders</h2><span id="pwJobCount"></span></div>
+      <div id="pwJobs" class="tablewrap"></div>
+    </section>
+    <div class="homegrid">
+      <section class="panel"><div class="sectionhead"><h2>Warp &amp; weft requests</h2><span>The party approves each one</span></div><div id="pwRequests"></div></section>
+      <section class="panel"><div class="sectionhead"><h2>Sent to parties</h2><span>The party confirms when it arrives</span></div><div id="pwShipments"></div></section>
+    </div>
+  </section>
+
+  <dialog id="requestDialog" aria-labelledby="requestDialogTitle">
+    <div class="dlghead"><h2 id="requestDialogTitle">Request warp or weft</h2><p>Sent to the loom's party for approval. Once approved it appears on the board as ordered.</p></div>
+    <form id="requestForm" class="dlgbody">
+      <div class="field"><label>What *</label>
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="reqKind" value="warp" checked><span>Warp</span></label>
+          <label><input type="radio" name="reqKind" value="bobbin"><span>Weft (bobbin)</span></label>
+        </div>
+      </div>
+      <div class="field"><label for="reqLoom">Loom *</label><select id="reqLoom" required></select></div>
+      <div class="two">
+        <div class="field"><label for="reqSarees">Sarees *</label><input id="reqSarees" type="number" min="1" step="1" required inputmode="numeric"><div class="hint" id="reqMeters"></div></div>
+        <div class="field"><label for="reqNeedBy">Needed by</label><input id="reqNeedBy" type="date"></div>
+      </div>
+      <div class="field"><label for="reqNote">Note to the party</label><input id="reqNote" placeholder="e.g. W-118 finishes tomorrow evening"></div>
+      <div class="notice" id="requestNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit">Send for approval</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="shipmentDialog" aria-labelledby="shipmentDialogTitle">
+    <div class="dlghead"><h2 id="shipmentDialogTitle">Send sarees to party</h2><p>Woven sarees of a job order going to its party. The party confirms when they arrive.</p></div>
+    <form id="shipmentForm" class="dlgbody">
+      <div class="field"><label for="shipJob">Job order *</label><select id="shipJob" required></select><div class="hint" id="shipAvail"></div></div>
+      <div class="two">
+        <div class="field"><label for="shipQty">Sarees *</label><input id="shipQty" type="number" min="1" step="1" required inputmode="numeric"></div>
+        <div class="field"><label for="shipLr">LR number</label><input id="shipLr"></div>
+      </div>
+      <div class="field"><label for="shipNote">Note</label><input id="shipNote"></div>
+      <div class="notice" id="shipmentNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit">Send</button></div>
+    </form>
+  </dialog>
+
   <section id="view-settings" hidden>
     <div class="boardhead">
       <div><h2>Settings</h2><p class="sub">Factories, users, backups and the app. Only admins can see this page.</p></div>
     </div>
     <div class="notice" id="settingsNotice"></div>
+    <section class="panel homepanel">
+      <div class="sectionhead"><h2>License</h2><div class="actions"><span class="pill" id="licPill"></span></div></div>
+      <div id="licStatus" class="tablewrap"></div>
+      <div class="field"><label for="licKey">License key</label><textarea id="licKey" rows="3" placeholder="MYTHARI1.…" style="font-family:ui-monospace,monospace;font-size:12px"></textarea>
+        <div class="hint">Send this PC's install ID to your supplier. Paste the key you get back and save it. <b>Factory</b> licenses cover one weaving unit; <b>Party</b> licenses add the party app for managing job work across several factories.</div></div>
+      <div class="notice" id="licNotice"></div>
+      <div class="headbtns"><button class="btn btn-inline" type="button" id="licSave">Save key</button><button class="btn btn-inline ghostbtn" type="button" id="licCheck">Check online now</button><button class="btn btn-inline ghostbtn" type="button" id="licCopy">Copy install ID</button><button class="btn btn-inline ghostbtn" type="button" id="licRemove">Remove key</button></div>
+    </section>
     <section class="panel homepanel">
       <div class="sectionhead"><h2>Factories</h2><div class="actions"><span id="setFactoryCount"></span><button class="btn btn-inline" type="button" id="addFactoryBtn">+ Add factory</button></div></div>
       <div id="setFactoryTable" class="tablewrap"></div>
@@ -851,6 +1019,11 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
       <div class="sectionhead"><h2>Users</h2><div class="actions"><span id="setUserCount"></span><button class="btn btn-inline" type="button" id="addUserBtn">+ Add user</button></div></div>
       <p class="sub">Admins can open every factory and use Settings. Users only see the factories assigned to them and cannot discard warps or remove looms.</p>
       <div id="setUserTable" class="tablewrap"></div>
+    </section>
+    <section class="panel homepanel">
+      <div class="sectionhead"><h2>Parties</h2><div class="actions"><span id="setPartyCount"></span><button class="btn btn-inline" type="button" id="addPartyBtn">+ Add party</button></div></div>
+      <p class="sub">A party gives job work. It signs in to the party app (same address, its own login) to register factories, set up looms and designs, approve warp &amp; weft requests, send announcements and watch production live. In a factory linked to a party, looms and designs are set up by the party.</p>
+      <div id="setPartyTable" class="tablewrap"></div>
     </section>
     <section class="panel homepanel">
       <div class="sectionhead"><h2>Backups</h2><div class="actions"><span id="adminBackupCount"></span><button class="btn btn-inline" type="button" id="adminBackupNow">Back up now</button></div></div>
@@ -950,6 +1123,23 @@ dialog::backdrop{background:rgba(28,18,70,.45);-webkit-backdrop-filter:blur(4px)
       <div class="field" id="usrFactoriesField"><label>Factories this user can open</label><div class="checklist" id="usrFactories"></div></div>
       <div class="notice" id="userNotice"></div>
       <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="userSubmit">Add user</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="partyAcctDialog" aria-labelledby="partyAcctTitle">
+    <div class="dlghead"><h2 id="partyAcctTitle">Add party</h2><p>The party signs in with this username and password and lands in the party app.</p></div>
+    <form id="partyAcctForm" class="dlgbody">
+      <div class="two">
+        <div class="field"><label for="ptyName">Party name *</label><input id="ptyName" required placeholder="e.g. Sri Lakshmi Silks"></div>
+        <div class="field"><label for="ptyPhone">Phone</label><input id="ptyPhone" type="tel" inputmode="tel"></div>
+      </div>
+      <div class="two" id="ptyLoginRow">
+        <div class="field"><label for="ptyUser">Username *</label><input id="ptyUser" autocapitalize="none" autocomplete="off"></div>
+        <div class="field"><label for="ptyPass">Password *</label><input id="ptyPass" type="password" autocomplete="new-password"></div>
+      </div>
+      <div class="field"><label>Factories this party gives work to</label><div class="checklist" id="ptyFactories"></div><div class="hint">The party can also register new factories itself from its app.</div></div>
+      <div class="notice" id="partyAcctNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="partyAcctSubmit">Add party</button></div>
     </form>
   </dialog>
 
@@ -1080,12 +1270,8 @@ function swatch(w) {
   const b=colourOf(w.bodyColor,w.bodyHex), r=colourOf(w.borderColor,w.borderHex);
   return `<div class="saree${b&&r?"":" unknown"}" style="--body:${b||"#d9d6e4"};--border:${r||"#b9b5c9"}" title="Body: ${esc(w.bodyColor)} · Border: ${esc(w.borderColor)}"></div>`;
 }
-function renderStats() {
-  $("statLooms").textContent=db.looms.length;
-  $("statRunning").textContent=db.looms.filter(loomRunning).length;
-  $("statMeters").textContent=fmt(db.warps.filter(w=>!warpSpent(w)&&w.status!=="Discarded").reduce((s,w)=>s+w.remainingMeters,0));
-  $("statSarees").textContent=fmt(db.deliveries.reduce((s,d)=>s+d.sarees,0));
-}
+// The Home headline numbers are drawn by renderHome(); kept so refresh() keeps one call per part.
+function renderStats() {}
 function renderWarpOptions() {
   const old=$("deliveryLoom").value;
   $("deliveryLoom").innerHTML=db.looms.filter(loomRunning).map(l=>{const w=db.warps.find(x=>x.id===l.warpId);return `<option value="${esc(l.id)}">${esc(l.name)} · ${esc(w?w.name:"")}</option>`}).join("");
@@ -1107,23 +1293,7 @@ function prodStats() {
   return {days,byLoom,all,sum,loom:id=>{ const m=byLoom.get(id); const map=m?m.days:{}; return {today:map[days[0]]||0,d7:sum(map,7),d30:sum(map,30),map}; }};
 }
 let PS=null; // prodStats() of the last render, used by the loom cards
-function renderProduction() {
-  PS=prodStats();
-  const {days,all,sum}=PS, d7=sum(all,7), d30=sum(all,30), running=db.looms.filter(loomRunning).length;
-  $("pdToday").textContent=fmt(all[days[0]]||0); $("pdTodayNote").textContent=`yesterday ${fmt(all[days[1]]||0)}`;
-  $("pd7").textContent=fmt(d7); $("pd7Note").textContent=`${fmt(Math.round(d7/7*10)/10)} a day`;
-  $("pd30").textContent=fmt(d30); $("pd30Note").textContent=`${fmt(Math.round(d30/30*10)/10)} a day${running?` · ${fmt(Math.round(d30/30/running*10)/10)} per running loom`:""}`;
-  $("pdAll").textContent=fmt(db.deliveries.reduce((s,d)=>s+d.sarees,0));
-  const week=days.slice(0,7).reverse(), label=k=>{ const d=new Date(k+"T00:00"); return k===days[0]?"Today":d.toLocaleDateString("en-IN",{weekday:"short",day:"numeric"}); };
-  const cell=n=>`<td class="${n?"":"zero"}">${fmt(n)}</td>`;
-  // Current looms in board order, then looms removed in the last 30 days that still have dispatches.
-  const rows=[...byOrder(db.looms).map(l=>({id:l.id,name:l.name,width:l.widthType})),
-    ...[...PS.byLoom.entries()].filter(([id])=>!db.looms.some(l=>l.id===id)).map(([id,m])=>({id,name:`${m.name||"Loom"} (removed)`}))];
-  const row=(name,map,cls="")=>`<tr class="${cls}"><td>${name}</td>${week.map(k=>cell(map[k]||0)).join("")}<td class="tot"><strong>${fmt(sum(map,7))}</strong></td><td><strong>${fmt(sum(map,30))}</strong></td><td>${fmt(Math.round(sum(map,30)/30*10)/10)}</td></tr>`;
-  $("prodTable").innerHTML=rows.length?`<table><thead><tr><th>Loom</th>${week.map(k=>`<th>${label(k)}</th>`).join("")}<th class="tot">7 days</th><th>30 days</th><th>Per day (30 d)</th></tr></thead><tbody>
-    ${row("<strong>All looms</strong>",all,"allrow")}${rows.map(r=>row(`<strong>${esc(r.name)}</strong>${r.width?`<br><span style="color:var(--muted);font-weight:500">${widthLabel(r.width)}</span>`:""}`,PS.loom(r.id).map)).join("")}</tbody></table>`
-    :'<div class="empty">No looms yet.</div>';
-}
+function renderProduction() { PS=prodStats(); }
 // Mirrors server loomState(): a loom runs only when it is not stopped by hand, has a warp and,
 // if it needs one, a bobbin. Otherwise it is stopped, with the reason.
 function loomState(l) {
@@ -1217,48 +1387,123 @@ function warpCell(w) {
   return `<div class="warpcell">${swatch(w).replace('class="saree','class="saree mini')}<div><strong>${esc(w.name)}</strong><small>${esc(w.bodyColor)} / ${esc(w.borderColor)}</small></div></div>`;
 }
 const deliveredFromWarp=id=>db.deliveries.filter(d=>d.warpId===id).reduce((s,d)=>s+d.sarees,0);
-function renderHome() {
-  $("homeAsOf").textContent=`${currentFactory()?.name||""} · As of ${new Date().toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})}`;
-  $("homeLoomCount").textContent=plural(db.looms.length,"loom");
-  const sareesByLoom={};
-  db.deliveries.forEach(d=>sareesByLoom[d.loomId]=(sareesByLoom[d.loomId]||0)+d.sarees);
-  $("homeLoomTables").innerHTML=db.looms.length?["single","triple"].map(g=>{
-    const list=db.looms.filter(l=>l.widthType===g).sort((a,b)=>loomRank(a)-loomRank(b));
-    if(!list.length) return "";
-    return `<div class="widthhead ${g}">${widthLabel(g)} looms <span>· ${plural(list.length,"loom")}</span></div>
-    <div class="tablewrap"><table><thead><tr><th>Loom</th><th>Warp running</th><th>Warp balance</th><th>Saree balance</th><th>Sarees dispatched</th><th>Status</th></tr></thead><tbody>${list.map(l=>{
-      const w=db.warps.find(x=>x.id===l.warpId), q=w&&warpSarees(w);
-      const b=bobbinOf(l), bq=b&&warpSarees(b);
-      return `<tr><td><strong>${esc(l.name)}</strong></td><td>${w?warpCell(w):"—"}${b?`<div class="meta" style="margin-top:4px">🧵 Bobbin ${esc(b.name)} · ${esc(b.color)}</div>`:""}</td><td>${w?`${fmt(w.remainingMeters)} / ${fmt(w.originalMeters)} m${bar(w.remainingMeters,w.originalMeters,lowSarees(w))}`:"—"}${b?`<div class="meta">Bobbin ${fmt(b.remainingMeters)} / ${fmt(b.originalMeters)} m</div>`:""}</td><td>${w?`<strong>${plural(q.leftSarees,"saree")}</strong>${lowSarees(w)?'<span class="lowtag">LOW</span>':""}`:"—"}${b?`<div class="meta">Bobbin ${plural(bq.leftSarees,"saree")}${lowSarees(b)?'<span class="lowtag">LOW</span>':""}</div>`:""}</td><td><strong>${fmt(sareesByLoom[l.id]||0)}</strong></td><td>${loomPill(l)}${loomRunning(l)?"":`<br><span style="color:var(--muted)">${esc(loomState(l).reason)}</span>`}</td></tr>`;
-    }).join("")}</tbody></table></div>`;
-  }).join(""):'<div class="empty">No looms yet. <a href="#warps">Add a loom</a></div>';
-
-  const states=db.warps.map(warpState);
-  const count=k=>states.filter(x=>x.key===k).length;
-  $("warpOrdered").textContent=count("ordered"); $("warpReady").textContent=count("ready");
-  $("warpRunning").textContent=count("running"); $("warpDone").textContent=count("completed");
-  // Active warps only; completed/discarded ones are counted in the chips.
-  const order={running:0,ready:1,ordered:2};
-  const active=db.warps.map(w=>({w,st:warpState(w)})).filter(x=>x.st.key in order);
-  $("homeWarpCount").textContent=plural(active.length,"active warp");
-  $("homeWarpTables").innerHTML=active.length?["single","triple"].map(g=>{
-    const list=active.filter(x=>x.w.widthType===g).sort((a,b)=>order[a.st.key]-order[b.st.key]);
-    if(!list.length) return "";
-    return `<div class="widthhead ${g}">${widthLabel(g)} warps <span>· ${plural(list.length,"warp")}</span></div>
-    <div class="tablewrap"><table><thead><tr><th>Warp</th><th>Status</th><th>Warp balance</th><th>Saree balance</th><th>Sarees dispatched</th></tr></thead><tbody>${list.map(({w,st})=>{
-      const q=warpSarees(w);
-      return `<tr><td>${warpCell(w)}</td><td><span class="pill ${st.pill}">${st.label}</span>${st.short?`<br><span style="color:var(--muted)">${esc(st.short)}</span>`:""}</td><td>${fmt(w.remainingMeters)} / ${fmt(w.originalMeters)} m${bar(w.remainingMeters,w.originalMeters)}</td><td><strong>${plural(q.leftSarees,"saree")}</strong></td><td><strong>${fmt(deliveredFromWarp(w.id))}</strong></td></tr>`;
-    }).join("")}</tbody></table></div>`;
-  }).join(""):'<div class="empty">No active warps. <a href="#warps">Add a warp</a></div>';
-
-  // Stock: pooled totals, plus warps that still have sarees on the way (not yet added to stock).
-  const stockRows=db.warps.map(w=>({w,st:stockOf(w.id)})).filter(r=>onTheWay(r.st)>0)
-    .sort((a,b)=>onTheWay(b.st)-onTheWay(a.st));
-  const sumSt=sumStock();
-  [["hsSent","sent"],["hsDelivered","delivered"],["hsProcess","process"],["hsFolding","folding"],["hsStock","stock"],["hsMai","mai"],["hsLot","lot"],["hsDamage","damage"]].forEach(([el,k])=>$(el).textContent=fmt(sumSt(k)));
-  const c=(n,col)=>`<strong style="color:${col}">${fmt(n)}</strong>`;
-  $("homeStockTable").innerHTML=stockRows.length?`<table><thead><tr><th>Warp</th><th>Dispatched</th><th>At godown</th><th>In process</th><th>In folding</th></tr></thead><tbody>${stockRows.map(({w,st})=>`<tr><td>${warpCell(w)}</td><td>${c(st.sent,"#6d28d9")}</td><td>${c(st.delivered,"#4f46e5")}</td><td>${c(st.process,"#ea580c")}</td><td>${c(st.folding,"#be185d")}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">No sarees on the way. Warps appear here after dispatches from looms, until all their sarees are added to stock.</div>';
+let homeFilter="all", homePeriod=7;
+const HOME_FILTERS=[["all","All"],["run","Running"],["stop","Stopped"],["low","Low"]];
+const loomLow=l=>{ const w=db.warps.find(x=>x.id===l.warpId), b=bobbinOf(l); return !!((w&&lowSarees(w))||(b&&lowSarees(b))); };
+const homeKeep=(l,f)=>f==="all"||(f==="run"?loomRunning(l):f==="stop"?!loomRunning(l):loomLow(l));
+// The one thing to do next on a loom, same order as its Production card.
+function homeLoomAction(l) {
+  const st=loomState(l), w=db.warps.find(x=>x.id===l.warpId), b=bobbinOf(l);
+  if(st.manual) return {label:"Resume loom",act:"resume",cls:"amber"};
+  if(!w) return {label:"Put a warp on",act:"looms",cls:"amber"};
+  if(l.needsBobbin&&!b) return {label:"Put a bobbin on",act:"looms",cls:"amber"};
+  return {label:"Dispatch",act:"dispatch",cls:""};
 }
+function homeYarn(label,item,none) {
+  if(!item) return `<div class="h-y"><div class="t"><span>${label}</span><b>${none}</b></div><div class="b"><i style="width:0"></i></div></div>`;
+  const low=lowSarees(item), pct=item.originalMeters>0?Math.max(0,Math.min(100,item.remainingMeters/item.originalMeters*100)):0;
+  return `<div class="h-y"><div class="t${low?" low":""}"><span>${label} ${esc(item.name)}</span><b>${plural(warpSarees(item).leftSarees,"saree")} left${low?" · LOW":""}</b></div><div class="b"><i class="${low?"low":""}" style="width:${pct.toFixed(1)}%"></i></div></div>`;
+}
+function homeLoomCard(l) {
+  const st=loomState(l), w=db.warps.find(x=>x.id===l.warpId), b=bobbinOf(l), today=(PS||prodStats()).loom(l.id).today;
+  const d=designById(l.designId), s=staffById(l.staffId), party=(db.parties||[]).find(p=>p.id===l.partyId);
+  const who=[d&&d.number,s&&s.name,party&&party.name].filter(Boolean).map(esc).join(" · ");
+  const a=homeLoomAction(l);
+  return `<div class="h-loom${loomLow(l)?" low":""}" data-loom="${esc(l.id)}">
+    <div class="hd"><span class="h-dot${st.running?"":" stop"}"></span><b>${esc(l.name)}</b><strong>${fmt(today)}</strong><small>today</small></div>
+    <div class="st${st.running?"":" stop"}">${st.running?(who||"Running"):`Stopped · ${esc(st.reason)}`}</div>
+    ${homeYarn("Warp",w,"none on")}${l.needsBobbin?homeYarn("Weft",b,"none on"):homeYarn("Weft",null,"no bobbin")}
+    <button class="actbtn" type="button" data-home="${a.act}" data-id="${esc(l.id)}">${a.label}</button></div>`;
+}
+// Things to act on now: stopped looms, low warp/weft, party announcements not yet acknowledged.
+function homeAttention() {
+  const out=[], me=session.user?.id;
+  db.looms.filter(l=>!loomRunning(l)).sort((a,b)=>loomRank(a)-loomRank(b)).forEach(l=>{
+    const st=loomState(l), a=homeLoomAction(l), w=db.warps.find(x=>x.id===l.warpId);
+    out.push({cls:st.manual?"amber":"red",icon:"⏸",title:`${l.name} stopped · ${st.reason}`,
+      text:st.manual?`Since ${fmtDate(l.stoppedAt)}${w?` · ${plural(warpSarees(w).leftSarees,"saree")} of warp left`:""}.`:"It can't weave until this is fixed.",btn:a.label,act:a.act,id:l.id});
+  });
+  const low=lowItems();
+  if(low.length){
+    const first=low[0], party=first.loom.partyId&&(db.parties||[]).length;
+    out.push({cls:"amber",icon:"⚠",title:`Running low: ${low.map(x=>`${x.item.name} on ${x.loom.name}`).join(", ")}`,
+      text:low.map(x=>`${x.kind==="Bobbin"?"weft":"warp"} ${plural(x.left,"saree")} left`).join(" · ")+".",
+      btn:party?"Request warp / weft":"Open the board",act:party?"request":(first.kind==="Bobbin"?"bobbins":"warps"),id:first.loom.id,kind:first.kind==="Bobbin"?"bobbin":"warp"});
+  }
+  (db.announcements||[]).filter(a=>a.ackRequired&&!a.acks.some(k=>k.userId===me)).slice(0,2).forEach(a=>
+    out.push({cls:"violet",icon:"📣",title:`${a.partyName||"Party"}: ${a.title}`,text:a.body||"Announcement",btn:"Got it",act:"ack",id:a.id}));
+  return out.slice(0,6);
+}
+function renderHome() {
+  PS=prodStats();
+  const f=currentFactory(), name=(session.user?.name||session.user?.username||"").split(" ")[0];
+  const h=new Date().getHours(), hello=h<12?"Good morning":h<17?"Good afternoon":"Good evening";
+  const running=db.looms.filter(loomRunning).length;
+  $("homeHello").textContent=name?`${hello}, ${name}`:hello;
+  $("homeAsOf").textContent=`${f?.name||""} · ${new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"})} · ${running} of ${plural(db.looms.length,"loom")} running`;
+  // Needs attention
+  const attn=homeAttention();
+  $("homeAttnCount").textContent=attn.length||""; $("homeAttnCount").hidden=!attn.length;
+  $("homeAttnList").innerHTML=attn.length?attn.map(a=>`<div class="h-acard"><span class="h-aicon ${a.cls}" aria-hidden="true">${a.icon}</span><div><b>${esc(a.title)}</b><p>${esc(a.text)}</p><button class="smallbtn" type="button" data-home="${a.act}" data-id="${esc(a.id)}"${a.kind?` data-kind="${a.kind}"`:""}>${a.btn}</button></div></div>`).join("")
+    :`<div class="h-ok">${db.looms.length?"All looms are running and nothing is low.":"No looms yet."}</div>`;
+  // Headline numbers
+  const {days,all,sum}=PS, today=all[days[0]]||0, yday=all[days[1]]||0, perDay7=sum(all,7)/7;
+  const onLooms=db.looms.map(l=>db.warps.find(w=>w.id===l.warpId)).filter(Boolean).reduce((s,w)=>s+warpSarees(w).leftSarees,0);
+  const diff=today-yday, m=mods(), stopped=db.looms.length-running;
+  const kpi=(label,value,note,trend="")=>`<div class="h-kpi"><small>${label}</small><strong>${value}</strong>${trend}<span>${note}</span></div>`;
+  let html=kpi("Sarees today",fmt(today),`yesterday ${fmt(yday)}`,diff?`<em class="${diff>0?"up":"down"}">${diff>0?"+":"−"}${fmt(Math.abs(diff))}</em>`:"")
+    +kpi("Looms running",`${running}/${db.looms.length}`,stopped?`${stopped} stopped`:"all running")
+    +kpi("Warp on looms",fmt(onLooms),perDay7>0?`sarees left · about ${fmt(Math.max(1,Math.round(onLooms/perDay7)))} days at the 7-day pace`:"sarees left");
+  if(m.stock){ const st=sumStock(); html+=kpi("In stock",fmt(st("stock")),`${fmt(st("dispatched"))} with parties`); }
+  if(m.wages){ const lines=wageLines(unpaidWages(),unpaidDeductions()), due=lines.reduce((s,x)=>s+Math.max(0,x.net),0);
+    html+=kpi("Wages to pay",money(due),lines.length?`${plural(lines.length,"weaver")}${periodStart()?` · since ${fmtDate(periodStart())}`:""}`:"nothing due"); }
+  $("homeKpis").innerHTML=html;
+  // Loom floor
+  $("homeLoomFilter").innerHTML=HOME_FILTERS.map(([k,l])=>`<button type="button" data-hf="${k}" class="${k===homeFilter?"on":""}" aria-pressed="${k===homeFilter}">${l} ${db.looms.filter(x=>homeKeep(x,k)).length}</button>`).join("");
+  $("homeFloor").innerHTML=db.looms.length?["triple","single"].map(g=>{
+    const allW=db.looms.filter(l=>l.widthType===g), list=byOrder(allW.filter(l=>homeKeep(l,homeFilter)).sort((a,b)=>loomRank(a)-loomRank(b)));
+    if(!list.length) return "";
+    return `<div class="h-group">${widthLabel(g)} <span>· ${allW.filter(loomRunning).length} of ${allW.length} running</span></div><div class="h-grid">${list.map(homeLoomCard).join("")}</div>`;
+  }).join("")||'<div class="empty">No looms match.</div>':'<div class="empty">No looms yet. <a href="#loomlist">Add a loom</a></div>';
+  // Chart: sarees dispatched per day
+  $("homePeriod").innerHTML=[7,30].map(n=>`<button type="button" data-hp="${n}" class="${n===homePeriod?"on":""}" aria-pressed="${n===homePeriod}">${n} days</button>`).join("");
+  const span=days.slice(0,homePeriod).reverse(), max=Math.max(1,...span.map(k=>all[k]||0)), total=sum(all,homePeriod);
+  const lab=k=>{ const d=new Date(k+"T00:00"); return k===days[0]?"Today":homePeriod===7?d.toLocaleDateString("en-IN",{weekday:"short"}):(d.getDate()%5===0?String(d.getDate()):""); };
+  $("homeChart").innerHTML=`<div class="h-total"><b>${fmt(total)}</b><span>last ${homePeriod} days · about ${fmt(Math.round(total/homePeriod*10)/10)} a day</span></div>
+    <div class="h-chart" role="img" aria-label="Sarees dispatched per day, last ${homePeriod} days" style="gap:${homePeriod===7?10:3}px">${span.map(k=>`<div class="${k===days[0]?"today":""}" title="${esc(k)}: ${fmt(all[k]||0)}">${homePeriod===7?`<small>${fmt(all[k]||0)}</small>`:""}<i style="height:${Math.round((all[k]||0)/max*100)}px"></i></div>`).join("")}</div>
+    <div class="h-days" style="gap:${homePeriod===7?10:3}px">${span.map(k=>`<span>${lab(k)}</span>`).join("")}</div>`;
+  // Stock
+  if(m.stock){
+    const st=sumStock();
+    $("homeStockFlow").innerHTML=[["Godown",st("sent")+st("delivered")],["Process",st("process")],["Folding",st("folding")]].map(([l,n])=>`<span><b>${fmt(n)}</b>${l}</span>`).join("");
+    $("homeStockBuckets").innerHTML=[["Stock",st("stock"),"#e3f5ec","#0f6a4a"],["Mai",st("mai")+st("cleaning"),"#fff1dc","#7f4a05"],["Lot",st("lot"),"#f3f1f9","#1c1838"],["Damage",st("damage"),"#fdecea","#9c1c12"],["With parties",st("dispatched"),"#eeeaff","#4325c2"]]
+      .map(([l,n,bg,fg])=>`<div style="background:${bg}"><b style="color:${fg}">${fmt(n)}</b>${l}</div>`).join("");
+  }
+  // Party job orders (open ones, most pending first)
+  const jobs=(db.jobOrders||[]).filter(j=>j.status!=="closed").sort((a,b)=>b.atFactory-a.atFactory).slice(0,4);
+  const pName=id=>(db.parties||[]).find(p=>p.id===id)?.name||"Party";
+  $("homeJobs").innerHTML=jobs.length?jobs.map(j=>{ const pc=n=>Math.min(100,n/j.target*100).toFixed(1)+"%";
+    return `<div class="h-job"><div class="t"><span><b>${esc(j.code)}</b> · ${esc(pName(j.partyId))}</span><span>${fmt(j.woven)} / ${fmt(j.target)}</span></div>
+      <div class="bar2"><span style="width:${pc(j.received)};background:#12a06e"></span><span style="width:${pc(j.onWay)};background:#c9640f"></span><span style="width:${pc(j.atFactory)};background:#f2b24c"></span></div>
+      <small>${fmt(j.atFactory)} ready to send · ${fmt(j.toWeave)} to weave</small></div>`; }).join(""):'<div class="empty">No open job orders.</div>';
+  // Recent activity
+  const dot={dispatch:"#5532e0",warp:"#7c5cff",bobbin:"#7c5cff",loom:"#d98a0b",delivery:"#12a06e",shipment:"#12a06e",request:"#f2b24c",notice:"#4325c2",wages:"#615e7e",stock:"#0ea5b7",process:"#0ea5b7",party:"#c9640f",expense:"#c9640f"};
+  $("homeFeed").innerHTML=(db.activity||[]).slice(0,6).map(a=>`<div><i style="background:${dot[a.type]||"#615e7e"}"></i><span><p>${esc(a.text)}</p><small>${esc(whenFull(a.at))}${a.by?` · ${esc(a.by)}`:""}</small></span></div>`).join("")||'<div class="empty">Nothing yet.</div>';
+}
+$("view-home").addEventListener("click",async e=>{
+  const hf=e.target.closest("[data-hf]"); if(hf){ homeFilter=hf.dataset.hf; return renderHome(); }
+  const hp=e.target.closest("[data-hp]"); if(hp){ homePeriod=Number(hp.dataset.hp); return renderHome(); }
+  const b=e.target.closest("[data-home]"); if(!b) return;
+  hideNotice("homeNotice");
+  const id=b.dataset.id, lm=db.looms.find(l=>l.id===id), act=b.dataset.home;
+  if(act==="dispatch") return openDelivery(id);
+  if(act==="resume"&&lm) return resumeLoom(lm,"homeNotice");
+  if(act==="looms"){ flashIds=new Set([id]); location.hash="#looms"; return; }
+  if(act==="warps"||act==="bobbins"){ location.hash="#"+act; return; }
+  if(act==="request") return openRequest(id,b.dataset.kind||"warp");
+  if(act==="ack"){ try{ await api(`/api/announcements/${id}/ack`,{method:"POST"}); toast("The party can see you got it."); await refresh(); }catch(err){ notice("homeNotice",err.message); } }
+});
+$("qaRequest").addEventListener("click",()=>openRequest());
 // ---- Dashboard export: phone-width JPG download and WhatsApp share ----
 function dashboardText() {
   const stamp=new Date().toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
@@ -1372,10 +1617,10 @@ $("waDashboard").addEventListener("click",e=>{
 async function refresh() {
   if(!currentFactoryId||!session.user) return;
   db=await api("/api/data");
-  renderStats();renderWarpOptions();renderHome();renderProduction();renderLooms();renderLoomList();if($("manageLoomsDialog").open) renderManageLooms();renderWarps();renderProcess();renderStock();renderParties();renderDesigns();renderStaff();renderWages();renderExpenses();renderLog();applyModules();renderLowAlert();updatePreview();loadDesignImages();
+  renderStats();renderWarpOptions();renderHome();renderProduction();renderLooms();renderLoomList();if($("manageLoomsDialog").open) renderManageLooms();renderWarps();renderProcess();renderStock();renderParties();renderDesigns();renderStaff();renderWages();renderExpenses();renderLog();applyModules();renderLowAlert();renderPartyWork();updatePreview();loadDesignImages();
   if(flashIds.size) setTimeout(()=>flashIds=new Set(),1600);
 }
-const views=["home","loomlist","warps","bobbins","looms","process","stock","parties","designs","staff","wages","expenses","log","settings"];
+const views=["home","loomlist","warps","bobbins","looms","partywork","process","stock","parties","designs","staff","wages","expenses","log","settings"];
 // Parts of the app a factory can turn off in Settings (factory.modules, missing = on).
 const VIEW_MODULE={process:"stock",stock:"stock",parties:"stock",designs:"wages",staff:"wages",wages:"wages",expenses:"wages"};
 const mods=()=>{ const m=currentFactory()?.modules; return {stock:m?.stock!==false,wages:m?.wages!==false,process:m?.process===true}; };
@@ -1384,7 +1629,6 @@ function applyModules() {
   const direct=directStock();
   document.querySelectorAll("[data-mod]").forEach(el=>el.hidden=!m[el.dataset.mod]);
   document.querySelectorAll("[data-direct-hide]").forEach(el=>el.hidden=direct||(el.dataset.mod?!m[el.dataset.mod]:false));
-  $("homeStockTable").hidden=direct;
   $("stockSub").innerHTML=direct?"Sarees dispatched from the looms go straight to stock. Only stock is delivered to parties.":"Sarees from all warps after checking and <b>Add to stock</b> on the Process page. Only stock is delivered to parties.";
   $("homeStockPanel").hidden=!m.stock;
 }
@@ -1402,6 +1646,8 @@ function route() {
   views.forEach(x=>$("view-"+x).hidden=noFactory||x!==v);
   if(v==="settings") loadSettings();
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.getAttribute("href")==="#"+v));
+  const cur=document.querySelector('nav.tabs .tab[href="#'+v+'"] .lb');
+  document.title=(cur?cur.textContent+" · ":"")+"My Thari";
   window.scrollTo(0,0);
 }
 window.addEventListener("hashchange",route);
@@ -1695,6 +1941,7 @@ $("warpForm").addEventListener("submit",async e=>{
     notice("warpListNotice",`${name} added to Ordered.`,true);await refresh();
   }catch(err){notice("warpNotice",err.message)}
 });
+$("qaWarp").onclick=()=>openWarpForm(); $("qaBobbin").onclick=()=>openBobbinForm();
 function openBobbinForm() { hideNotice("bobbinNotice"); $("bobbinDialog").showModal(); $("bobbinName").focus(); }
 $("openBobbinForm").addEventListener("click",openBobbinForm);
 $("bobbinForm").addEventListener("submit",async e=>{
@@ -1763,7 +2010,7 @@ function renderManageLooms() {
   $("manageLoomsList").innerHTML=list.length?list.map(l=>{
     const st=loomState(l);
     return `<div class="mlrow" data-id="${esc(l.id)}"><div><strong>${esc(l.name)}</strong> ${loomPill(l)}<div class="meta">${widthLabel(l.widthType)} · ${l.needsBobbin?"warp + bobbin":"warp only"}${st.running?"":` · ${esc(st.reason)}`}</div></div>
-      <div class="rowacts"><button class="smallbtn" type="button" data-lm="edit">Edit</button>${st.manual?`<button class="smallbtn" type="button" data-lm="resume">Resume</button>`:`<button class="smallbtn" type="button" data-lm="stop">Stop</button>`}${wages?`<button class="smallbtn" type="button" data-lm="setup">Designs &amp; weaver</button>`:""}${!st.running&&isAdmin()?`<button class="smallbtn danger" type="button" data-lm="remove" title="Remove">${TRASH_ICON}</button>`:""}</div></div>`;
+      <div class="rowacts">${setupLocked()?"":'<button class="smallbtn" type="button" data-lm="edit">Edit</button>'}${st.manual?`<button class="smallbtn" type="button" data-lm="resume">Resume</button>`:`<button class="smallbtn" type="button" data-lm="stop">Stop</button>`}${wages?`<button class="smallbtn" type="button" data-lm="setup">Designs &amp; weaver</button>`:""}${!st.running&&isAdmin()?`<button class="smallbtn danger" type="button" data-lm="remove" title="Remove">${TRASH_ICON}</button>`:""}</div></div>`;
   }).join(""):'<div class="empty">No looms yet.</div>';
 }
 $("openManageLooms").addEventListener("click",()=>{ hideNotice("manageLoomsNotice"); renderManageLooms(); $("manageLoomsDialog").showModal(); });
@@ -2722,7 +2969,7 @@ $("setupForm").addEventListener("submit",async e=>{
   }catch(err){notice("setupNotice",err.message)}
 });
 // ---- Log: every activity, newest first (stored server-side in db.activity) ----
-const LOG_TYPE={warp:["Warp","violet"],bobbin:["Bobbin","blue"],loom:["Loom","blue"],dispatch:["Dispatch","green"],delivery:["Delivery","red"],process:["Process",""],stock:["Stock","teal"],party:["Party","amber"],wages:["Wages","green"],expense:["Expense","amber"]};
+const LOG_TYPE={request:["Request","amber"],shipment:["To party","green"],notice:["Party","violet"],warp:["Warp","violet"],bobbin:["Bobbin","blue"],loom:["Loom","blue"],dispatch:["Dispatch","green"],delivery:["Delivery","red"],process:["Process",""],stock:["Stock","teal"],party:["Party","amber"],wages:["Wages","green"],expense:["Expense","amber"]};
 // Expenses: per-loom costs (warp join, bobbin join, spares, maintenance).
 const EXP_KINDS={warp_join:"Warp join",bobbin_join:"Bobbin join",spares:"Spares",maintenance:"Maintenance"};
 const EXP_SUBTYPES=["Routine service","Repair","Breakdown","Other"];
@@ -2991,11 +3238,14 @@ function showLogin(message) {
   setTimeout(()=>($("loginUser").value?$("loginPass"):$("loginUser")).focus(),0);
 }
 function signOut(message) {
+  stopLive();
   session={token:null,user:null,factories:[]}; currentFactoryId=null; store_.set("loom.token",null);
   db={warps:[],bobbins:[],looms:[],deliveries:[],clients:[],stockMoves:[],staff:[],designs:[],wagePayouts:[],wageDeductions:[],expenses:[]};
   $("userMenu").hidden=true; showLogin(message);
 }
-function applySession({user,factories}) {
+function applySession({user,factories,license}) {
+  // Party accounts use the party app (same sign-in, same token).
+  if(user.role==="party"){ location.replace("party.html"); return; }
   session.user=user; session.factories=factories;
   document.body.classList.remove("signed-out"); $("loginScreen").hidden=true;
   // Keep the factory in use if still allowed, else the last one used on this device, else the first.
@@ -3009,6 +3259,8 @@ function applySession({user,factories}) {
   $("menuSettings").hidden=!isAdmin(); $("footerBackup").hidden=!isAdmin();
   $("pwWarn").hidden=!user.defaultPassword;
   renderFactorySelect();
+  renderLicenseBar(license);
+  startLive();
 }
 function renderFactorySelect() {
   const sel=$("factorySelect"), f=currentFactory();
@@ -3067,6 +3319,7 @@ const fmtSize=b=>b<1024?`${b} B`:b<1048576?`${(b/1024).toFixed(1)} KB`:`${(b/104
 const whenFull=v=>new Date(v).toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
 async function loadSettings() {
   if(!isAdmin()) return;
+  loadLicense();
   try{ settingsInfo=await api("/api/admin/info"); }catch(err){ return notice("settingsNotice",err.message); }
   const i=settingsInfo, facName=id=>i.factories.find(f=>f.id===id)?.name;
   $("setFactoryCount").textContent=plural(i.factories.length,"factory").replace(/ys$/,"ies");
@@ -3077,7 +3330,7 @@ async function loadSettings() {
   $("setUserCount").textContent=plural(i.users.length,"user");
   $("setUserTable").innerHTML=`<table><thead><tr><th>User</th><th>Role</th><th>Factories</th><th></th></tr></thead><tbody>${i.users.map(u=>{
     const facs=u.role==="admin"?"All factories":(u.factoryIds.map(facName).filter(Boolean).join(", ")||'<span style="color:var(--muted)">None</span>');
-    return `<tr data-id="${esc(u.id)}"><td><strong>${esc(u.username)}</strong>${u.name?`<br><span style="color:var(--muted)">${esc(u.name)}</span>`:""}${u.id===session.user.id?' <span class="pill gray">You</span>':""}</td><td><span class="pill ${u.role==="admin"?"":"green"}">${u.role==="admin"?"Admin":"User"}</span></td><td>${u.role==="admin"?facs:facs.startsWith("<")?facs:esc(facs)}</td><td class="rowacts"><button class="smallbtn" data-usr="edit">Edit</button>${u.id===session.user.id?"":'<button class="smallbtn danger" data-usr="delete">Delete</button>'}</td></tr>`;
+    return `<tr data-id="${esc(u.id)}"><td><strong>${esc(u.username)}</strong>${u.name?`<br><span style="color:var(--muted)">${esc(u.name)}</span>`:""}${u.id===session.user.id?' <span class="pill gray">You</span>':""}</td><td><span class="pill ${u.role==="admin"?"":u.role==="party"?"amber":"green"}">${u.role==="admin"?"Admin":u.role==="party"?"Party":"User"}</span></td><td>${u.role==="admin"?facs:facs.startsWith("<")?facs:esc(facs)}</td><td class="rowacts"><button class="smallbtn" data-usr="edit">Edit</button>${u.id===session.user.id?"":'<button class="smallbtn danger" data-usr="delete">Delete</button>'}</td></tr>`;
   }).join("")}</tbody></table>`;
   $("adminBackupWhere").textContent=`${i.backupDir} · daily backups kept for ${plural(i.keepDays,"day")}${i.backupDirSource==="settings"?"":i.backupDirSource==="environment"?" (from settings.bat / environment)":" (default folder)"} · each backup covers every factory`;
   $("adminBackupCount").textContent=plural(i.backups.length,"file");
@@ -3106,6 +3359,7 @@ async function loadSettings() {
   $("adminUpgradeWhere").textContent=`Installs the latest ${a.mode==="git"?`version from GitHub (${a.repo||"repository not set"}, branch ${a.branch})`:`Windows release from GitHub (${a.repo||"repository not set"}), built automatically on every push`}. A full data backup is taken first${a.mode==="git"?"":" and the current app files are copied to the backup folder"}; then the app restarts. Your data and settings are not changed.`;
   $("adminTokenState").textContent=st.hasToken?"(a token is saved)":"(not set)";
   $("adminTokenClear").hidden=!st.hasToken;
+  renderSettingsParties(i);
   $("adminRestart").disabled=!i.canRestart;
   $("adminRestartHint").textContent=i.canRestart?"Stops and starts the app server. Open pages reconnect automatically.":"Not available: the app was started directly with node server.js. Use npm start or the Windows launcher.";
 }
@@ -3321,12 +3575,209 @@ $("adminRestart").addEventListener("click",async e=>{
     toast("App restarted."); await refresh(); await loadSettings();
   });
 });
+
+// ---- Party work: parties who give this factory job work (party app) ----
+// db.parties [{id,name,perms}], db.jobOrders (with woven/sent/received/toWeave/atFactory/onWay/pending),
+// db.requests, db.shipments, db.announcements. In a party-managed factory (db.partyManaged) looms and designs
+// are set up by the party, so non-admins don't get the add/edit buttons (the server refuses them too).
+const setupLocked=()=>!!db.partyManaged&&!isAdmin();
+const partyName=id=>(db.parties||[]).find(p=>p.id===id)?.name||"Party";
+const partyPerm=(partyId,perm)=>isAdmin()||!partyId||(db.parties||[]).find(p=>p.id===partyId)?.perms?.[perm]!==false;
+const REQ_PILL={pending:["Waiting for party","amber"],approved:["Approved","green"],rejected:["Rejected","red"],cancelled:["Withdrawn","gray"]};
+function renderPartyWork() {
+  const parties=db.parties||[], me=session.user?.id;
+  document.querySelectorAll("[data-party]").forEach(el=>el.hidden=!parties.length);
+  const locked=setupLocked();
+  document.querySelectorAll("[data-open-loom],[data-open-design]").forEach(b=>b.hidden=locked);
+  const anns=db.announcements||[], open=anns.filter(a=>a.ackRequired&&!a.acks.some(k=>k.userId===me));
+  $("partyAlert").hidden=!open.length;
+  $("partyAlert").innerHTML=open.length?`📣 <b>${esc(open[0].partyName||partyName(open[0].partyId))}:</b> ${esc(open[0].title)}${open.length>1?` · and ${open.length-1} more`:""} · <a href="#partywork">Open party orders</a>`:"";
+  $("pwAnnouncements").innerHTML=(locked?`<p class="lockednote">Looms and designs in this factory are set up by ${esc(parties.map(p=>p.name).join(", ")||"the party")}. You run them: dispatch, stop/resume, warps and bobbins, and you set the weaver's wage on each design.</p>`:"")
+    +anns.slice(0,6).map(a=>{ const isNew=a.ackRequired&&!a.acks.some(k=>k.userId===me);
+      return `<div class="pwann${isNew?" new":""}" data-ann="${esc(a.id)}"><span aria-hidden="true">📣</span><div style="flex:1"><span class="pill ${a.kind==="holiday"?"amber":a.kind==="warp"?"":"green"}">${esc({warp:"Warp ready",design:"Design change",holiday:"Holiday / pause",general:"Notice"}[a.kind]||"Notice")}</span> <span class="hint">${esc(a.partyName||partyName(a.partyId))} · ${esc(whenFull(a.createdAt))}</span><h3>${esc(a.title)}</h3>${a.body?`<p>${esc(a.body)}</p>`:""}</div>${isNew?'<button class="btn btn-inline" type="button" data-ack>Got it</button>':'<span class="hint">✓ Seen</span>'}</div>`; }).join("");
+  const jobs=db.jobOrders||[];
+  $("pwJobCount").textContent=plural(jobs.filter(j=>j.status!=="closed").length,"open order");
+  const loomName=id=>db.looms.find(l=>l.id===id)?.name||"";
+  $("pwJobs").innerHTML=jobs.length?`<table><thead><tr><th>Order</th><th>Party</th><th>Looms</th><th>Target</th><th>Woven</th><th>At factory</th><th>On the way</th><th>Received</th><th>Progress</th></tr></thead><tbody>${jobs.map(j=>{
+    const seg=(n,c)=>`<span style="width:${Math.min(100,n/j.target*100)}%;background:${c}"></span>`;
+    return `<tr><td><strong>${esc(j.code)}</strong>${j.designNo?`<br><span style="color:var(--muted)">${esc(j.designNo)}${j.designName?` · ${esc(j.designName)}`:""}</span>`:""}${j.status==="closed"?' <span class="pill gray">Closed</span>':""}</td><td>${esc(partyName(j.partyId))}</td><td>${esc((j.loomIds||[]).map(loomName).filter(Boolean).join(", ")||"—")}</td><td>${fmt(j.target)}</td><td>${fmt(j.woven)}</td><td><b>${fmt(j.atFactory)}</b></td><td>${fmt(j.onWay)}</td><td>${fmt(j.received)}</td><td><div class="pwbar">${seg(j.received,"#12a06e")}${seg(j.onWay,"#c9640f")}${seg(j.atFactory,"#f2b24c")}</div><span class="hint">${fmt(j.toWeave)} to weave</span></td></tr>`;
+  }).join("")}</tbody></table>`:'<div class="empty">No job orders yet. The party creates them in its app.</div>';
+  const reqs=(db.requests||[]).slice(0,30);
+  $("pwRequests").innerHTML=reqs.length?reqs.map(r=>{ const [lbl,cls]=REQ_PILL[r.status]||[r.status,"gray"];
+    return `<div class="pwrow" data-req="${esc(r.id)}"><div><strong>${r.kind==="bobbin"?"Weft":"Warp"} for ${esc(r.loomName)} · ${fmt(r.sarees)} sarees</strong><br><span class="hint">${esc(partyName(r.partyId))} · ${fmt(r.meters)} m${r.needBy?` · need by ${esc(fmtDate(r.needBy))}`:""}${r.itemName?` · ${esc(r.itemName)} on order`:""}${r.reason?` · ${esc(r.reason)}`:""}</span></div><div style="display:flex;gap:6px;align-items:center"><span class="pill ${cls}">${lbl}</span>${r.status==="pending"?'<button class="smallbtn" type="button" data-withdraw>Withdraw</button>':""}</div></div>`; }).join(""):'<div class="empty">No requests yet. Use <b>Request warp / weft</b> when a loom runs low.</div>';
+  const ships=(db.shipments||[]).slice(0,30);
+  $("pwShipments").innerHTML=ships.length?ships.map(x=>`<div class="pwrow"><div><strong>${fmt(x.qty)} sarees · ${esc(x.jobCode)}</strong><br><span class="hint">${esc(partyName(x.partyId))} · ${esc(whenFull(x.createdAt))}${x.lrNumber?` · LR ${esc(x.lrNumber)}`:""}${x.issue?` · issue: ${esc(x.issue)}`:""}</span></div><span class="pill ${x.receivedAt?(x.issue?"red":"green"):"amber"}">${x.receivedAt?(x.issue?"Issue reported":"Received"):"On the way"}</span></div>`).join(""):'<div class="empty">Nothing sent yet.</div>';
+  $("openRequest").hidden=!db.looms.some(l=>l.partyId);
+  $("openShipment").hidden=!jobs.some(j=>j.atFactory>0);
+}
+$("pwAnnouncements").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-ack]"); if(!b) return;
+  const annId=b.closest("[data-ann]").dataset.ann;
+  try{ await api(`/api/announcements/${annId}/ack`,{method:"POST"}); toast("The party can see you got it."); await refresh(); }catch(err){ toast(err.message); }
+});
+$("pwRequests").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-withdraw]"); if(!b) return;
+  if(!await ask({title:"Withdraw this request?",text:"The party will see it was withdrawn.",ok:"Withdraw"})) return;
+  const reqId=b.closest("[data-req]").dataset.req;
+  try{ await api(`/api/requests/${reqId}`,{method:"DELETE"}); await refresh(); }catch(err){ toast(err.message); }
+});
+const reqKind=()=>$("requestForm").querySelector("input[name=reqKind]:checked").value;
+function fillRequestLooms(loomId) {
+  const kind=reqKind(), looms=db.looms.filter(l=>l.partyId&&partyPerm(l.partyId,"request")&&(kind==="warp"||l.needsBobbin));
+  $("reqLoom").innerHTML=looms.map(l=>{ const item=kind==="warp"?db.warps.find(w=>w.id===l.warpId):db.bobbins.find(b=>b.id===l.bobbinId);
+    return `<option value="${esc(l.id)}">${esc(l.name)} · ${esc(partyName(l.partyId))}${item?` · ${esc(item.name)} ${fmt(warpSarees(item))} left`:""}</option>`; }).join("")||'<option value="">No party looms</option>';
+  if(loomId&&looms.some(l=>l.id===loomId)) $("reqLoom").value=loomId;
+  updateReqMeters();
+}
+function updateReqMeters() {
+  const l=db.looms.find(x=>x.id===$("reqLoom").value), n=Number($("reqSarees").value);
+  $("reqSarees").step=l?.widthType==="triple"?3:1;
+  $("reqMeters").textContent=l&&n>0?`${fmt(n*SAREE_M/(l.widthType==="triple"?3:1))} m · ${l.widthType==="triple"?"triple width, multiples of 3":"single width"}`:"";
+}
+function openRequest(loomId, kind="warp") {
+  $("requestForm").reset(); hideNotice("requestNotice");
+  $("requestForm").querySelector(`input[name=reqKind][value=${kind}]`).checked=true;
+  fillRequestLooms(loomId); $("requestDialog").showModal(); $("reqSarees").focus();
+}
+$("openRequest").addEventListener("click",()=>openRequest());
+$("requestForm").addEventListener("change",e=>{ if(e.target.name==="reqKind") fillRequestLooms($("reqLoom").value); else updateReqMeters(); });
+$("reqSarees").addEventListener("input",updateReqMeters);
+$("requestForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("requestNotice");
+  try{
+    await api("/api/requests",{method:"POST",body:JSON.stringify({kind:reqKind(),loomId:$("reqLoom").value,sarees:Number($("reqSarees").value),needBy:$("reqNeedBy").value,note:$("reqNote").value})});
+    $("requestDialog").close(); toast("Sent to the party for approval."); await refresh();
+  }catch(err){ notice("requestNotice",err.message); }
+});
+function openShipment() {
+  $("shipmentForm").reset(); hideNotice("shipmentNotice");
+  const jobs=(db.jobOrders||[]).filter(j=>j.atFactory>0&&partyPerm(j.partyId,"ship"));
+  $("shipJob").innerHTML=jobs.map(j=>`<option value="${esc(j.id)}">${esc(j.code)} · ${esc(partyName(j.partyId))} · ${fmt(j.atFactory)} ready</option>`).join("")||'<option value="">Nothing woven to send</option>';
+  updateShipAvail(); $("shipmentDialog").showModal(); $("shipQty").focus();
+}
+function updateShipAvail() {
+  const j=(db.jobOrders||[]).find(x=>x.id===$("shipJob").value);
+  $("shipAvail").textContent=j?`${fmt(j.atFactory)} woven and not yet sent · ${fmt(j.received)} of ${fmt(j.target)} received by the party`:"";
+  if(j&&!$("shipQty").value) $("shipQty").value=j.atFactory;
+}
+$("openShipment").addEventListener("click",openShipment);
+$("shipJob").addEventListener("change",()=>{ $("shipQty").value=""; updateShipAvail(); });
+$("shipmentForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("shipmentNotice");
+  try{
+    await api("/api/shipments",{method:"POST",body:JSON.stringify({jobOrderId:$("shipJob").value,qty:Number($("shipQty").value),lrNumber:$("shipLr").value,note:$("shipNote").value})});
+    $("shipmentDialog").close(); toast("Sent. The party sees it on the way."); await refresh();
+  }catch(err){ notice("shipmentNotice",err.message); }
+});
+// ---- Live updates: the server pushes a message whenever this factory's data changes (events.js) ----
+let liveSrc=null, liveTimer=null;
+function setLive(on) { $("liveDot").classList.toggle("off",!on); $("liveText").textContent=on?"Live":"Offline"; }
+function startLive() {
+  stopLive();
+  if(!session.token||typeof EventSource==="undefined") return;
+  liveSrc=new EventSource(`/api/events?token=${encodeURIComponent(session.token)}`);
+  liveSrc.onopen=()=>setLive(true);
+  liveSrc.onerror=()=>setLive(false);
+  liveSrc.onmessage=e=>{
+    let m; try{ m=JSON.parse(e.data); }catch{ return; }
+    if(m.factoryId!==currentFactoryId) return;
+    clearTimeout(liveTimer); liveTimer=setTimeout(()=>refresh().catch(()=>{}),500);
+  };
+}
+function stopLive() { if(liveSrc){ liveSrc.close(); liveSrc=null; } clearTimeout(liveTimer); setLive(false); }
+// ---- Settings: party accounts ----
+let editingPartyAcct=null;
+function renderSettingsParties(i) {
+  const parties=i.parties||[], facName=id=>i.factories.find(f=>f.id===id)?.name;
+  $("setPartyCount").textContent=plural(parties.length,"party").replace(/ys$/,"ies");
+  $("setPartyTable").innerHTML=parties.length?`<table><thead><tr><th>Party</th><th>Login</th><th>Factories</th><th></th></tr></thead><tbody>${parties.map(p=>{
+    const facs=i.factories.filter(f=>(f.partyIds||[]).includes(p.id)).map(f=>f.name);
+    const login=i.users.filter(u=>u.partyId===p.id).map(u=>u.username).join(", ");
+    return `<tr data-id="${esc(p.id)}"><td><strong>${esc(p.name)}</strong>${p.phone?`<br><span style="color:var(--muted)">${esc(p.phone)}</span>`:""}</td><td>${esc(login||"—")}</td><td>${facs.length?esc(facs.join(", ")):'<span style="color:var(--muted)">None yet</span>'}</td><td class="rowacts"><button class="smallbtn" data-pty="edit">Edit</button><button class="smallbtn danger" data-pty="delete">Delete</button></td></tr>`;
+  }).join("")}</tbody></table>`:'<div class="empty">No parties yet. Add one to give it the party app.</div>';
+}
+function openPartyAcct(p) {
+  editingPartyAcct=p||null; $("partyAcctForm").reset(); hideNotice("partyAcctNotice");
+  $("partyAcctTitle").textContent=p?`Edit ${p.name}`:"Add party"; $("partyAcctSubmit").textContent=p?"Save changes":"Add party";
+  $("ptyLoginRow").hidden=!!p; $("ptyUser").required=!p; $("ptyPass").required=!p;
+  if(p){ $("ptyName").value=p.name; $("ptyPhone").value=p.phone||""; }
+  const facs=settingsInfo.factories;
+  $("ptyFactories").innerHTML=facs.map(f=>`<label class="check"><input type="checkbox" value="${esc(f.id)}"${p&&(f.partyIds||[]).includes(p.id)?" checked":""}> ${esc(f.name)}</label>`).join("")||'<span class="hint">No factories yet.</span>';
+  $("partyAcctDialog").showModal(); $("ptyName").focus();
+}
+$("addPartyBtn").addEventListener("click",()=>openPartyAcct(null));
+$("setPartyTable").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-pty]"); if(!b) return;
+  const p=settingsInfo.parties.find(x=>x.id===b.closest("tr").dataset.id); if(!p) return;
+  if(b.dataset.pty==="edit") return openPartyAcct(p);
+  if(!await ask({title:`Delete ${p.name}?`,text:"Its login stops working and its factories become normal factories again. Looms, orders and records stay.",ok:"Delete party"})) return;
+  try{ await api(`/api/admin/parties/${p.id}`,{method:"DELETE"}); toast("Party deleted."); await loadSettings(); }catch(err){ notice("settingsNotice",err.message); }
+});
+$("partyAcctForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("partyAcctNotice");
+  const factoryIds=[...$("ptyFactories").querySelectorAll("input:checked")].map(x=>x.value);
+  const body={name:$("ptyName").value,phone:$("ptyPhone").value,factoryIds};
+  try{
+    if(editingPartyAcct) await api(`/api/admin/parties/${editingPartyAcct.id}`,{method:"PUT",body:JSON.stringify(body)});
+    else await api("/api/admin/parties",{method:"POST",body:JSON.stringify({...body,username:$("ptyUser").value,password:$("ptyPass").value})});
+    $("partyAcctDialog").close(); toast(editingPartyAcct?"Party saved.":"Party added. It can sign in now."); await loadSettings(); await reloadSession(); await refresh();
+  }catch(err){ notice("partyAcctNotice",err.message); }
+});
+
+// ---- License (license.js): banner on every page, details in Settings ----
+const LIC_PILL={trial:"amber","trial-ended":"red",active:"green",expiring:"amber",grace:"amber",expired:"red",revoked:"red",offline:"red","wrong-pc":"red",invalid:"red"};
+const LIC_STATE={trial:"Trial","trial-ended":"Trial ended",active:"Active",expiring:"Expiring soon",grace:"In grace period",expired:"Expired",revoked:"Withdrawn",offline:"Not verified online","wrong-pc":"For another PC",invalid:"Invalid key"};
+function renderLicenseBar(l) {
+  const bar=$("licenseBar");
+  if(!l||!l.message||(l.state==="active")){ bar.className="notice"; bar.textContent=""; return; }
+  bar.className="notice show "+(l.readOnly?"err":"ok");
+  bar.textContent=(l.readOnly?"Read-only: ":"")+l.message+(l.readOnly&&!isAdmin()?" Ask your admin to renew the license.":"");
+  if(isAdmin()){ const a=document.createElement("a"); a.href="#settings"; a.textContent=" Open license settings"; bar.appendChild(a); }
+}
+async function loadLicense() {
+  let l; try{ l=await api("/api/admin/license"); }catch(err){ return notice("licNotice",err.message); }
+  $("licPill").className="pill "+(LIC_PILL[l.state]||"gray"); $("licPill").textContent=LIC_STATE[l.state]||l.state;
+  const row=(k,v)=>`<tr><th style="width:200px">${k}</th><td style="white-space:normal">${v}</td></tr>`;
+  const lim=(used,max)=>`${fmt(used)} of ${fmt(max)}${used>=max?' <span class="pill red">full</span>':""}`;
+  $("licStatus").innerHTML=`<table><tbody>${[
+    row("Edition",`<b>${esc(l.editionLabel)}</b>${l.party?" · party features on":" · own factory only"}`),
+    l.licensee?row("Licensed to",esc(l.licensee)+(l.licenseId?` <span style="color:var(--muted)">(${esc(l.licenseId)})</span>`:"")):"",
+    row("Factories",lim(l.usage.factories,l.maxFactories)),row("Looms",lim(l.usage.looms,l.maxLooms)),
+    l.expiresAt?row(l.edition==="trial"?"Trial ends":"Valid until",`${esc(fmtDate(l.expiresAt))}${l.graceUntil&&["grace","expiring"].includes(l.state)?` · grace until ${esc(fmtDate(l.graceUntil))}`:""}`):"",
+    l.checkin?row("Online check",l.checkin.lastOkAt?`Last verified ${esc(whenFull(l.checkin.lastOkAt))}${l.checkin.error?` · last try failed: ${esc(l.checkin.error)}`:""}`:`Not verified yet${l.checkin.error?` · ${esc(l.checkin.error)}`:""}`):"",
+    row("This PC's install ID",`<code>${esc(l.installId)}</code>`),
+    l.message?row("Status",esc(l.message)):""
+  ].join("")}</tbody></table>`;
+  $("licCheck").hidden=!l.checkin; $("licRemove").hidden=l.edition==="trial";
+  $("licCopy").dataset.id=l.installId;
+  renderLicenseBar(l);
+}
+$("licSave").addEventListener("click",async()=>{
+  hideNotice("licNotice");
+  try{ await api("/api/admin/license",{method:"POST",body:JSON.stringify({key:$("licKey").value})}); $("licKey").value=""; notice("licNotice","License saved.",true); await loadLicense(); await reloadSession(); }
+  catch(err){ notice("licNotice",err.message); }
+});
+$("licCheck").addEventListener("click",async()=>{ try{ await api("/api/admin/license/checkin",{method:"POST"}); await loadLicense(); toast("Checked."); }catch(err){ notice("licNotice",err.message); } });
+$("licRemove").addEventListener("click",async()=>{
+  if(!await ask({title:"Remove the license key?",text:"The app goes back to the trial, or read-only if the trial has ended.",ok:"Remove key"})) return;
+  try{ await api("/api/admin/license",{method:"DELETE"}); await loadLicense(); await reloadSession(); }catch(err){ notice("licNotice",err.message); }
+});
+$("licCopy").addEventListener("click",async e=>{ const id=e.currentTarget.dataset.id||""; try{ await navigator.clipboard.writeText(id); toast("Install ID copied."); }catch{ toast(id); } });
 async function boot() {
   if(!session.token) return showLogin();
   try{ await reloadSession(); }catch{ return; } // api() already showed the sign-in screen on 401
   route(); await refresh();
 }
 boot().catch(err=>toast("Could not load app data: "+err.message));
+
+(function(){
+  const hd=document.querySelector("header"), setH=()=>document.documentElement.style.setProperty("--hh",hd.offsetHeight+"px");
+  setH(); if(window.ResizeObserver) new ResizeObserver(setH).observe(hd); else addEventListener("resize",setH);
+  const t=$("navToggle"); if(!t) return;
+  const set=c=>{document.body.classList.toggle("nav-collapsed",c);t.textContent=c?"»":"«";t.title=t.ariaLabel=c?"Expand menu":"Collapse menu";try{localStorage.setItem("loom.navCollapsed",c?"1":"")}catch(e){}};
+  let c=false; try{c=!!localStorage.getItem("loom.navCollapsed")}catch(e){}
+  set(c); t.onclick=()=>set(!document.body.classList.contains("nav-collapsed"));
+})();
 </script>
 </body>
 </html>

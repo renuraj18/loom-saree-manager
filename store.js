@@ -1,14 +1,16 @@
 // Accounts (users + factories) and per-factory data files.
-// accounts.json: { users: [...], factories: [...] }
-//   user:    { id, username, name, role: "admin"|"user", factoryIds, salt, hash, tokenVersion, defaultPassword? }
-//   factory: { id, name, location, ownerName, ownerPhone, ownerEmail, modules?: { stock, wages, process? }, wageBasis?: "saree"|"shift", shifts?: [{ name, start, hours, rate }], createdAt }
+// accounts.json: { users: [...], factories: [...], parties: [...] }
+//   user:    { id, username, name, role: "admin"|"user"|"party", factoryIds, partyId?, salt, hash, tokenVersion, defaultPassword? }
+//   party:   { id, name, phone, createdAt } — a job-work giver. Party users (role "party") use the party app
+//            (/api/party, public/party.html) and never the factory routes.
+//   factory: { id, name, location, ownerName, ownerPhone, ownerEmail, modules?: { stock, wages, process? }, partyIds?: [partyId], ownerPerms?: { [partyId]: {...} }, wageBasis?: "saree"|"shift", shifts?: [{ name, start, hours, rate }], createdAt }
 // Admins can open every factory; users only those in factoryIds.
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const { LEGACY_DATA_FILE, ACCOUNTS_FILE, FACTORIES_DIR, writeJsonAtomic, readSettings, writeSettings } = require("./paths");
 
-const emptyFactoryData = () => ({ warps: [], looms: [], deliveries: [], clients: [], stockMoves: [], staff: [], designs: [], wagePayouts: [], wageDeductions: [], wageShifts: [], partyPayments: [], bobbins: [], expenses: [], activity: [] });
+const emptyFactoryData = () => ({ warps: [], looms: [], deliveries: [], clients: [], stockMoves: [], staff: [], designs: [], wagePayouts: [], wageDeductions: [], wageShifts: [], partyPayments: [], bobbins: [], expenses: [], jobOrders: [], shipments: [], requests: [], announcements: [], activity: [] });
 
 function newId(prefix) {
   return `${prefix}-${Date.now().toString(36).toUpperCase()}-${crypto.randomBytes(3).toString("hex").toUpperCase()}`;
@@ -47,7 +49,7 @@ function initAccounts() {
 function readAccounts() {
   initAccounts();
   const a = JSON.parse(fs.readFileSync(ACCOUNTS_FILE, "utf8"));
-  a.users ||= []; a.factories ||= [];
+  a.users ||= []; a.factories ||= []; a.parties ||= [];
   return a;
 }
 function writeAccounts(accounts) {
@@ -66,10 +68,13 @@ function writeFactoryRaw(id, data) {
   writeJsonAtomic(factoryFile(id), data);
 }
 
-const canAccessFactory = (user, factoryId) => user.role === "admin" || (user.factoryIds || []).includes(factoryId);
-const publicUser = u => ({ id: u.id, username: u.username, name: u.name || "", role: u.role, factoryIds: u.factoryIds || [], defaultPassword: !!u.defaultPassword });
+// Factory routes: admins everywhere, users in their factoryIds. Party users never (they use /api/party).
+const canAccessFactory = (user, factoryId) => user.role === "admin" || (user.role !== "party" && (user.factoryIds || []).includes(factoryId));
+// Factories a party has registered (factory.partyIds holds every party that gives it job work).
+const partyFactories = (accounts, partyId) => accounts.factories.filter(f => (f.partyIds || []).includes(partyId));
+const publicUser = u => ({ id: u.id, username: u.username, name: u.name || "", role: u.role, factoryIds: u.factoryIds || [], ...(u.partyId ? { partyId: u.partyId } : {}), defaultPassword: !!u.defaultPassword });
 
 module.exports = {
   emptyFactoryData, newId, hashPassword, verifyPassword, initAccounts, readAccounts, writeAccounts,
-  factoryFile, readFactoryRaw, writeFactoryRaw, canAccessFactory, publicUser
+  factoryFile, readFactoryRaw, writeFactoryRaw, canAccessFactory, partyFactories, publicUser
 };

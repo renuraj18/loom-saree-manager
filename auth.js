@@ -5,8 +5,9 @@
 const express = require("express");
 const crypto = require("crypto");
 const { readSettings, writeSettings } = require("./paths");
-const { readAccounts, writeAccounts, hashPassword, verifyPassword, canAccessFactory, publicUser } = require("./store");
+const { readAccounts, writeAccounts, hashPassword, verifyPassword, canAccessFactory, partyFactories, publicUser } = require("./store");
 
+const license = require("./license");
 const SESSION_MS = 7 * 24 * 60 * 60 * 1000;
 
 function secret() {
@@ -45,6 +46,7 @@ function requireAdmin(req, res, next) {
 }
 // Data routes act on the factory named in the X-Factory header, if this user may open it.
 function factoryScope(req, res, next) {
+  if (req.user.role === "party") return res.status(403).json({ error: "Party accounts use the party app." });
   const factoryId = req.get("x-factory");
   const factory = readAccounts().factories.find(f => f.id === factoryId);
   if (!factory) return res.status(400).json({ error: "Select a factory first." });
@@ -54,8 +56,17 @@ function factoryScope(req, res, next) {
   next();
 }
 
+// Party accounts get the factories they registered; everyone else the factories they may open.
 function factoriesFor(user, accounts = readAccounts()) {
+  if (user.role === "party") return partyFactories(accounts, user.partyId);
   return accounts.factories.filter(f => canAccessFactory(user, f.id));
+}
+function requireParty(req, res, next) {
+  if (req.user?.role !== "party" || !req.user.partyId) return res.status(403).json({ error: "Only a party account can do this." });
+  const party = readAccounts().parties.find(p => p.id === req.user.partyId);
+  if (!party) return res.status(403).json({ error: "This party account no longer exists." });
+  req.party = party;
+  next();
 }
 
 function authRouter() {
@@ -68,11 +79,13 @@ function authRouter() {
       // Small delay makes password guessing slower.
       return setTimeout(() => res.status(401).json({ error: "Wrong username or password." }), 600);
     }
-    res.json({ token: issueToken(user), user: publicUser(user), factories: factoriesFor(user) });
+    const party = user.role === "party" ? readAccounts().parties.find(p => p.id === user.partyId) || null : null;
+    res.json({ token: issueToken(user), user: publicUser(user), factories: factoriesFor(user), license: license.publicState(), ...(party ? { party } : {}) });
   });
 
   router.get("/me", requireAuth, (req, res) => {
-    res.json({ user: publicUser(req.user), factories: factoriesFor(req.user) });
+    const party = req.user.role === "party" ? readAccounts().parties.find(p => p.id === req.user.partyId) || null : null;
+    res.json({ user: publicUser(req.user), factories: factoriesFor(req.user), license: license.publicState(), ...(party ? { party } : {}) });
   });
 
   router.post("/password", requireAuth, (req, res) => {
@@ -91,4 +104,4 @@ function authRouter() {
   return router;
 }
 
-module.exports = { requireAuth, requireAdmin, factoryScope, factoriesFor, authRouter };
+module.exports = { requireAuth, requireAdmin, requireParty, factoryScope, factoriesFor, authRouter, userFromToken };
