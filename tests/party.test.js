@@ -1,5 +1,5 @@
 // Party (job-work giver) app: party accounts, factories a party registers, owner logins and permissions,
-// job orders, warp/weft requests and approvals, shipments, announcements and live updates.
+// job orders, warp/bobbin requests and approvals, shipments, announcements and live updates.
 const { test, before, after } = require("node:test");
 const assert = require("node:assert/strict");
 const http = require("node:http");
@@ -101,7 +101,7 @@ test("job orders track woven, sent and received sarees", async () => {
   assert.equal((await dataOf(ownerApi)).jobOrders[0].woven, 12);
 });
 
-test("the owner requests warp or weft; the party approves and it lands on the board as ordered", async () => {
+test("the owner requests warp or bobbin; the party approves and it lands on the board as ordered", async () => {
   const bad = await ownerApi.post("/api/requests", { kind: "warp", loomId, sarees: 10 });
   assert.equal(bad.status, 400, "triple width needs multiples of 3");
   const r = await ownerApi.post("/api/requests", { kind: "warp", loomId, sarees: 54, needBy: "2026-11-03", note: "W-104 ends soon" });

@@ -43,14 +43,14 @@ The master logo is `public/Thari Logo.png` (transparent). `python3 scripts/build
 
 ## Party app (job work)
 A **party** gives job work to one or more factories. Admins add a party in **Settings → Parties** (name, login, and optionally existing factories to link). The party signs in on the same page and lands in the party app (`/party.html`, works on phones too):
-- **Register factories** and create each owner's login; set up **looms** and **designs** there, and choose what the owner may do (dispatch, stop/resume, put warps on, mark warp received, request warp/weft, send sarees).
+- **Register factories** and create each owner's login; set up **looms** and **designs** there, and choose what the owner may do (dispatch, stop/resume, put warps on, mark warp received, request warp/bobbin, send sarees).
 - **Job orders**: what to weave (design, number of sarees) on which looms. Dispatches from those looms count as woven.
 - **Pending sarees** for every factory and order: to weave → at the factory → on the way → received.
-- **Warp & weft requests** from factory owners to approve or reject; approved ones appear on the factory's board as ordered.
+- **Warp & bobbin requests** from factory owners to approve or reject; approved ones appear on the factory's board as ordered.
 - **Sarees & receipts**: confirm each delivery from a factory or report short/damaged sarees.
 - **Announcements** (e.g. "warp ready") that owners see at the top of their app and acknowledge.
 
-Factory owners see a **Party orders** page: announcements, job orders, requests (Request warp / weft) and **Send sarees to party**. In a factory linked to a party, looms and designs are set up by the party. Both apps update live: a change on one side shows on the other within a second.
+Factory owners see a **Party orders** page: announcements, job orders, requests (Request warp / bobbin) and **Send sarees to party**. In a factory linked to a party, looms and designs are set up by the party. Both apps update live: a change on one side shows on the other within a second.
 
 ## Licensing
 - **Factory** license: one weaving unit (one factory, a set number of looms). **Party** license: the party app and job work across several factories (set numbers of factories and looms).

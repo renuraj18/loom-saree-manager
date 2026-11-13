@@ -52,7 +52,7 @@ function isSpent(warp) {
 // Brings older data files up to the current shape. Returns true if anything changed.
 function migrateDb(db) {
   let changed = false;
-  for (const key of ["clients", "stockMoves", "staff", "designs", "wagePayouts", "wageDeductions", "wageShifts", "partyPayments", "bobbins", "expenses", "jobOrders", "shipments", "requests", "announcements"]) {
+  for (const key of ["clients", "stockMoves", "staff", "designs", "wagePayouts", "wageDeductions", "wageShifts", "partyPayments", "bobbins", "expenses", "weftStock", "jobOrders", "shipments", "requests", "announcements"]) {
     if (!Array.isArray(db[key])) { db[key] = []; changed = true; }
   }
   if (!Array.isArray(db.activity)) { db.activity = seedActivity(db); db.activityVersion = 2; changed = true; }
@@ -232,7 +232,7 @@ app.get("/api/events", events.eventsRoute(userFromToken, user => {
 // The party app (public/party.html): see party.js.
 app.use("/api/party", requireAuth, requireParty, license.needPartyEdition, party({ readDb, writeDb, logEvent, loomState: (db, l) => loomState(db, l), newId: id }));
 // Everything below works on one factory's data and needs a signed-in user with access to it.
-app.use(["/api/data", "/api/warps", "/api/bobbins", "/api/looms", "/api/deliveries", "/api/clients", "/api/stock", "/api/order", "/api/staff", "/api/designs", "/api/wages", "/api/expenses", "/api/requests", "/api/shipments", "/api/announcements"], requireAuth, factoryScope);
+app.use(["/api/data", "/api/warps", "/api/bobbins", "/api/looms", "/api/deliveries", "/api/clients", "/api/stock", "/api/order", "/api/staff", "/api/designs", "/api/wages", "/api/expenses", "/api/weft", "/api/requests", "/api/shipments", "/api/announcements"], requireAuth, factoryScope);
 // In a factory a party has registered, looms and designs are set up by the party (party app). Owners keep
 // running them; an admin can still change anything.
 const setupByParty = (req, res, next) => req.user.role !== "admin" && party.partyManaged(req.factory)
@@ -244,7 +244,7 @@ app.post("/api/designs", setupByParty);
 function notAllowed(req, loom, perm) {
   if (req.user.role === "admin" || !loom?.partyId) return "";
   if (party.permsFor(req.factory, loom.partyId)[perm]) return "";
-  const what = { dispatch: "record dispatches", stop: "stop or resume", warp: "put warps or bobbins on", request: "request warp or weft for", ship: "send sarees to the party for" }[perm];
+  const what = { dispatch: "record dispatches", stop: "stop or resume", warp: "put warps or bobbins on", request: "request warp or bobbin for", ship: "send sarees to the party for" }[perm];
   return `The party has not allowed you to ${what} ${loom.name}.`;
 }
 // Each factory turns the Stock module (process, stock, parties) and the Wages module (staff, designs,
@@ -258,6 +258,8 @@ app.use(["/api/stock", "/api/clients"], needModule("stock", "Stock"));
 app.use(["/api/staff", "/api/designs", "/api/wages", "/api/looms/:id/setup"], needModule("wages", "Wages"));
 // Stock-only factories have no looms to cost, so Expenses is off for them too (it follows the Wages module).
 app.use("/api/expenses", needModule("wages", "Expenses"));
+// Weft is tracked per design, so it follows the Wages module too.
+app.use("/api/weft", needModule("wages", "Weft"));
 // Design images and staff photos are left out (only hasImage); the page loads each one from
 // /api/designs/:id/image or /api/staff/:id/image.
 const noImage = ({ image, ...rest }) => ({ ...rest, hasImage: !!image });
@@ -300,7 +302,7 @@ app.post("/api/warps", (req, res) => {
   res.status(201).json(warp);
 });
 
-// A bobbin (weft) is measured like a warp: meters, or sarees at 6.3 m each (3 per 6.3 m on triple width).
+// A bobbin (extra warp for the saree border) is measured like a warp: meters, or sarees at 6.3 m each (3 per 6.3 m on triple width).
 app.post("/api/bobbins", (req, res) => {
   const body = req.body || {};
   const name = cleanText(body.name), widthType = body.widthType, meters = positiveNumber(body.meters), color = cleanText(body.color);
@@ -777,6 +779,11 @@ const round2 = n => Math.round(n * 100) / 100;
 // A loom can have several designs (designIds); designId is the one weaving now and is what a dispatch uses.
 // How a factory pays its weavers (factory settings): "saree" = sarees dispatched × the design's rate,
 // "shift" = shifts worked (entered on the Wages page) × the factory's wage per shift.
+// Weft of a design, one part at a time: main weft, meena 1, meena 2 and jari, each with grams per saree.
+// An older design with only weftGrams counts as main weft.
+const WEFT_PARTS = { main: "Main weft", meena1: "Meena 1", meena2: "Meena 2", jari: "Jari" };
+const round1 = n => Math.round(n * 10) / 10;
+const weftPartsOf = d => Array.isArray(d?.weft) && d.weft.length ? d.weft : d?.weftGrams ? [{ kind: "main", grams: d.weftGrams }] : [];
 const wageBasisOf = f => f?.wageBasis === "shift" ? "shift" : "saree";
 // The factory's shifts [{ name, start, hours, rate }] (an older single `shift` counts as "Shift 1").
 const shiftsOf = f => Array.isArray(f?.shifts) ? f.shifts : f?.shift ? [{ name: "Shift 1", ...f.shift }] : [];
@@ -786,6 +793,8 @@ function wageFor(db, loom, quantity, designId = loom.designId) {
   const design = db.designs.find(d => d.id === designId);
   const out = {};
   if (design) Object.assign(out, { designId: design.id, designNo: design.number, designName: design.name, rate: design.rate });
+  const parts = weftPartsOf(design);
+  if (parts.length) Object.assign(out, { weft: parts, weftGrams: round1(parts.reduce((t, p) => t + p.grams, 0)) }); // weft grams per saree when dispatched
   if (staff) Object.assign(out, { staffId: staff.id, staffName: staff.name });
   if (staff && design) out.wage = round2(quantity * design.rate);
   return out;
@@ -967,6 +976,57 @@ app.delete("/api/expenses/:id", (req, res) => {
   res.json({ removed: x.id });
 });
 
+// Weft (yarn for the cross threads, not the bobbin) is tracked in grams per design. A design says how many grams
+// one saree takes (design.weftGrams) and each dispatch snapshots that figure, so use = sarees × grams. Stock coming
+// in (kind "in") and other weft taken out such as wastage or returns (kind "out") are entries in db.weftStock,
+// optionally tagged with a design. Balance = in − out − used by dispatches (worked out by the page).
+function weftBody(db, body) {
+  const kind = cleanText(body.kind) || "in";
+  if (kind !== "in" && kind !== "out") return { error: "Choose received or taken out." };
+  const grams = Number(body.grams);
+  if (!Number.isFinite(grams) || grams <= 0) return { error: "Enter the weight in grams (more than 0)." };
+  const date = body.date ? isoDate(body.date) : new Date().toISOString().slice(0, 10);
+  if (!date) return { error: "Enter a valid date." };
+  const designId = cleanText(body.designId);
+  const design = designId ? db.designs.find(d => d.id === designId) : null;
+  if (designId && !design) return { error: "Design not found." };
+  const part = cleanText(body.part);
+  if (part && !WEFT_PARTS[part]) return { error: "Choose main weft, meena 1, meena 2 or jari." };
+  return { value: { kind, grams: Math.round(grams * 10) / 10, date, part, partName: WEFT_PARTS[part] || "", designId: design?.id || null, designNo: design?.number || "", designName: design?.name || "",
+    colour: cleanText(body.colour).slice(0, 60), vendor: cleanText(body.vendor).slice(0, 120), billNo: cleanText(body.billNo).slice(0, 60), note: cleanText(body.note).slice(0, 500) } };
+}
+const weftText = x => `${x.kind === "in" ? "Weft received" : "Weft taken out"} ${x.grams} g${x.partName ? ` · ${x.partName}` : ""}${x.designNo ? ` · design ${x.designNo}` : ""}${x.colour ? ` · ${x.colour}` : ""}${x.vendor ? ` · ${x.vendor}` : ""}`;
+app.post("/api/weft", (req, res) => {
+  const db = readDb(req.factoryId);
+  const r = weftBody(db, req.body || {});
+  if (r.error) return res.status(400).json({ error: r.error });
+  const x = { id: id("WFT"), ...r.value, by: actor(req), createdAt: new Date().toISOString() };
+  db.weftStock.unshift(x);
+  logEvent(db, req, "weft", weftText(x));
+  writeDb(req.factoryId, db);
+  res.status(201).json(x);
+});
+app.put("/api/weft/:id", (req, res) => {
+  const db = readDb(req.factoryId);
+  const x = db.weftStock.find(e => e.id === req.params.id);
+  if (!x) return res.status(404).json({ error: "Weft entry not found." });
+  const r = weftBody(db, req.body || {});
+  if (r.error) return res.status(400).json({ error: r.error });
+  Object.assign(x, r.value, { updatedAt: new Date().toISOString() });
+  logEvent(db, req, "weft", `${weftText(x)} (edited)`);
+  writeDb(req.factoryId, db);
+  res.json(x);
+});
+app.delete("/api/weft/:id", (req, res) => {
+  const db = readDb(req.factoryId);
+  const x = db.weftStock.find(e => e.id === req.params.id);
+  if (!x) return res.status(404).json({ error: "Weft entry not found." });
+  db.weftStock = db.weftStock.filter(e => e !== x);
+  logEvent(db, req, "weft", `${weftText(x)} (removed)`);
+  writeDb(req.factoryId, db);
+  res.json({ removed: x.id });
+});
+
 function designBody(body) {
   const number = cleanText(body.number), name = cleanText(body.name), rate = rateField(body.rate), image = imageField(body.image);
   if (!number) return { error: "Enter the design number." };
@@ -982,7 +1042,18 @@ function designBody(body) {
   };
   const picks = opt(body.picks, "Number of picks", true, 0), timing = opt(body.timing, "Timing", false, 2), pickCost = opt(body.pickCost, "Cost per pick", false, 4);
   for (const x of [picks, timing, pickCost]) if (x.error) return { error: x.error };
-  return { number, name, rate, image, picks: picks.value, timing: timing.value, pickCost: pickCost.value };
+  // Weft parts: [{ kind: main|meena1|meena2|jari, grams }], each kind once. A plain weftGrams counts as main weft.
+  const rawWeft = Array.isArray(body.weft) ? body.weft : (body.weftGrams === "" || body.weftGrams == null ? [] : [{ kind: "main", grams: body.weftGrams }]);
+  const weft = [];
+  for (const p of rawWeft) {
+    const kind = cleanText(p?.kind), grams = Number(p?.grams);
+    if (!WEFT_PARTS[kind]) return { error: "Choose main weft, meena 1, meena 2 or jari." };
+    if (!Number.isFinite(grams) || grams <= 0) return { error: `${WEFT_PARTS[kind]} grams must be a number above zero.` };
+    if (weft.some(w => w.kind === kind)) return { error: `${WEFT_PARTS[kind]} is added twice.` };
+    weft.push({ kind, grams: round1(grams) });
+  }
+  const weftGrams = { value: weft.length ? round1(weft.reduce((t, w) => t + w.grams, 0)) : null };
+  return { number, name, rate, image, picks: picks.value, timing: timing.value, pickCost: pickCost.value, weft, weftGrams: weftGrams.value };
 }
 
 app.post("/api/designs", (req, res) => {
@@ -991,7 +1062,7 @@ app.post("/api/designs", (req, res) => {
   const db = readDb(req.factoryId);
   if (db.designs.some(d => d.number.toLowerCase() === v.number.toLowerCase())) return res.status(409).json({ error: "A design with this number already exists." });
   const now = new Date().toISOString();
-  const design = { id: id("DSN"), number: v.number, name: v.name, rate: v.rate, picks: v.picks, timing: v.timing, pickCost: v.pickCost, image: v.image || null, imageAt: v.image ? now : null, createdAt: now };
+  const design = { id: id("DSN"), number: v.number, name: v.name, rate: v.rate, picks: v.picks, timing: v.timing, pickCost: v.pickCost, weft: v.weft, weftGrams: v.weftGrams, image: v.image || null, imageAt: v.image ? now : null, createdAt: now };
   db.designs.unshift(design);
   logEvent(db, req, "wages", `Design ${v.number}${v.name ? ` (${v.name})` : ""} added · ${money(v.rate)} per saree`);
   writeDb(req.factoryId, db);
@@ -1013,10 +1084,12 @@ app.put("/api/designs/:id", (req, res) => {
   if (design.number !== v.number) changes.push(`renumbered ${v.number}`);
   if (design.rate !== v.rate) changes.push(`wage ${money(design.rate)} → ${money(v.rate)} per saree`);
   if (v.image !== undefined && v.image !== design.image) changes.push(v.image ? "image updated" : "image removed");
-  for (const [k, label] of [["picks", "picks"], ["timing", "timing"], ["pickCost", "cost per pick"]]) {
+  for (const [k, label] of [["picks", "picks"], ["timing", "timing"], ["pickCost", "cost per pick"], ["weftGrams", "weft g per saree"]]) {
     if ((design[k] ?? null) !== v[k]) changes.push(`${label} ${design[k] ?? "—"} → ${v[k] ?? "—"}`);
   }
-  Object.assign(design, { number: v.number, name: v.name, rate: v.rate, picks: v.picks, timing: v.timing, pickCost: v.pickCost });
+  const weftLine = w => w.map(x => `${WEFT_PARTS[x.kind]} ${x.grams} g`).join(", ") || "none";
+  if (weftLine(weftPartsOf(design)) !== weftLine(v.weft)) changes.push(`weft ${weftLine(weftPartsOf(design))} → ${weftLine(v.weft)}`);
+  Object.assign(design, { number: v.number, name: v.name, rate: v.rate, picks: v.picks, timing: v.timing, pickCost: v.pickCost, weft: v.weft, weftGrams: v.weftGrams });
   if (v.image !== undefined && v.image !== design.image) Object.assign(design, { image: v.image, imageAt: v.image ? new Date().toISOString() : null });
   logEvent(db, req, "wages", `Design ${design.number} updated${changes.length ? ` · ${changes.join(", ")}` : ""}`);
   writeDb(req.factoryId, db);
@@ -1440,8 +1513,8 @@ app.post("/api/stock/adjust", (req, res) => {
   res.status(201).json({ move, pool: stockFor(db) });
 });
 
-// ---- Party work (factory owner side): warp/weft requests, sarees sent to a party, announcements ----
-// Asks the loom's party for a new warp or weft. { kind: "warp"|"bobbin", loomId, sarees, needBy?, note? }
+// ---- Party work (factory owner side): warp/bobbin requests, sarees sent to a party, announcements ----
+// Asks the loom's party for a new warp or bobbin. { kind: "warp"|"bobbin", loomId, sarees, needBy?, note? }
 app.post("/api/requests", (req, res) => {
   const body = req.body || {};
   const kind = body.kind === "bobbin" ? "bobbin" : "warp";
@@ -1457,11 +1530,11 @@ app.post("/api/requests", (req, res) => {
   if (loom.widthType === "triple" && n % 3) return res.status(400).json({ error: "For a triple-width loom, enter sarees in multiples of 3." });
   const needBy = body.needBy ? isoDate(body.needBy) : null;
   if (body.needBy && !needBy) return res.status(400).json({ error: "Enter a valid date." });
-  if (db.requests.some(r => r.status === "pending" && r.loomId === loom.id && r.kind === kind)) return res.status(409).json({ error: `There is already a ${kind === "bobbin" ? "weft" : "warp"} request waiting for ${loom.name}.` });
+  if (db.requests.some(r => r.status === "pending" && r.loomId === loom.id && r.kind === kind)) return res.status(409).json({ error: `There is already a ${kind === "bobbin" ? "bobbin" : "warp"} request waiting for ${loom.name}.` });
   const r = { id: id("REQ"), kind, loomId: loom.id, loomName: loom.name, partyId: loom.partyId, widthType: loom.widthType, sarees: n,
     meters: party.metersFor(n, loom.widthType), needBy, note: cleanText(body.note), status: "pending", by: actor(req), createdAt: new Date().toISOString() };
   db.requests.unshift(r);
-  logEvent(db, req, "request", `${kind === "bobbin" ? "Weft" : "Warp"} requested for ${loom.name} · ${sarees(n)} (${r.meters} m)${needBy ? ` · need by ${needBy}` : ""}${r.note ? ` · ${r.note}` : ""}`, loom.partyId);
+  logEvent(db, req, "request", `${kind === "bobbin" ? "Bobbin" : "Warp"} requested for ${loom.name} · ${sarees(n)} (${r.meters} m)${needBy ? ` · need by ${needBy}` : ""}${r.note ? ` · ${r.note}` : ""}`, loom.partyId);
   writeDb(req.factoryId, db);
   res.status(201).json(r);
 });
@@ -1472,7 +1545,7 @@ app.delete("/api/requests/:id", (req, res) => {
   if (!r) return res.status(404).json({ error: "Request not found." });
   if (r.status !== "pending") return res.status(409).json({ error: `This request is already ${r.status}.` });
   r.status = "cancelled";
-  logEvent(db, req, "request", `${r.kind === "bobbin" ? "Weft" : "Warp"} request for ${r.loomName} withdrawn`, r.partyId);
+  logEvent(db, req, "request", `${r.kind === "bobbin" ? "Bobbin" : "Warp"} request for ${r.loomName} withdrawn`, r.partyId);
   writeDb(req.factoryId, db);
   res.json(r);
 });

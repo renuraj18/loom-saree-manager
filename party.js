@@ -3,7 +3,7 @@
 // A party registers the factories that weave for it (factory.partyIds), gives each factory owner a login
 // (role "user" with that factory in factoryIds), and owns the setup there: looms (loom.partyId), designs
 // (design.partyId), job orders, and what the owner may do on its looms (factory.ownerPerms[partyId]).
-// The owner runs the looms; the party sees everything on its looms live, approves warp/weft requests,
+// The owner runs the looms; the party sees everything on its looms live, approves warp/bobbin requests,
 // sends announcements and confirms the sarees it receives.
 //
 // Per-factory collections (factories/<id>.json):
@@ -297,7 +297,7 @@ module.exports = function partyRouter(h) {
     res.json({ ...jo, ...jobStats(db, jo) });
   });
 
-  // ---- Warp / weft requests from the factory owner ----
+  // ---- Warp / bobbin requests from the factory owner ----
   // Approving puts a new warp (or bobbin) on the factory's board as Ordered, tagged with this party and the loom it is for.
   //   { approve: true, sarees?, name?, bodyColor?, borderColor?, color? } | { approve: false, reason? }
   router.post("/factories/:fid/requests/:rid/decide", (req, res) => {
@@ -307,7 +307,7 @@ module.exports = function partyRouter(h) {
     const r = db.requests.find(x => x.id === req.params.rid && x.partyId === req.party.id);
     if (!r) return res.status(404).json({ error: "Request not found." });
     if (r.status !== "pending") return res.status(409).json({ error: `This request is already ${r.status}.` });
-    const noun = r.kind === "bobbin" ? "weft" : "warp";
+    const noun = r.kind === "bobbin" ? "bobbin" : "warp";
     const now = new Date().toISOString();
     if (b.approve !== true) {
       Object.assign(r, { status: "rejected", reason: text(b.reason), decidedBy: by(req), decidedAt: now });

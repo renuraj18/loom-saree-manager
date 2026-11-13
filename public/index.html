@@ -325,6 +325,39 @@ header .usermenu{position:relative!important;top:auto!important;right:auto!impor
 header .usermenu .menu{right:0;top:calc(100% + 8px)}
 @media(min-width:1000px){header .brand{width:204px}nav.tabs{top:56px!important;padding-top:44px!important}.navtoggle{top:66px!important}}
 @media(max-width:600px){header,body:not(.signed-out) header{padding:0 10px!important;gap:8px}header .brandname{display:none}#liveText{display:none}.livedot{margin-left:4px}header .adminbtn{padding:7px 10px}}
+/* ---- Menu back on top: one wrapping tab row under the header on wide screens ---- */
+@media(min-width:1000px){
+  body:not(.signed-out),body.nav-collapsed:not(.signed-out){padding-left:0}
+  header .brand{width:auto}
+  nav.tabs,body.nav-collapsed nav.tabs{position:static!important;width:auto;max-width:1500px;margin:14px auto 0;padding:0 28px!important;flex-direction:row;flex-wrap:wrap;gap:8px;background:transparent;overflow:visible}
+  nav.tabs .tab,body.nav-collapsed nav.tabs .tab{background:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.95);box-shadow:0 4px 12px -6px rgba(76,52,180,.25);color:var(--ink);border-radius:999px;padding:10px 15px;font-size:14px;font-weight:650;display:inline-block;justify-content:flex-start}
+  nav.tabs .tab:hover{background:#fff;transform:translateY(-1px);color:var(--ink)}
+  nav.tabs .tab.active,body.nav-collapsed nav.tabs .tab.active{background:var(--brand);color:#fff;border-color:var(--brand);box-shadow:none;font-weight:700}
+  nav.tabs .navgroup,nav.tabs .navbrand,.navtoggle,nav.tabs .ic{display:none!important}
+  body.nav-collapsed nav.tabs .lb{display:inline}
+  main{margin-top:14px}
+}
+/* ---- Flat style: no gradients (solid colours only) ---- */
+:root{--bg:#f6f5fa;--brand:#5b3fd9;--grad:#5b3fd9;--grad-soft:#f0eefa;--shadow:0 1px 3px rgba(30,20,80,.08)}
+body{background:#f6f5fa!important}
+header,body:not(.signed-out) header{background:#1f1650!important;box-shadow:0 1px 0 rgba(0,0,0,.2)!important}
+.loginscreen{background:#1f1650!important}
+.stat strong,.stat[class*="s-"] strong,.lbig b,.dtotal b,.dcard .drate,.loginbrand{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;color:var(--ink)!important;-webkit-text-fill-color:currentColor}
+.dcard .drate small{-webkit-text-fill-color:var(--muted)}
+.stat::before,.stat[class*="s-"]::before{background:var(--brand)!important}
+.stat.s-del::before{background:#0ea5e9!important}.stat.s-proc::before{background:#f59e0b!important}.stat.s-stk::before{background:#10b981!important}.stat.s-fold::before{background:#ec4899!important}.stat.s-sent::before{background:#8b5cf6!important}.stat.s-mai::before{background:#d97706!important}.stat.s-lot::before{background:#64748b!important}.stat.s-dmg::before{background:#ef4444!important}.stat.s-dsp::before{background:#a646ff!important}
+.tab.active,nav.tabs .tab.active{background:var(--brand)!important;box-shadow:none!important}
+.btn,.actbtn{background:var(--brand)!important;box-shadow:none!important}
+.btn.danger{background:#dc2626!important}.btn.wa{background:#128c7e!important}
+.bar i,.wcard .bar i{background:var(--c1,var(--brand))!important}.bar.low i{background:#ef4444!important}.lbob .bar i{background:#0ea5e9!important}
+.colhead{background:var(--c1)!important;box-shadow:none!important}
+.loomgroup>.colhead{background:var(--g1)!important}
+.wcard::before{background:var(--c1)!important}
+.cardact .actbtn{background:var(--c1)!important;box-shadow:none!important}
+.stage button{background:var(--s1)!important}
+.widthhead::before{background:#6d4aff!important}.widthhead.triple::before{background:#e0459b!important}
+.mr-head{background:#1f1650!important}
+.dlghead{background:#1f1650!important}
 
 /* ---- Home: today at a glance ---- */
 .qbtn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
@@ -415,7 +448,7 @@ header .usermenu .menu{right:0;top:calc(100% + 8px)}
     <a class="tab" href="#home" title="Home"><i class="ic">🏠</i><span class="lb">Home</span></a>
     <a class="tab" href="#loomlist" title="Looms"><i class="ic">🧵</i><span class="lb">Looms</span></a>
     <a class="tab" href="#warps" title="Warps"><i class="ic">📏</i><span class="lb">Warps</span></a>
-    <a class="tab" href="#bobbins" title="Weft (bobbins)"><i class="ic">🪡</i><span class="lb">Weft (bobbins)</span></a>
+    <a class="tab" href="#bobbins" title="Bobbins"><i class="ic">🪡</i><span class="lb">Bobbins</span></a>
     <a class="tab" href="#looms" title="Production"><i class="ic">🏭</i><span class="lb">Production</span></a>
     <a class="tab" href="#partywork" data-party hidden title="Party orders"><i class="ic">🤝</i><span class="lb">Party orders</span></a>
     <span class="navgroup">Stock</span>
@@ -427,6 +460,7 @@ header .usermenu .menu{right:0;top:calc(100% + 8px)}
     <a class="tab" href="#staff" data-mod="wages" title="Weavers"><i class="ic">🧑‍🏭</i><span class="lb">Weavers</span></a>
     <a class="tab" href="#wages" data-mod="wages" title="Wages"><i class="ic">💰</i><span class="lb">Wages</span></a>
     <a class="tab" href="#expenses" data-mod="wages" title="Expenses"><i class="ic">🧾</i><span class="lb">Expenses</span></a>
+    <a class="tab" href="#weft" data-mod="wages" title="Weft"><i class="ic">🧶</i><span class="lb">Weft</span></a>
     <span class="navgroup">Records</span>
     <a class="tab" href="#log" title="Log"><i class="ic">📜</i><span class="lb">Log</span></a>
   </nav>
@@ -439,8 +473,8 @@ header .usermenu .menu{right:0;top:calc(100% + 8px)}
     <div class="quick" id="quickActions" aria-label="Quick actions">
       <a class="qbtn primary" href="#looms"><i class="ic">🏭</i><span>Dispatch sarees</span></a>
       <button class="qbtn" type="button" id="qaWarp"><i class="ic">📏</i><span>Add warp</span></button>
-      <button class="qbtn" type="button" id="qaBobbin"><i class="ic">🪡</i><span>Add weft</span></button>
-      <button class="qbtn" type="button" id="qaRequest" data-party hidden><i class="ic">🤝</i><span>Request warp / weft</span></button>
+      <button class="qbtn" type="button" id="qaBobbin"><i class="ic">🪡</i><span>Add bobbin</span></button>
+      <button class="qbtn" type="button" id="qaRequest" data-party hidden><i class="ic">🤝</i><span>Request warp / bobbin</span></button>
       <a class="qbtn" href="#stock" data-mod="stock"><i class="ic">📦</i><span>Stock</span></a>
       <a class="qbtn" href="#wages" data-mod="wages"><i class="ic">💰</i><span>Wages</span></a>
     </div>
@@ -732,6 +766,48 @@ header .usermenu .menu{right:0;top:calc(100% + 8px)}
     </form>
   </dialog>
 
+  <section id="view-weft" hidden>
+    <div class="boardhead">
+      <div><h2>Weft</h2><p class="sub">Weft yarn tracked in grams per design. Each dispatch uses the design's grams per saree. <span id="weftCount"></span></p></div>
+      <div class="headbtns"><button class="btn btn-inline ghostbtn" type="button" data-open-weft="out">− Take out</button><button class="btn btn-inline" type="button" data-open-weft="in">+ Weft received</button></div>
+    </div>
+    <div class="notice" id="weftListNotice"></div>
+    <div class="stats stats5" id="weftStats"></div>
+    <section class="panel homepanel"><div class="sectionhead"><h2>By design</h2><span>Set grams per saree on the Designs page</span></div><div id="weftByDesign" class="tablewrap"></div></section>
+    <section class="panel homepanel"><div class="sectionhead"><h2>By weft type</h2><span>Main weft, Meena 1, Meena 2, Jari</span></div><div id="weftByPart" class="tablewrap"></div></section>
+    <div class="logbar">
+      <select id="weftDesignFilter" aria-label="Design"></select>
+      <select id="weftKindFilter" aria-label="Entry type"><option value="">Received and taken out</option><option value="in">Received</option><option value="out">Taken out</option></select>
+      <input id="weftSearch" type="search" placeholder="Search colour, supplier, bill no., note" aria-label="Search weft">
+    </div>
+    <section class="panel homepanel"><div id="weftTable" class="tablewrap"></div></section>
+  </section>
+
+  <dialog id="weftDialog" aria-labelledby="weftDialogTitle">
+    <div class="dlghead"><h2 id="weftDialogTitle">Weft received</h2><p id="weftDialogSub">Add weft yarn to stock, in grams.</p></div>
+    <form id="weftForm" class="dlgbody">
+      <div class="two">
+        <div class="field"><label for="weftKind">Entry *</label><select id="weftKind"><option value="in">Received (into stock)</option><option value="out">Taken out (wastage, returned, other use)</option></select></div>
+        <div class="field"><label for="weftGramsIn">Weight (grams) *</label><input id="weftGramsIn" required type="number" min="0.1" step="any" inputmode="decimal" placeholder="e.g. 5000"></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="weftPart">Weft type (optional)</label><select id="weftPart"><option value="">— not specified —</option><option value="main">Main weft</option><option value="meena1">Meena 1</option><option value="meena2">Meena 2</option><option value="jari">Jari</option></select></div>
+        <div class="field"><label for="weftDesign">Design (optional)</label><select id="weftDesign"></select></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="weftDate">Date *</label><input id="weftDate" required type="date"></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="weftColour">Colour / count (optional)</label><input id="weftColour" maxlength="60"></div>
+        <div class="field"><label for="weftVendor">Supplier (optional)</label><input id="weftVendor" maxlength="120"></div>
+      </div>
+      <div class="field"><label for="weftBill">Bill / receipt no. (optional)</label><input id="weftBill" maxlength="60"></div>
+      <div class="field"><label for="weftNote">Notes (optional)</label><textarea id="weftNote" rows="2" maxlength="500"></textarea></div>
+      <div class="notice" id="weftNotice"></div>
+      <div class="dlgfoot"><button class="btn ghostbtn" type="button" data-close>Cancel</button><button class="btn" type="submit" id="weftSubmit">Add</button></div>
+    </form>
+  </dialog>
+
   <dialog id="expenseDialog" aria-labelledby="expenseDialogTitle">
     <div class="dlghead"><h2 id="expenseDialogTitle">Add expense</h2><p>Record money spent on one loom.</p></div>
     <form id="expenseForm" class="dlgbody">
@@ -850,6 +926,10 @@ header .usermenu .menu{right:0;top:calc(100% + 8px)}
         <div class="field"><label for="designPicks">Number of picks (optional)</label><input id="designPicks" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g. 2400"></div>
         <div class="field"><label for="designPickCost">Cost per pick (₹, optional)</label><input id="designPickCost" type="number" min="0.0001" step="any" inputmode="decimal" placeholder="e.g. 0.15"></div>
       </div>
+      <div class="field"><label for="designWeftKind">Weft per saree (optional) — add one by one</label>
+        <div class="colorpair"><select id="designWeftKind" aria-label="Weft type"></select><input id="designWeftGrams" type="number" min="0.1" step="any" inputmode="decimal" placeholder="grams per saree" aria-label="Grams per saree"><button class="smallbtn" type="button" id="designWeftAdd">+ Add</button></div>
+        <div class="weftlist" id="designWeftList"></div>
+        <div class="hint">Main weft, Meena 1, Meena 2 and Jari, in grams for one saree. Each dispatch of this design uses these (Weft page).</div></div>
       <div class="field"><label for="designTiming">Timing — hours per saree (optional)</label><input id="designTiming" type="number" min="0.01" step="any" inputmode="decimal" placeholder="e.g. 6.5"></div>
       <div class="field"><label for="designName">Design name (optional)</label><input id="designName" placeholder="e.g. Mango butta"></div>
       <div class="field"><label for="designFile">Design image (optional)</label><input id="designFile" type="file" accept="image/*">
@@ -881,7 +961,7 @@ header .usermenu .menu{right:0;top:calc(100% + 8px)}
       <div><h2>Log</h2><p class="sub">Every activity in this factory, newest first. <span id="logCount"></span></p></div>
     </div>
     <div class="logbar">
-      <select id="logType" aria-label="Activity type"><option value="">All activity</option><option value="warp">Warps</option><option value="bobbin">Bobbins</option><option value="loom">Looms</option><option value="dispatch">Dispatches (from looms)</option><option value="delivery">Deliveries (to parties)</option><option value="process">Process</option><option value="stock">Stock</option><option value="party">Parties</option><option value="wages">Wages, weavers &amp; designs</option><option value="expense">Expenses</option><option value="request">Warp &amp; weft requests</option><option value="shipment">Sent to parties</option><option value="notice">Party notices &amp; orders</option></select>
+      <select id="logType" aria-label="Activity type"><option value="">All activity</option><option value="warp">Warps</option><option value="bobbin">Bobbins</option><option value="loom">Looms</option><option value="dispatch">Dispatches (from looms)</option><option value="delivery">Deliveries (to parties)</option><option value="process">Process</option><option value="stock">Stock</option><option value="party">Parties</option><option value="wages">Wages, weavers &amp; designs</option><option value="weft">Weft</option><option value="expense">Expenses</option><option value="request">Warp &amp; bobbin requests</option><option value="shipment">Sent to parties</option><option value="notice">Party notices &amp; orders</option></select>
       <input id="logSearch" type="search" placeholder="Search (warp, loom, party, LR…)" aria-label="Search the log">
     </div>
     <section class="panel"><div id="logTable" class="tablewrap"></div><div class="logmore" id="logMore"></div></section>
@@ -950,8 +1030,8 @@ header .usermenu .menu{right:0;top:calc(100% + 8px)}
 
   <section id="view-partywork" hidden>
     <div class="boardhead">
-      <div><h2>Party orders</h2><p class="sub">Job orders, warp &amp; weft requests and announcements from the parties who give this factory work. They see every update here live.</p></div>
-      <div class="headbtns"><button class="btn btn-inline ghostbtn" type="button" id="openRequest">Request warp / weft</button><button class="btn btn-inline" type="button" id="openShipment">Send sarees to party</button></div>
+      <div><h2>Party orders</h2><p class="sub">Job orders, warp &amp; bobbin requests and announcements from the parties who give this factory work. They see every update here live.</p></div>
+      <div class="headbtns"><button class="btn btn-inline ghostbtn" type="button" id="openRequest">Request warp / bobbin</button><button class="btn btn-inline" type="button" id="openShipment">Send sarees to party</button></div>
     </div>
     <div id="pwAnnouncements"></div>
     <section class="panel homepanel">
@@ -959,18 +1039,18 @@ header .usermenu .menu{right:0;top:calc(100% + 8px)}
       <div id="pwJobs" class="tablewrap"></div>
     </section>
     <div class="homegrid">
-      <section class="panel"><div class="sectionhead"><h2>Warp &amp; weft requests</h2><span>The party approves each one</span></div><div id="pwRequests"></div></section>
+      <section class="panel"><div class="sectionhead"><h2>Warp &amp; bobbin requests</h2><span>The party approves each one</span></div><div id="pwRequests"></div></section>
       <section class="panel"><div class="sectionhead"><h2>Sent to parties</h2><span>The party confirms when it arrives</span></div><div id="pwShipments"></div></section>
     </div>
   </section>
 
   <dialog id="requestDialog" aria-labelledby="requestDialogTitle">
-    <div class="dlghead"><h2 id="requestDialogTitle">Request warp or weft</h2><p>Sent to the loom's party for approval. Once approved it appears on the board as ordered.</p></div>
+    <div class="dlghead"><h2 id="requestDialogTitle">Request warp or bobbin</h2><p>Sent to the loom's party for approval. Once approved it appears on the board as ordered.</p></div>
     <form id="requestForm" class="dlgbody">
       <div class="field"><label>What *</label>
         <div class="seg" role="radiogroup">
           <label><input type="radio" name="reqKind" value="warp" checked><span>Warp</span></label>
-          <label><input type="radio" name="reqKind" value="bobbin"><span>Weft (bobbin)</span></label>
+          <label><input type="radio" name="reqKind" value="bobbin"><span>Bobbin</span></label>
         </div>
       </div>
       <div class="field"><label for="reqLoom">Loom *</label><select id="reqLoom" required></select></div>
@@ -1022,7 +1102,7 @@ header .usermenu .menu{right:0;top:calc(100% + 8px)}
     </section>
     <section class="panel homepanel">
       <div class="sectionhead"><h2>Parties</h2><div class="actions"><span id="setPartyCount"></span><button class="btn btn-inline" type="button" id="addPartyBtn">+ Add party</button></div></div>
-      <p class="sub">A party gives job work. It signs in to the party app (same address, its own login) to register factories, set up looms and designs, approve warp &amp; weft requests, send announcements and watch production live. In a factory linked to a party, looms and designs are set up by the party.</p>
+      <p class="sub">A party gives job work. It signs in to the party app (same address, its own login) to register factories, set up looms and designs, approve warp &amp; bobbin requests, send announcements and watch production live. In a factory linked to a party, looms and designs are set up by the party.</p>
       <div id="setPartyTable" class="tablewrap"></div>
     </section>
     <section class="panel homepanel">
@@ -1166,7 +1246,7 @@ header .usermenu .menu{right:0;top:calc(100% + 8px)}
 </div>
 <script>
 const $ = id => document.getElementById(id);
-let db = { warps: [], bobbins: [], looms: [], deliveries: [], staff: [], designs: [], wagePayouts: [], wageDeductions: [], expenses: [] };
+let db = { warps: [], bobbins: [], looms: [], deliveries: [], staff: [], designs: [], wagePayouts: [], wageDeductions: [], expenses: [], weftStock: [] };
 const fmt = n => Number(n || 0).toLocaleString("en-IN",{maximumFractionDigits:2});
 const plural = (n, word) => `${fmt(n)} ${word}${n===1?"":"s"}`;
 const widthLabel = w => w === "triple" ? "Triple width" : "Single width";
@@ -1412,10 +1492,10 @@ function homeLoomCard(l) {
   return `<div class="h-loom${loomLow(l)?" low":""}" data-loom="${esc(l.id)}">
     <div class="hd"><span class="h-dot${st.running?"":" stop"}"></span><b>${esc(l.name)}</b><strong>${fmt(today)}</strong><small>today</small></div>
     <div class="st${st.running?"":" stop"}">${st.running?(who||"Running"):`Stopped · ${esc(st.reason)}`}</div>
-    ${homeYarn("Warp",w,"none on")}${l.needsBobbin?homeYarn("Weft",b,"none on"):homeYarn("Weft",null,"no bobbin")}
+    ${homeYarn("Warp",w,"none on")}${l.needsBobbin?homeYarn("Bobbin",b,"none on"):homeYarn("Bobbin",null,"no bobbin")}
     <button class="actbtn" type="button" data-home="${a.act}" data-id="${esc(l.id)}">${a.label}</button></div>`;
 }
-// Things to act on now: stopped looms, low warp/weft, party announcements not yet acknowledged.
+// Things to act on now: stopped looms, low warp/bobbin, party announcements not yet acknowledged.
 function homeAttention() {
   const out=[], me=session.user?.id;
   db.looms.filter(l=>!loomRunning(l)).sort((a,b)=>loomRank(a)-loomRank(b)).forEach(l=>{
@@ -1427,8 +1507,8 @@ function homeAttention() {
   if(low.length){
     const first=low[0], party=first.loom.partyId&&(db.parties||[]).length;
     out.push({cls:"amber",icon:"⚠",title:`Running low: ${low.map(x=>`${x.item.name} on ${x.loom.name}`).join(", ")}`,
-      text:low.map(x=>`${x.kind==="Bobbin"?"weft":"warp"} ${plural(x.left,"saree")} left`).join(" · ")+".",
-      btn:party?"Request warp / weft":"Open the board",act:party?"request":(first.kind==="Bobbin"?"bobbins":"warps"),id:first.loom.id,kind:first.kind==="Bobbin"?"bobbin":"warp"});
+      text:low.map(x=>`${x.kind==="Bobbin"?"bobbin":"warp"} ${plural(x.left,"saree")} left`).join(" · ")+".",
+      btn:party?"Request warp / bobbin":"Open the board",act:party?"request":(first.kind==="Bobbin"?"bobbins":"warps"),id:first.loom.id,kind:first.kind==="Bobbin"?"bobbin":"warp"});
   }
   (db.announcements||[]).filter(a=>a.ackRequired&&!a.acks.some(k=>k.userId===me)).slice(0,2).forEach(a=>
     out.push({cls:"violet",icon:"📣",title:`${a.partyName||"Party"}: ${a.title}`,text:a.body||"Announcement",btn:"Got it",act:"ack",id:a.id}));
@@ -1617,12 +1697,12 @@ $("waDashboard").addEventListener("click",e=>{
 async function refresh() {
   if(!currentFactoryId||!session.user) return;
   db=await api("/api/data");
-  renderStats();renderWarpOptions();renderHome();renderProduction();renderLooms();renderLoomList();if($("manageLoomsDialog").open) renderManageLooms();renderWarps();renderProcess();renderStock();renderParties();renderDesigns();renderStaff();renderWages();renderExpenses();renderLog();applyModules();renderLowAlert();renderPartyWork();updatePreview();loadDesignImages();
+  renderStats();renderWarpOptions();renderHome();renderProduction();renderLooms();renderLoomList();if($("manageLoomsDialog").open) renderManageLooms();renderWarps();renderProcess();renderStock();renderParties();renderDesigns();renderStaff();renderWages();renderExpenses();renderWeft();renderLog();applyModules();renderLowAlert();renderPartyWork();updatePreview();loadDesignImages();
   if(flashIds.size) setTimeout(()=>flashIds=new Set(),1600);
 }
-const views=["home","loomlist","warps","bobbins","looms","partywork","process","stock","parties","designs","staff","wages","expenses","log","settings"];
+const views=["home","loomlist","warps","bobbins","looms","partywork","process","stock","parties","designs","staff","wages","expenses","weft","log","settings"];
 // Parts of the app a factory can turn off in Settings (factory.modules, missing = on).
-const VIEW_MODULE={process:"stock",stock:"stock",parties:"stock",designs:"wages",staff:"wages",wages:"wages",expenses:"wages"};
+const VIEW_MODULE={process:"stock",stock:"stock",parties:"stock",designs:"wages",staff:"wages",wages:"wages",expenses:"wages",weft:"wages"};
 const mods=()=>{ const m=currentFactory()?.modules; return {stock:m?.stock!==false,wages:m?.wages!==false,process:m?.process===true}; };
 function applyModules() {
   const m=mods();
@@ -2581,6 +2661,7 @@ function renderDesigns() {
       <div class="dbody"><h4>${esc(d.number)}</h4>${d.name?`<div class="meta">${esc(d.name)}</div>`:""}
         <div class="drate">${money(d.rate)} <small>per saree</small></div>
         ${d.picks||d.timing||d.pickCost?`<div class="meta">${[d.picks&&`${fmt(d.picks)} picks`,d.timing&&`${fmt(d.timing)} h per saree`,d.pickCost&&`₹${fmt(d.pickCost)} per pick`].filter(Boolean).join(" · ")}</div>`:""}
+        ${weftPartsOf(d).length?`<div class="meta">Weft per saree: <b>${esc(weftSummary(d))}</b></div>`:""}
         ${d.picks&&d.pickCost?`<div class="meta">Pick cost per saree: <b>${money(d.picks*d.pickCost)}</b></div>`:""}
         <div class="meta">${looms.length?`Running on ${esc(looms.map(l=>l.name).join(", "))}`:"Not on a loom"}</div>
         <div class="rowacts"><button class="smallbtn" type="button" data-edit-design>Edit wage / image</button>${isAdmin()?`<button class="smallbtn danger" type="button" data-del-design title="Remove">${TRASH_ICON}</button>`:""}</div></div></div>`;
@@ -2869,12 +2950,12 @@ $("staffForm").addEventListener("submit",async e=>{
 let designEditId=null, designImage;
 function openDesign(d) {
   designEditId=d?d.id:null; designImage=undefined; $("designForm").reset(); hideNotice("designNotice");
-  $("designDialogTitle").textContent=d?`Edit design ${d.number}`:"Add design"; $("designSubmit").textContent=d?"Save":"Add design";
+  designWeftState=[]; $("designWeftGrams").value=""; $("designDialogTitle").textContent=d?`Edit design ${d.number}`:"Add design"; $("designSubmit").textContent=d?"Save":"Add design";
   $("designDialogSub").textContent=d?"A new wage applies to dispatches from now on. Wages already earned keep their rate.":"The wage is paid per saree dispatched from a loom running this design.";
-  if(d){ $("designNo").value=d.number; $("designName").value=d.name||""; $("designRate").value=d.rate; $("designPicks").value=d.picks??""; $("designTiming").value=d.timing??""; $("designPickCost").value=d.pickCost??""; }
+  if(d){ $("designNo").value=d.number; $("designName").value=d.name||""; $("designRate").value=d.rate; $("designPicks").value=d.picks??""; $("designTiming").value=d.timing??""; $("designPickCost").value=d.pickCost??""; designWeftState=weftPartsOf(d).map(x=>({...x})); }
   showDesignPreview(d&&d.hasImage?imgSrc("design",d)||"":null);
   if(d&&d.hasImage&&!imgSrc("design",d)) imageFor("design",d).then(src=>{ if(designEditId===d.id&&designImage===undefined) showDesignPreview(src); });
-  $("designDialog").showModal(); $("designNo").focus();
+  renderDesignWeft(); $("designDialog").showModal(); $("designNo").focus();
 }
 function showDesignPreview(src) {
   $("designPreviewBox").hidden=src==null; if(src!=null) $("designPreview").src=src||"";
@@ -2901,7 +2982,7 @@ $("designImgRemove").addEventListener("click",()=>{ designImage=null; $("designF
 document.querySelectorAll("[data-open-design]").forEach(b=>b.addEventListener("click",()=>openDesign(null)));
 $("designForm").addEventListener("submit",async e=>{
   e.preventDefault(); hideNotice("designNotice");
-  const body={number:$("designNo").value,name:$("designName").value,rate:$("designRate").value,picks:$("designPicks").value,timing:$("designTiming").value,pickCost:$("designPickCost").value};
+  const body={number:$("designNo").value,name:$("designName").value,rate:$("designRate").value,picks:$("designPicks").value,timing:$("designTiming").value,pickCost:$("designPickCost").value,weft:designWeftState};
   if(designImage!==undefined) body.image=designImage;
   try{
     const d=await api(designEditId?`/api/designs/${encodeURIComponent(designEditId)}`:"/api/designs",{method:designEditId?"PUT":"POST",body:JSON.stringify(body)});
@@ -2918,7 +2999,7 @@ $("designForm").addEventListener("submit",async e=>{
 async function removeItem(url, title, text, done) {
   if(!await ask({title,text,ok:"Remove",danger:true})) return;
   try{ await api(url,{method:"DELETE"}); toast(done); await refresh(); }
-  catch(err){notice({"#designs":"designListNotice","#staff":"staffListNotice","#expenses":"expenseListNotice","#parties":"partyNotice"}[location.hash]||"wageNotice",err.message)}
+  catch(err){notice({"#designs":"designListNotice","#staff":"staffListNotice","#expenses":"expenseListNotice","#weft":"weftListNotice","#parties":"partyNotice"}[location.hash]||"wageNotice",err.message)}
 }
 $("staffList").addEventListener("click",e=>{
   if(e.target.closest("[data-open-staff-empty]")) return openStaff(null);
@@ -2969,7 +3050,93 @@ $("setupForm").addEventListener("submit",async e=>{
   }catch(err){notice("setupNotice",err.message)}
 });
 // ---- Log: every activity, newest first (stored server-side in db.activity) ----
-const LOG_TYPE={request:["Request","amber"],shipment:["To party","green"],notice:["Party","violet"],warp:["Warp","violet"],bobbin:["Bobbin","blue"],loom:["Loom","blue"],dispatch:["Dispatch","green"],delivery:["Delivery","red"],process:["Process",""],stock:["Stock","teal"],party:["Party","amber"],wages:["Wages","green"],expense:["Expense","amber"]};
+const LOG_TYPE={request:["Request","amber"],shipment:["To party","green"],notice:["Party","violet"],warp:["Warp","violet"],bobbin:["Bobbin","blue"],loom:["Loom","blue"],dispatch:["Dispatch","green"],delivery:["Delivery","red"],process:["Process",""],stock:["Stock","teal"],party:["Party","amber"],wages:["Wages","green"],expense:["Expense","amber"],weft:["Weft","teal"]};
+// Weft parts of a design (older designs with only weftGrams count as main weft).
+const WEFT_PARTS={main:"Main weft",meena1:"Meena 1",meena2:"Meena 2",jari:"Jari"};
+const weftPartsOf=d=>Array.isArray(d?.weft)&&d.weft.length?d.weft:d?.weftGrams?[{kind:"main",grams:d.weftGrams}]:[];
+const weftSummary=d=>weftPartsOf(d).map(p=>`${WEFT_PARTS[p.kind]} ${fmt(p.grams)} g`).join(" · ");
+let designWeftState=[];
+function renderDesignWeft() {
+  const free=Object.keys(WEFT_PARTS).filter(k=>!designWeftState.some(p=>p.kind===k));
+  $("designWeftKind").innerHTML=free.map(k=>`<option value="${k}">${WEFT_PARTS[k]}</option>`).join("");
+  $("designWeftKind").disabled=$("designWeftGrams").disabled=$("designWeftAdd").disabled=!free.length;
+  $("designWeftList").innerHTML=designWeftState.length?designWeftState.map((p,i)=>`<span class="pill">${esc(WEFT_PARTS[p.kind])} · ${fmt(p.grams)} g <button type="button" class="smallbtn" data-weft-rm="${i}" aria-label="Remove ${esc(WEFT_PARTS[p.kind])}">✕</button></span>`).join(" ")+` <span class="hint">Total ${fmt(Math.round(designWeftState.reduce((t,p)=>t+p.grams,0)*10)/10)} g per saree</span>`:"";
+}
+$("designWeftAdd").addEventListener("click",()=>{
+  const g=Number($("designWeftGrams").value), kind=$("designWeftKind").value;
+  if(!kind||!(g>0)){ notice("designNotice","Enter the grams per saree for "+(WEFT_PARTS[kind]||"the weft")+"."); $("designWeftGrams").focus(); return; }
+  hideNotice("designNotice"); designWeftState.push({kind,grams:Math.round(g*10)/10}); $("designWeftGrams").value=""; renderDesignWeft(); $("designWeftGrams").focus();
+});
+$("designWeftGrams").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); $("designWeftAdd").click(); } });
+$("designWeftList").addEventListener("click",e=>{ const b=e.target.closest("[data-weft-rm]"); if(b){ designWeftState.splice(+b.dataset.weftRm,1); renderDesignWeft(); } });
+// ---- Weft: yarn tracked in grams per design. Used = sarees dispatched × the design's grams (snapshot on each dispatch). ----
+const gms=n=>{ n=Math.round(n*10)/10; return Math.abs(n)>=1000?`${fmt(Math.round(n/10)/100)} kg`:`${fmt(n)} g`; };
+function weftTotals() {
+  const by=new Map(), row=(id,no,name)=>by.get(id)||by.set(id,{id,no,name,perSaree:0,sarees:0,used:0,usedMonth:0,inG:0,outG:0}).get(id);
+  const parts={}, part=k=>parts[k||""]||(parts[k||""]={kind:k||"",inG:0,outG:0,used:0});
+  const month=monthKey(todayISO());
+  for(const d of db.designs||[]) row(d.id,d.number,d.name||"").perSaree=weftPartsOf(d).reduce((t,p)=>t+p.grams,0);
+  for(const x of db.deliveries||[]){
+    if(!x.designId||!x.weftGrams) continue;
+    const r=row(x.designId,x.designNo,x.designName||""), g=x.sarees*x.weftGrams;
+    r.sarees+=x.sarees; r.used+=g; if(monthKey((x.createdAt||"").slice(0,10))===month) r.usedMonth+=g;
+    for(const p of (x.weft&&x.weft.length?x.weft:[{kind:"main",grams:x.weftGrams}])) part(p.kind).used+=x.sarees*p.grams;
+  }
+  for(const x of db.weftStock||[]){
+    const r=row(x.designId||"",x.designNo||"No design",x.designName||""); r[x.kind==="in"?"inG":"outG"]+=x.grams;
+    part(x.part)[x.kind==="in"?"inG":"outG"]+=x.grams;
+  }
+  const rows=[...by.values()].map(r=>({...r,balance:r.inG-r.outG-r.used})).filter(r=>r.id===""?(r.inG||r.outG):true);
+  rows.parts=Object.values(parts).map(p=>({...p,balance:p.inG-p.outG-p.used}));
+  return rows;
+}
+function renderWeft() {
+  const rows=weftTotals(), all=db.weftStock||[], sum=k=>rows.reduce((t,r)=>t+r[k],0);
+  const dsel=$("weftDesignFilter"), keep=dsel.value;
+  dsel.innerHTML='<option value="">All designs</option><option value="none">No design</option>'+(db.designs||[]).map(d=>`<option value="${esc(d.id)}">${esc(d.number)}${d.name?` · ${esc(d.name)}`:""}</option>`).join("");
+  dsel.value=[...dsel.options].some(o=>o.value===keep)?keep:"";
+  const df=dsel.value, kf=$("weftKindFilter").value, q=$("weftSearch").value.trim().toLowerCase();
+  const list=all.filter(x=>(!df||(df==="none"?!x.designId:x.designId===df))&&(!kf||x.kind===kf)&&(!q||`${x.colour||""} ${x.vendor||""} ${x.billNo||""} ${x.note||""} ${x.designNo||""} ${x.partName||""}`.toLowerCase().includes(q)));
+  $("weftCount").textContent=plural(all.length,"entry").replace(/ys$/,"ies");
+  const bal=sum("balance");
+  $("weftStats").innerHTML=`<div class="stat"><small>Weft in hand</small><strong>${gms(bal)}</strong></div>`+
+    `<div class="stat"><small>Received</small><strong>${gms(sum("inG"))}</strong></div>`+
+    `<div class="stat"><small>Used by dispatches</small><strong>${gms(sum("used"))}</strong></div>`+
+    `<div class="stat"><small>Used this month</small><strong>${gms(sum("usedMonth"))}</strong></div>`+
+    `<div class="stat"><small>Taken out</small><strong>${gms(sum("outG"))}</strong></div>`;
+  $("weftByDesign").innerHTML=rows.length?`<table><thead><tr><th>Design</th><th>Per saree</th><th>Sarees woven</th><th>Received</th><th>Taken out</th><th>Used</th><th>Balance</th></tr></thead><tbody>${rows.map(r=>
+    `<tr><td><b>${esc(r.no)}</b>${r.name?` <span class="hint">${esc(r.name)}</span>`:""}</td><td>${r.perSaree?esc(weftSummary((db.designs||[]).find(d=>d.id===r.id))||`${fmt(r.perSaree)} g`):'<span class="hint">not set</span>'}</td><td>${fmt(r.sarees)}</td><td>${gms(r.inG)}</td><td>${gms(r.outG)}</td><td>${gms(r.used)}</td><td><b style="${r.balance<0?"color:#b91c1c":""}">${gms(r.balance)}</b></td></tr>`).join("")}</tbody></table>`:'<div class="empty">No designs yet. Add a design with its weft grams per saree.</div>';
+  const pr=(rows.parts||[]).filter(p=>p.inG||p.outG||p.used);
+  $("weftByPart").innerHTML=pr.length?`<table><thead><tr><th>Type</th><th>Received</th><th>Taken out</th><th>Used</th><th>Balance</th></tr></thead><tbody>${pr.map(p=>`<tr><td><b>${esc(WEFT_PARTS[p.kind]||"Not specified")}</b></td><td>${gms(p.inG)}</td><td>${gms(p.outG)}</td><td>${gms(p.used)}</td><td><b style="${p.balance<0?"color:#b91c1c":""}">${gms(p.balance)}</b></td></tr>`).join("")}</tbody></table>`:'<div class="empty">No weft recorded yet.</div>';
+  $("weftTable").innerHTML=list.length?`<table><thead><tr><th>Date</th><th>Entry</th><th>Type</th><th>Design</th><th>Weight</th><th>Colour / count</th><th>Supplier</th><th>Bill no.</th><th>Note</th><th></th></tr></thead><tbody>${list.map(x=>
+    `<tr data-weft="${esc(x.id)}" class="${flashIds.has(x.id)?"flash":""}"><td>${fmtDate(x.date)}</td><td><span class="pill ${x.kind==="in"?"green":"gray"}">${x.kind==="in"?"Received":"Taken out"}</span></td><td>${esc(x.partName||"—")}</td><td>${esc(x.designNo||"—")}</td><td><b>${x.kind==="in"?"+":"−"}${gms(x.grams)}</b></td><td>${esc(x.colour||"—")}</td><td>${esc(x.vendor||"—")}</td><td>${esc(x.billNo||"—")}</td><td class="logtext">${esc(x.note||"—")}</td><td class="rowacts"><button class="smallbtn" type="button" data-edit-weft>Edit</button><button class="smallbtn danger" type="button" data-del-weft title="Remove">${TRASH_ICON}</button></td></tr>`).join("")}</tbody></table>`:`<div class="empty">${all.length?"No entry matches.":"No weft recorded yet."}</div>`;
+}
+["weftDesignFilter","weftKindFilter"].forEach(i=>$(i).addEventListener("change",renderWeft));
+$("weftSearch").addEventListener("input",renderWeft);
+let weftEditId=null;
+function openWeft(x,kind) {
+  weftEditId=x?x.id:null; $("weftForm").reset(); hideNotice("weftNotice");
+  const k=x?x.kind:(kind||"in");
+  $("weftDialogTitle").textContent=x?"Edit weft entry":k==="out"?"Take out weft":"Weft received"; $("weftSubmit").textContent=x?"Save":"Add";
+  $("weftDesign").innerHTML='<option value="">— none —</option>'+(db.designs||[]).map(d=>`<option value="${esc(d.id)}">${esc(d.number)}${d.name?` · ${esc(d.name)}`:""}</option>`).join("");
+  $("weftKind").value=k; $("weftDate").value=x?x.date:todayISO();
+  if(x){ $("weftGramsIn").value=x.grams; $("weftDesign").value=x.designId||""; $("weftPart").value=x.part||""; $("weftColour").value=x.colour||""; $("weftVendor").value=x.vendor||""; $("weftBill").value=x.billNo||""; $("weftNote").value=x.note||""; }
+  $("weftDialog").showModal(); $("weftGramsIn").focus();
+}
+document.querySelectorAll("[data-open-weft]").forEach(b=>b.addEventListener("click",()=>openWeft(null,b.dataset.openWeft)));
+$("weftForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hideNotice("weftNotice");
+  const body={kind:$("weftKind").value,grams:$("weftGramsIn").value,designId:$("weftDesign").value,part:$("weftPart").value,date:$("weftDate").value,colour:$("weftColour").value,vendor:$("weftVendor").value,billNo:$("weftBill").value,note:$("weftNote").value};
+  try{
+    const x=await api(weftEditId?`/api/weft/${encodeURIComponent(weftEditId)}`:"/api/weft",{method:weftEditId?"PUT":"POST",body:JSON.stringify(body)});
+    $("weftDialog").close(); flashIds=new Set([x.id]); toast(weftEditId?"Weft entry saved.":`${gms(x.grams)} ${x.kind==="in"?"added to":"taken out of"} weft stock.`); await refresh();
+  }catch(err){notice("weftNotice",err.message)}
+});
+$("weftTable").addEventListener("click",e=>{
+  const row=e.target.closest("[data-weft]"), x=row&&(db.weftStock||[]).find(y=>y.id===row.dataset.weft); if(!x) return;
+  if(e.target.closest("[data-edit-weft]")) openWeft(x);
+  if(e.target.closest("[data-del-weft]")) removeItem(`/api/weft/${encodeURIComponent(x.id)}`,`Remove this ${gms(x.grams)} weft entry?`,"The weft balance is recalculated.","Weft entry removed.");
+});
 // Expenses: per-loom costs (warp join, bobbin join, spares, maintenance).
 const EXP_KINDS={warp_join:"Warp join",bobbin_join:"Bobbin join",spares:"Spares",maintenance:"Maintenance"};
 const EXP_SUBTYPES=["Routine service","Repair","Breakdown","Other"];
@@ -3240,7 +3407,7 @@ function showLogin(message) {
 function signOut(message) {
   stopLive();
   session={token:null,user:null,factories:[]}; currentFactoryId=null; store_.set("loom.token",null);
-  db={warps:[],bobbins:[],looms:[],deliveries:[],clients:[],stockMoves:[],staff:[],designs:[],wagePayouts:[],wageDeductions:[],expenses:[]};
+  db={warps:[],bobbins:[],looms:[],deliveries:[],clients:[],stockMoves:[],staff:[],designs:[],wagePayouts:[],wageDeductions:[],expenses:[],weftStock:[]};
   $("userMenu").hidden=true; showLogin(message);
 }
 function applySession({user,factories,license}) {
@@ -3604,7 +3771,7 @@ function renderPartyWork() {
   }).join("")}</tbody></table>`:'<div class="empty">No job orders yet. The party creates them in its app.</div>';
   const reqs=(db.requests||[]).slice(0,30);
   $("pwRequests").innerHTML=reqs.length?reqs.map(r=>{ const [lbl,cls]=REQ_PILL[r.status]||[r.status,"gray"];
-    return `<div class="pwrow" data-req="${esc(r.id)}"><div><strong>${r.kind==="bobbin"?"Weft":"Warp"} for ${esc(r.loomName)} · ${fmt(r.sarees)} sarees</strong><br><span class="hint">${esc(partyName(r.partyId))} · ${fmt(r.meters)} m${r.needBy?` · need by ${esc(fmtDate(r.needBy))}`:""}${r.itemName?` · ${esc(r.itemName)} on order`:""}${r.reason?` · ${esc(r.reason)}`:""}</span></div><div style="display:flex;gap:6px;align-items:center"><span class="pill ${cls}">${lbl}</span>${r.status==="pending"?'<button class="smallbtn" type="button" data-withdraw>Withdraw</button>':""}</div></div>`; }).join(""):'<div class="empty">No requests yet. Use <b>Request warp / weft</b> when a loom runs low.</div>';
+    return `<div class="pwrow" data-req="${esc(r.id)}"><div><strong>${r.kind==="bobbin"?"Bobbin":"Warp"} for ${esc(r.loomName)} · ${fmt(r.sarees)} sarees</strong><br><span class="hint">${esc(partyName(r.partyId))} · ${fmt(r.meters)} m${r.needBy?` · need by ${esc(fmtDate(r.needBy))}`:""}${r.itemName?` · ${esc(r.itemName)} on order`:""}${r.reason?` · ${esc(r.reason)}`:""}</span></div><div style="display:flex;gap:6px;align-items:center"><span class="pill ${cls}">${lbl}</span>${r.status==="pending"?'<button class="smallbtn" type="button" data-withdraw>Withdraw</button>':""}</div></div>`; }).join(""):'<div class="empty">No requests yet. Use <b>Request warp / bobbin</b> when a loom runs low.</div>';
   const ships=(db.shipments||[]).slice(0,30);
   $("pwShipments").innerHTML=ships.length?ships.map(x=>`<div class="pwrow"><div><strong>${fmt(x.qty)} sarees · ${esc(x.jobCode)}</strong><br><span class="hint">${esc(partyName(x.partyId))} · ${esc(whenFull(x.createdAt))}${x.lrNumber?` · LR ${esc(x.lrNumber)}`:""}${x.issue?` · issue: ${esc(x.issue)}`:""}</span></div><span class="pill ${x.receivedAt?(x.issue?"red":"green"):"amber"}">${x.receivedAt?(x.issue?"Issue reported":"Received"):"On the way"}</span></div>`).join(""):'<div class="empty">Nothing sent yet.</div>';
   $("openRequest").hidden=!db.looms.some(l=>l.partyId);
