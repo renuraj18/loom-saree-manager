@@ -201,3 +201,15 @@ test("every icon the pages use exists in img/icons.svg", () => {
   const used = [...new Set([...(html + partyHtml).matchAll(/icons\.svg#([\w-]+)/g)].map(m => m[1]))];
   assert.deepEqual(used.filter(id => !have.has(id)), []);
 });
+
+test("menu groups hold only page links, and the phone bottom bar links to real views", () => {
+  const views = JSON.parse(js.match(/const views=(\[[^\]]*\])/)[1].replace(/'/g, '"'));
+  const bar = html.match(/<nav class="bottombar"[\s\S]*?<\/nav>/)[0];
+  const links = [...bar.matchAll(/href="#([a-z]+)"/g)].map(m => m[1]);
+  assert.ok(links.length >= 3);
+  for (const l of links) assert.ok(views.includes(l), `bottom bar link #${l} is not a view`);
+  assert.match(bar, /id="moreBtn"/);
+  const groups = [...html.matchAll(/<div class="navgrp-menu">([\s\S]*?)<\/div>/g)].map(m => m[1]);
+  assert.ok(groups.length >= 3);
+  for (const g of groups) assert.ok(/<a class="tab"/.test(g) && !/<div/.test(g), "a group menu holds tab links only");
+});
