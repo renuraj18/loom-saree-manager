@@ -1,0 +1,58 @@
+/*
+ * My Thari design tokens, shared by the factory app (index.html) and the party app (party.html).
+ * Use these variables instead of raw colours/sizes. Breakpoints can't be variables, so the app uses
+ * exactly two: phones  @media(max-width:600px)  and desktop  @media(min-width:1000px).
+ */
+:root{
+  /* Type */
+  --font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --fs-xs:11px;--fs-sm:12px;--fs-body:14px;--fs-md:15px;--fs-lg:17px;--fs-xl:20px;--fs-2xl:24px;--fs-num:28px;
+
+  /* Surfaces and text */
+  --bg:#f6f5fa;            /* page */
+  --surface:#fff;          /* cards, panels, dialogs */
+  --surface-2:#f7f6fd;     /* tiles inside cards */
+  --surface-3:#f3f1fb;     /* hover */
+  --ink:#1c1838;           /* text */
+  --ink-2:#3e3b5a;         /* secondary text on light */
+  --muted:#6c6a8a;         /* labels, hints */
+  --faint:#a5a2c2;         /* disabled icons, zero values */
+  --line:#e8e5f6;          /* card borders, dividers */
+  --line-2:#dcd8ef;        /* input borders */
+  --line-3:#f0eef7;        /* light row dividers */
+  --track:#eeebf7;         /* empty part of progress bars */
+
+  /* Brand and app chrome */
+  --brand:#5b3fd9;
+  --brand-ink:#4b2fc4;     /* brand text on light backgrounds */
+  --brand-soft:#f0eefa;    /* soft brand fill: ghost buttons, selected rows */
+  --brand-tint:#eeeaff;    /* pills, notes */
+  --chrome:#1f1650;        /* header, dialog head, sign-in */
+  --chrome-2:#1a1050;      /* party sidebar */
+  --chrome-ink:#d6cff8;    /* text on chrome */
+  --focus:#ffb703;         /* keyboard focus ring */
+  --focus-soft:#e2d9ff;    /* input focus halo */
+
+  /* Status */
+  --ok:#0f6a4a;--ok-bg:#e3f5ec;--ok-dot:#12a06e;
+  --warn:#7f4a05;--warn-bg:#fff1dc;--warn-dot:#d98a0b;
+  --bad:#b91c1c;--bad-bg:#fdecec;--bad-strong:#dc2626;--bad-line:#fecaca;
+  --info:#1d4ed8;--info-bg:#e8f1ff;
+  --whatsapp:#128c7e;
+
+  /* Domain colours: loom widths and stock stages */
+  --w-single:#6d4aff;--w-triple:#e0459b;
+  --st-sent:#8b5cf6;--st-del:#0ea5e9;--st-proc:#f59e0b;--st-fold:#ec4899;--st-stk:#10b981;
+  --st-mai:#d97706;--st-cln:#38bdf8;--st-lot:#64748b;--st-dmg:#ef4444;--st-dsp:#a646ff;
+
+  /* Shape */
+  --r-xs:6px;--r-sm:8px;--r:10px;--r-md:12px;--r-lg:16px;--r-xl:22px;--r-pill:999px;
+  --shadow-sm:0 1px 3px rgba(30,20,80,.08);
+  --shadow-card:0 6px 16px -10px rgba(40,30,90,.35);
+  --shadow-pop:0 24px 60px -14px rgba(30,20,80,.5);
+
+  /* Layout */
+  --hh:56px;               /* fixed header height */
+  --maxw:1500px;           /* content width on desktop */
+  --tap:40px;              /* minimum control height */
+}
