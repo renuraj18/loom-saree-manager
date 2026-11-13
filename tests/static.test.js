@@ -130,3 +130,74 @@ test("card and table renderers pass record names through esc() before putting th
     assert.deepEqual(bad, [], `${name}() interpolates user text without esc(): ${bad.join(" | ")}`);
   }
 });
+
+// ---- party.html (the party app) ----
+const partyHtml = fs.readFileSync(path.join(ROOT, "public", "party.html"), "utf8");
+const partyJs = [...partyHtml.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]).join("\n");
+
+test("the party app script parses and every $('id') it uses exists", () => {
+  assert.doesNotThrow(() => new Function(partyJs));
+  const present = new Set([...partyHtml.matchAll(/\sid="([^"$]+)"/g)].map(m => m[1]));
+  // ids of fields built inside dialogs at run time
+  const dynamic = /^(ap|rj|sh|lm|ds|jo|rf|pw)[A-Z]/;
+  const wanted = [...new Set([...partyJs.matchAll(/\$\("([A-Za-z][\w-]*)"\)/g)].map(m => m[1]))];
+  const missing = wanted.filter(id => !present.has(id) && !dynamic.test(id));
+  assert.deepEqual(missing, [], `party.html uses missing ids: ${missing.join(", ")}`);
+});
+
+test("every API route the party app calls exists", () => {
+  const party = fs.readFileSync(path.join(ROOT, "party.js"), "utf8");
+  const routes = new Set([...party.matchAll(/router\.(get|post|put|delete)\("(\/[^"]+)"/g)].map(m => "/api/party" + m[2].replace(/:[A-Za-z]+/g, ":p")));
+  ["/api/auth/me", "/api/auth/password"].forEach(r => routes.add(r));
+  const called = [...new Set([...partyJs.matchAll(/api\((?:`|")(\/api\/[^`"?]+)/g)].map(m => m[1].replace(/\$\{[^}]+\}/g, ":p")))];
+  const missing = called.filter(c => !routes.has(c));
+  assert.deepEqual(missing, [], `party.html calls missing routes: ${missing.join(", ")}`);
+});
+
+test("party log types are known to the Log page", () => {
+  const party = fs.readFileSync(path.join(ROOT, "party.js"), "utf8");
+  const used = new Set([...party.matchAll(/logEvent\(db, req, "([a-z]+)"/g)].map(m => m[1]));
+  const known = new Set([...js.match(/const LOG_TYPE=\{([^}]*)\}/)[1].matchAll(/(\w+):\[/g)].map(m => m[1]));
+  for (const t of used) assert.ok(known.has(t), `log type "${t}" missing from LOG_TYPE`);
+});
+
+// ---- shared styles (public/css) and icons ----
+const cssDir = path.join(ROOT, "public", "css");
+const cssFiles = fs.readdirSync(cssDir).filter(f => f.endsWith(".css"));
+const css = Object.fromEntries(cssFiles.map(f => [f, fs.readFileSync(path.join(cssDir, f), "utf8")]));
+
+test("both pages load tokens, components and their own stylesheet, with no inline <style>", () => {
+  for (const [page, own] of [[html, "app.css"], [partyHtml, "party.css"]]) {
+    const links = [...page.matchAll(/<link rel="stylesheet" href="css\/([\w-]+\.css)">/g)].map(m => m[1]);
+    assert.deepEqual(links, ["tokens.css", "components.css", own]);
+    assert.ok(!/<style[\s>]/.test(page.split("<script>")[0]), "styles belong in public/css");
+  }
+});
+
+test("every CSS variable used is defined", () => {
+  const defined = new Set();
+  for (const text of Object.values(css)) for (const m of text.matchAll(/(--[\w-]+)\s*:/g)) defined.add(m[1]);
+  const pages = { "index.html": html, "party.html": partyHtml, ...css };
+  const missing = [];
+  for (const [file, text] of Object.entries(pages)) {
+    for (const m of text.matchAll(/var\((--[\w-]+)(,)?/g)) if (!defined.has(m[1]) && !m[2]) missing.push(`${file}: ${m[1]}`);
+  }
+  // Per-element variables set in rules (e.g. --c1 on .col) count as defined above; inline style="--x:…" ones too.
+  for (const m of (html + partyHtml).matchAll(/--([\w-]+):/g)) defined.add("--" + m[1]);
+  assert.deepEqual([...new Set(missing.filter(x => !defined.has(x.split(": ")[1])))], []);
+});
+
+test("the CSS uses only the two breakpoints (600px phones, 1000px desktop)", () => {
+  const bad = [];
+  for (const [f, text] of Object.entries(css)) for (const m of text.matchAll(/@media\(([^)]*)\)/g)) {
+    if (!/^(max-width:(600|999)px|min-width:1000px)$/.test(m[1])) bad.push(`${f}: ${m[1]}`);
+  }
+  assert.deepEqual(bad, []);
+});
+
+test("every icon the pages use exists in img/icons.svg", () => {
+  const sprite = fs.readFileSync(path.join(ROOT, "public", "img", "icons.svg"), "utf8");
+  const have = new Set([...sprite.matchAll(/<symbol id="([\w-]+)"/g)].map(m => m[1]));
+  const used = [...new Set([...(html + partyHtml).matchAll(/icons\.svg#([\w-]+)/g)].map(m => m[1]))];
+  assert.deepEqual(used.filter(id => !have.has(id)), []);
+});

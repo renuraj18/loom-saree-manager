@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My Thari – Party</title>
+<link rel="icon" href="img/thari-icon-64.png">
+<link rel="apple-touch-icon" href="img/thari-icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1a1050">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/party.css">
+</head>
+<body>
+<div class="app" id="app" hidden>
+  <aside>
+    <div class="brand">
+      <div style="display:flex;align-items:center;gap:10px"><img src="img/thari-icon-64.png" alt=""><div><b>My Thari</b><span id="partyName">Party</span></div></div>
+      <button class="mobilemenu" type="button" id="mSignOut">Sign out</button>
+    </div>
+    <nav class="side" aria-label="Main" id="nav">
+      <span class="grp">Overview</span>
+      <a href="#home">Dashboard</a>
+      <a href="#pending">Pending sarees</a>
+      <span class="grp">Work</span>
+      <a href="#looms">Looms</a>
+      <a href="#orders">Job orders</a>
+      <a href="#requests">Requests <span class="badge" id="reqBadge" hidden></span></a>
+      <a href="#sarees">Sarees &amp; receipts <span class="badge" id="shipBadge" hidden></span></a>
+      <span class="grp">Factories</span>
+      <a href="#factories">Factories &amp; setup</a>
+      <a href="#announce">Announcements</a>
+      <a href="#feed">Activity</a>
+    </nav>
+    <div class="sidefoot"><span id="userLine"></span><button type="button" id="pwBtn">Change password</button><button type="button" id="signOut">Sign out</button></div>
+  </aside>
+
+  <main>
+    <div class="top">
+      <div><h1 id="title">Dashboard</h1><div class="live off" id="live"><i></i><span id="liveText">Connecting…</span></div></div>
+      <div class="seg" role="group" aria-label="Factory" id="facSeg"></div>
+    </div>
+    <div class="notice" id="licBar"></div>
+
+    <!-- Dashboard -->
+    <section data-view="home">
+      <div class="kpis" id="kpis"></div>
+      <div class="cols" style="margin-top:18px">
+        <div class="wide">
+          <div class="panel"><div class="ph"><h2>Sarees pending with each factory</h2><div class="legend" id="legend1"></div></div><div class="tablewrap" id="pendingTable"></div></div>
+          <div class="panel"><div class="ph"><h2>Looms weaving for you</h2><span id="loomCount"></span></div><div class="grid" id="homeLooms"></div></div>
+        </div>
+        <div class="narrow">
+          <div class="panel"><div class="ph"><h2>Warp &amp; bobbin requests</h2><a href="#requests">All</a></div><div id="homeReqs"></div></div>
+          <div class="panel"><div class="ph"><h2>Live feed</h2><a href="#feed">All</a></div><div class="feed" id="homeFeed"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pending by job order -->
+    <section data-view="pending" hidden>
+      <div class="panel"><div class="ph"><h2>Pending by job order</h2><div class="legend" id="legend2"></div></div><div class="tablewrap" id="pendingOrders"></div></div>
+    </section>
+
+    <!-- Looms -->
+    <section data-view="looms" hidden>
+      <div class="panel"><div class="ph"><h2>Looms</h2><div class="seg" id="loomFilter" style="margin-left:0"></div></div><div class="grid" id="allLooms"></div></div>
+    </section>
+
+    <!-- Job orders -->
+    <section data-view="orders" hidden>
+      <div class="row" style="justify-content:flex-end"><button class="btn" type="button" id="newOrder">+ New job order</button></div>
+      <div class="panel"><div class="tablewrap" id="orderTable"></div></div>
+    </section>
+
+    <!-- Requests -->
+    <section data-view="requests" hidden>
+      <div class="panel"><div class="ph"><h2>Warp &amp; bobbin requests from factories</h2><span>Approving puts it on the factory's board as ordered</span></div><div id="reqList"></div></div>
+    </section>
+
+    <!-- Sarees -->
+    <section data-view="sarees" hidden>
+      <div class="panel"><div class="ph"><h2>Sarees sent to you</h2><span>Confirm each delivery when it arrives</span></div><div id="shipList"></div></div>
+    </section>
+
+    <!-- Factories & setup -->
+    <section data-view="factories" hidden>
+      <div class="cols">
+        <div class="narrow" style="max-width:340px">
+          <div class="facs" id="facList"></div>
+          <button class="btn ghost" type="button" id="regFactory">+ Register a factory</button>
+        </div>
+        <div class="wide">
+          <div class="panel" id="facPanel">
+            <div class="ph"><h2 id="fpName"></h2><span id="fpMeta"></span></div>
+            <div class="tabs" role="tablist" id="fpTabs"></div>
+            <div id="fpBody"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Announcements -->
+    <section data-view="announce" hidden>
+      <div class="cols">
+        <div class="wide">
+          <form class="panel" id="annForm">
+            <h2>New announcement</h2>
+            <p class="sub">Factory owners see it at the top of their app and tap “Got it”.</p>
+            <div class="field"><label for="annKind">Type</label><select id="annKind"><option value="warp">Warp ready</option><option value="design">Design change</option><option value="holiday">Holiday / pause</option><option value="general">General</option></select></div>
+            <div class="field"><label>Send to</label><div class="checks" id="annFacs"></div></div>
+            <div class="field"><label for="annTitle">Title *</label><input id="annTitle" required placeholder="e.g. Warp W-122 ready for Loom 7"></div>
+            <div class="field"><label for="annBody">Message</label><textarea id="annBody" placeholder="Details for the factory owner"></textarea></div>
+            <label class="check"><input type="checkbox" id="annAck" checked> Ask owners to tap “Got it”</label>
+            <div class="notice" id="annNotice"></div>
+            <button class="btn" type="submit">Send notification</button>
+          </form>
+        </div>
+        <div class="narrow"><div class="panel"><div class="ph"><h2>Sent</h2></div><div id="annList"></div></div></div>
+      </div>
+    </section>
+
+    <!-- Feed -->
+    <section data-view="feed" hidden>
+      <div class="panel"><div class="ph"><h2>Activity on your looms and orders</h2></div><div class="feed" id="allFeed"></div></div>
+    </section>
+  </main>
+</div>
+
+<dialog id="dlg"><form id="dlgForm" method="dialog"><h2 id="dlgTitle"></h2><p class="sub" id="dlgSub"></p><div id="dlgBody"></div><div class="notice" id="dlgNotice"></div><div class="foot"><button class="btn ghost" type="button" id="dlgCancel">Cancel</button><button class="btn" type="submit" id="dlgOk">Save</button></div></form></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=n=>Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2});
+const SAREE_M=6.3;
+const when=v=>v?new Date(v).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"}):"";
+const store_={get:k=>{try{return localStorage.getItem(k)}catch{return null}},set:(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch{}}};
+let token=store_.get("loom.token"), me=null, data={party:null,factories:[]};
+let fac=store_.get("loom.party.fac")||"all", loomFilter="all", fpFac=null, fpTab="looms";
+
+async function api(url,options={}){
+  const r=await fetch(url,{...options,headers:{"Content-Type":"application/json",Authorization:`Bearer ${token||""}`}});
+  const d=await r.json().catch(()=>({}));
+  if(r.status===401){ store_.set("loom.token",null); location.replace("index.html"); throw new Error("Please sign in."); }
+  if(!r.ok) throw new Error(d.error||"Request failed");
+  return d;
+}
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast.t); toast.t=setTimeout(()=>t.classList.remove("show"),2600); }
+function notice(id,msg,ok){ const el=$(id); el.textContent=msg; el.className="notice show "+(ok?"ok":"err"); }
+function hide(id){ $(id).className="notice"; }
+
+// ---- data helpers ----
+const sel=()=>data.factories.filter(f=>fac==="all"||f.id===fac);
+const all=key=>sel().flatMap(f=>f[key].map(x=>({...x,factoryId:f.id,factoryName:f.name})));
+const facOf=id=>data.factories.find(f=>f.id===id);
+const sum=(list,k)=>list.reduce((s,x)=>s+(x[k]||0),0);
+const STAGES=[["toWeave","To weave","var(--s-weave)"],["atFactory","At factory","var(--s-fact)"],["onWay","On the way","var(--s-way)"],["received","Received","var(--s-got)"]];
+const legend=()=>STAGES.map(([,l,c])=>`<span><i style="background:${c}"></i>${l}</span>`).join("");
+const bar=(o,total)=>`<div class="bar">${STAGES.map(([k,,c])=>`<span style="width:${total?Math.min(100,(o[k]||0)/total*100):0}%;background:${c}"></span>`).join("")}</div>`;
+const swatch=(a,b)=>`<span class="swatch"><i style="background:${esc(a||"#ddd")}"></i><i style="background:${esc(b||a||"#ddd")}"></i></span>`;
+function yarn(label,item,need){
+  if(!item) return `<div class="yarn"><div class="t"><span>${label}</span><b>${need?"none on":"no bobbin"}</b></div><div class="b"><i style="width:0"></i></div></div>`;
+  const low=item.sareesLeft<5, pct=item.originalMeters?Math.round(item.remainingMeters/item.originalMeters*100):0;
+  return `<div class="yarn"><div class="t${low?" low":""}"><span>${label} ${esc(item.name)}</span><b>${fmt(item.sareesLeft)} left${low?" · LOW":""}</b></div><div class="b"><i class="${low?"low":""}" style="width:${pct}%"></i></div></div>`;
+}
+function loomCard(l,showFac){
+  return `<div class="loom"><div class="hd"><span class="dot${l.running?"":" stop"}"></span><b>${esc(l.name)}</b><span class="sub">${showFac?esc(l.factoryName):l.widthType==="triple"?"Triple":"Single"}</span></div>
+    <div class="sub">${l.running?`Running · ${fmt(l.today)} today · ${fmt(l.week)} this week`:`Stopped · ${esc(l.reason)}`}${l.designNo?` · ${esc(l.designNo)}`:""}</div>
+    ${yarn("Warp",l.warp,true)}${l.needsBobbin?yarn("Bobbin",l.bobbin,true):yarn("Bobbin",null,false)}</div>`;
+}
+const jobsOf=f=>f.jobOrders;
+function pendingRows(list){
+  return list.map(f=>{ const j=jobsOf(f), o={target:sum(j,"target"),received:sum(j,"received"),toWeave:sum(j,"toWeave"),atFactory:sum(j,"atFactory"),onWay:sum(j,"onWay"),pending:sum(j,"pending")}; return {f,o}; });
+}
+
+// ---- render ----
+function render(){
+  $("partyName").textContent=data.party?.name||"Party";
+  $("userLine").textContent=me?`Signed in as ${me.username}`:"";
+  // factory switch
+  if(fac!=="all"&&!facOf(fac)) fac="all";
+  $("facSeg").innerHTML=[["all","All factories"],...data.factories.map(f=>[f.id,f.name])].map(([k,l])=>`<button type="button" data-fac="${esc(k)}" class="${k===fac?"on":""}" aria-pressed="${k===fac}">${esc(l)}</button>`).join("");
+  $("facSeg").hidden=data.factories.length<2;
+  const reqs=all("requests"), ships=all("shipments"), looms=all("looms");
+  const waitingReqs=reqs.filter(r=>r.status==="pending"), toConfirm=ships.filter(s=>!s.receivedAt);
+  $("reqBadge").hidden=!waitingReqs.length; $("reqBadge").textContent=waitingReqs.length;
+  $("shipBadge").hidden=!toConfirm.length; $("shipBadge").textContent=toConfirm.length;
+  // KPIs
+  const rows=pendingRows(sel()), jobs=all("jobOrders");
+  const running=looms.filter(l=>l.running).length;
+  $("kpis").innerHTML=[
+    ["Pending with factories",fmt(sum(jobs,"pending")),`${fmt(sum(jobs,"atFactory"))} at factory · ${fmt(sum(jobs,"onWay"))} on the way`],
+    ["Woven today",fmt(sum(looms,"today")),`${fmt(sum(looms,"week"))} this week`],
+    ["Looms running",`${running}/${looms.length}`,looms.length-running?`${looms.length-running} stopped`:"all running"],
+    ["To confirm received",fmt(sum(toConfirm,"qty")),`${toConfirm.length} deliver${toConfirm.length===1?"y":"ies"}`],
+    ["Requests waiting",fmt(waitingReqs.length),waitingReqs.length?"approve or reject":"nothing waiting"]
+  ].map(([a,b,c])=>`<div class="kpi"><small>${a}</small><strong>${b}</strong><span>${c}</span></div>`).join("");
+  $("legend1").innerHTML=legend(); $("legend2").innerHTML=legend();
+  $("pendingTable").innerHTML=rows.length?`<table><thead><tr><th>Factory</th><th class="n">Ordered</th><th class="n">Received</th><th class="n">To weave</th><th class="n">At factory</th><th class="n">On the way</th><th class="n">Pending</th><th>Progress</th></tr></thead><tbody>${rows.map(({f,o})=>`<tr><td><b>${esc(f.name)}</b><div class="sub">${f.jobOrders.length} order${f.jobOrders.length===1?"":"s"} · ${f.looms.length} loom${f.looms.length===1?"":"s"}</div></td><td class="n">${fmt(o.target)}</td><td class="n" style="color:var(--green);font-weight:600">${fmt(o.received)}</td><td class="n">${fmt(o.toWeave)}</td><td class="n">${fmt(o.atFactory)}</td><td class="n">${fmt(o.onWay)}</td><td class="n" style="font-size:16px;font-weight:800">${fmt(o.pending)}</td><td>${bar(o,o.target)}</td></tr>`).join("")}</tbody></table>`:`<div class="empty">No factories yet. <a href="#factories">Register one</a>.</div>`;
+  $("loomCount").textContent=`${looms.length} loom${looms.length===1?"":"s"}`;
+  $("homeLooms").innerHTML=looms.length?looms.map(l=>loomCard(l,fac==="all"&&data.factories.length>1)).join(""):'<div class="empty">No looms yet. Add them under Factories &amp; setup.</div>';
+  $("homeReqs").innerHTML=reqCards(reqs.slice(0,4),true)||'<div class="empty">No requests.</div>';
+  const feed=all("feed").sort((a,b)=>String(b.at).localeCompare(String(a.at)));
+  const feedHtml=list=>list.map(e=>`<div><i></i><span><p>${esc(e.text)}</p><small>${esc(e.factoryName)} · ${esc(when(e.at))}${e.by?` · ${esc(e.by)}`:""}</small></span></div>`).join("");
+  $("homeFeed").innerHTML=feedHtml(feed.slice(0,8))||'<div class="empty">Nothing yet.</div>';
+  $("allFeed").innerHTML=feedHtml(feed.slice(0,200))||'<div class="empty">Nothing yet.</div>';
+  // pending by order
+  $("pendingOrders").innerHTML=jobs.length?`<table><thead><tr><th>Order</th><th>Factory</th><th class="n">Ordered</th><th class="n">Woven</th><th class="n">To weave</th><th class="n">At factory</th><th class="n">On the way</th><th class="n">Received</th><th class="n">Pending</th><th>Progress</th></tr></thead><tbody>${jobs.map(j=>`<tr><td><b>${esc(j.code)}</b><div class="sub">${esc(j.designNo||"No design")}${j.status==="closed"?" · closed":""}</div></td><td>${esc(j.factoryName)}</td><td class="n">${fmt(j.target)}</td><td class="n">${fmt(j.woven)}</td><td class="n">${fmt(j.toWeave)}</td><td class="n">${fmt(j.atFactory)}</td><td class="n">${fmt(j.onWay)}</td><td class="n">${fmt(j.received)}</td><td class="n" style="font-weight:800">${fmt(j.pending)}</td><td>${bar(j,j.target)}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">No job orders yet.</div>';
+  // looms
+  $("loomFilter").innerHTML=[["all","All"],["run","Running"],["stop","Stopped"],["low","Low warp/bobbin"]].map(([k,l])=>`<button type="button" data-lf="${k}" class="${k===loomFilter?"on":""}">${l}</button>`).join("");
+  const isLow=l=>(l.warp&&l.warp.sareesLeft<5)||(l.needsBobbin&&l.bobbin&&l.bobbin.sareesLeft<5);
+  const fl=looms.filter(l=>loomFilter==="all"||(loomFilter==="run"?l.running:loomFilter==="stop"?!l.running:isLow(l)));
+  $("allLooms").innerHTML=fl.length?fl.map(l=>loomCard(l,data.factories.length>1)).join(""):'<div class="empty">No looms here.</div>';
+  // orders
+  $("orderTable").innerHTML=jobs.length?`<table><thead><tr><th>Order</th><th>Factory</th><th>Looms</th><th class="n">Target</th><th class="n">Woven</th><th class="n">Received</th><th>Status</th><th></th></tr></thead><tbody>${jobs.map(j=>{ const f=facOf(j.factoryId), names=(j.loomIds||[]).map(id=>f.looms.find(l=>l.id===id)?.name).filter(Boolean).join(", ");
+    return `<tr data-job="${esc(j.id)}" data-f="${esc(j.factoryId)}"><td><b>${esc(j.code)}</b><div class="sub">${esc(j.designNo||"No design")}${j.designName?` · ${esc(j.designName)}`:""}</div></td><td>${esc(j.factoryName)}</td><td>${esc(names||"—")}</td><td class="n">${fmt(j.target)}</td><td class="n">${fmt(j.woven)}</td><td class="n">${fmt(j.received)}</td><td><span class="pill ${j.status==="closed"?"gray":"green"}">${j.status==="closed"?"Closed":"Open"}</span></td><td class="n"><button class="btn sm ghost" type="button" data-act="edit">Edit</button> ${j.status==="closed"?'<button class="btn sm ghost" type="button" data-act="reopen">Reopen</button>':'<button class="btn sm ghost" type="button" data-act="close">Close</button>'}</td></tr>`; }).join("")}</tbody></table>`:'<div class="empty">No job orders yet. Create one to tell a factory what to weave on which looms.</div>';
+  // requests
+  $("reqList").innerHTML=reqCards(reqs,false)||'<div class="empty">No requests yet. Factory owners ask here when a loom runs low.</div>';
+  // shipments
+  $("shipList").innerHTML=ships.length?ships.map(s=>`<div class="card${s.receivedAt?"":" hot"}" data-ship="${esc(s.id)}" data-f="${esc(s.factoryId)}" style="margin-bottom:10px"><div class="row" style="justify-content:space-between"><div><b>${fmt(s.qty)} sarees · ${esc(s.jobCode)}</b><div class="sub">${esc(s.factoryName)} · sent ${esc(when(s.createdAt))}${s.lrNumber?` · LR ${esc(s.lrNumber)}`:""}${s.note?` · ${esc(s.note)}`:""}</div></div><span class="pill ${s.receivedAt?(s.issue?"red":"green"):"amber"}">${s.receivedAt?(s.issue?"Issue reported":"Received"):"On the way"}</span></div>${s.receivedAt?(s.issue?`<div class="sub">Issue: ${esc(s.issue)}</div>`:""):`<div class="row"><button class="btn sm ghost" type="button" data-act="issue">Report short / damage</button><button class="btn sm" type="button" data-act="got">Confirm received</button></div>`}</div>`).join(""):'<div class="empty">Nothing sent yet.</div>';
+  renderFactories(); renderAnnounce();
+}
+function reqCards(list,compact){
+  return list.map(r=>{ const pill={pending:["Waiting for you","amber"],approved:["Approved","green"],rejected:["Rejected","red"],cancelled:["Withdrawn","gray"]}[r.status]||[r.status,"gray"];
+    return `<div class="card${r.status==="pending"?" hot":""}" data-req="${esc(r.id)}" data-f="${esc(r.factoryId)}" style="margin-bottom:10px">
+      <div class="row" style="justify-content:space-between;align-items:flex-start"><div><b>${r.kind==="bobbin"?"Bobbin":"Warp"} for ${esc(r.loomName)} · ${fmt(r.sarees)} sarees</b><div class="sub">${esc(r.factoryName)} · ${fmt(r.meters)} m · asked by ${esc(r.by)} ${esc(when(r.createdAt))}${r.needBy?` · need by ${esc(r.needBy)}`:""}</div></div><span class="pill ${pill[1]}">${pill[0]}</span></div>
+      ${r.note&&!compact?`<div class="sub" style="background:#f7f6fb;border-radius:10px;padding:8px 10px">${esc(r.note)}</div>`:""}
+      ${r.itemName?`<div class="sub">${esc(r.itemName)} on order at the factory</div>`:""}${r.reason?`<div class="sub">Reason: ${esc(r.reason)}</div>`:""}
+      ${r.status==="pending"?`<div class="row"><button class="btn sm danger" type="button" data-act="reject">Reject</button><button class="btn sm" type="button" data-act="approve">Approve</button></div>`:""}</div>`; }).join("");
+}
+function renderFactories(){
+  if(!fpFac||!facOf(fpFac)) fpFac=data.factories[0]?.id||null;
+  $("facList").innerHTML=data.factories.map(f=>{ const pend=sum(f.jobOrders,"pending");
+    return `<button type="button" class="fac${f.id===fpFac?" on":""}" data-fp="${esc(f.id)}"><b>${esc(f.name)}</b><span class="sub">${esc(f.location||"")}${f.location?" · ":""}owner ${esc(f.ownerName||"—")}</span><span class="sub">${f.looms.length} loom${f.looms.length===1?"":"s"} · ${fmt(pend)} sarees pending · ${f.owners.length?`login ${esc(f.owners.map(o=>o.username).join(", "))}`:"no owner login"}</span></button>`; }).join("")||'<div class="empty">No factories yet.</div>';
+  $("facPanel").hidden=!fpFac;
+  const f=facOf(fpFac); if(!f) return;
+  $("fpName").textContent=f.name;
+  $("fpMeta").textContent=[f.location,f.ownerName&&`owner ${f.ownerName}`,f.ownerPhone].filter(Boolean).join(" · ");
+  $("fpTabs").innerHTML=[["looms","Looms"],["designs","Designs"],["access","Owner access"]].map(([k,l])=>`<button type="button" role="tab" data-fpt="${k}" class="${k===fpTab?"on":""}" aria-selected="${k===fpTab}">${l}</button>`).join("");
+  if(fpTab==="looms"){
+    $("fpBody").innerHTML=`<div class="tablewrap"><table><thead><tr><th>Loom</th><th>Width</th><th>Bobbin</th><th>Job order</th><th>Warp</th><th>Bobbin</th><th>Status</th><th></th></tr></thead><tbody>${f.looms.map(l=>{ const jo=f.jobOrders.find(j=>j.id===l.jobOrderId);
+      return `<tr data-loom="${esc(l.id)}"><td><b>${esc(l.name)}</b></td><td>${l.widthType==="triple"?"Triple":"Single"}</td><td>${l.needsBobbin?"Yes":"No"}</td><td>${esc(jo?jo.code:"—")}</td><td style="${l.warp&&l.warp.sareesLeft<5?"color:var(--red)":""}">${l.warp?`${esc(l.warp.name)} · ${fmt(l.warp.sareesLeft)} left`:"—"}</td><td>${l.bobbin?`${esc(l.bobbin.name)} · ${fmt(l.bobbin.sareesLeft)} left`:"—"}</td><td><span class="pill ${l.running?"green":"amber"}">${l.running?"Running":"Stopped"}</span></td><td class="n"><button class="btn sm ghost" type="button" data-act="editloom">Edit</button></td></tr>`; }).join("")||'<tr><td colspan="8" class="empty">No looms yet.</td></tr>'}</tbody></table></div><div class="row" style="margin-top:12px"><button class="btn" type="button" data-act="addloom">+ Add loom</button></div>`;
+  } else if(fpTab==="designs"){
+    $("fpBody").innerHTML=`<div class="tablewrap"><table><thead><tr><th>Design</th><th>Name</th><th class="n">Job rate (₹/saree)</th><th class="n">Weaver wage (set by factory)</th><th></th></tr></thead><tbody>${f.designs.map(d=>`<tr data-design="${esc(d.id)}"><td><b>${esc(d.number)}</b></td><td>${esc(d.name||"—")}</td><td class="n">${d.jobRate!=null?fmt(d.jobRate):"—"}</td><td class="n">${d.rate?fmt(d.rate):"—"}</td><td class="n"><button class="btn sm ghost" type="button" data-act="editdesign">Edit</button></td></tr>`).join("")||'<tr><td colspan="5" class="empty">No designs yet.</td></tr>'}</tbody></table></div><div class="row" style="margin-top:12px"><button class="btn" type="button" data-act="adddesign">+ New design</button></div>`;
+  } else {
+    const P=[["dispatch","Record dispatches","Sarees taken off your looms"],["stop","Stop & resume looms","With a reason you can see"],["receive","Mark warp / bobbin received","Material you send"],["warp","Put warps & bobbins on looms","Only on looms you set up"],["request","Request warp or bobbin","You approve every request"],["ship","Send sarees to you","Deliveries you confirm"]];
+    $("fpBody").innerHTML=`<p class="sub">What ${esc(f.owners.map(o=>o.name||o.username).join(", ")||"the owner")} may do on your looms here. Adding or editing looms and designs is always yours.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px">${P.map(([k,l,s])=>`<div class="perm"><span><b>${l}</b><small>${s}</small></span><button type="button" class="switch" role="switch" aria-checked="${f.perms[k]!==false}" aria-label="${esc(l)}" data-perm="${k}"><i></i></button></div>`).join("")}<div class="perm"><span><b>Add or edit looms &amp; designs</b><small>Only you, the party</small></span><button type="button" class="switch" role="switch" aria-checked="false" aria-label="Add or edit looms and designs" disabled><i></i></button></div></div>`;
+  }
+}
+function renderAnnounce(){
+  const keep=new Set([...$("annFacs").querySelectorAll("input:checked")].map(x=>x.value));
+  $("annFacs").innerHTML=data.factories.map(f=>`<label><input type="checkbox" value="${esc(f.id)}"${keep.size?(keep.has(f.id)?" checked":""):" checked"}> ${esc(f.name)}</label>`).join("")||'<span class="sub">Register a factory first.</span>';
+  const anns=all("announcements").sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+  $("annList").innerHTML=anns.map(a=>`<div class="card" style="margin-bottom:8px"><b>${esc(a.title)}</b><div class="sub">${esc(a.factoryName)} · ${esc(when(a.createdAt))}</div><div class="sub" style="color:${a.acks.length?"var(--green)":"var(--muted)"}">${a.acks.length?`✓ ${esc(a.acks.map(k=>k.name).join(", "))} got it`:a.ackRequired?"Not seen yet":"No reply needed"}</div></div>`).join("")||'<div class="empty">Nothing sent yet.</div>';
+}
+
+// ---- routing ----
+const TITLES={home:"Dashboard",pending:"Pending sarees",looms:"Looms",orders:"Job orders",requests:"Warp & bobbin requests",sarees:"Sarees & receipts",factories:"Factories & setup",announce:"Announcements",feed:"Activity"};
+function route(){
+  const v=TITLES[location.hash.slice(1)]?location.hash.slice(1):"home";
+  document.querySelectorAll("[data-view]").forEach(s=>s.hidden=s.dataset.view!==v);
+  document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("on",a.getAttribute("href")==="#"+v));
+  $("title").textContent=TITLES[v];
+  $("facSeg").style.visibility=["factories","announce"].includes(v)?"hidden":"";
+}
+window.addEventListener("hashchange",()=>{ route(); window.scrollTo(0,0); });
+
+// ---- dialog helper ----
+let dlgSubmit=null;
+function openDlg({title,sub="",body,ok="Save",onSubmit}){
+  $("dlgTitle").textContent=title; $("dlgSub").textContent=sub; $("dlgBody").innerHTML=body; $("dlgOk").textContent=ok; hide("dlgNotice");
+  dlgSubmit=onSubmit; $("dlg").showModal(); const first=$("dlgBody").querySelector("input,select,textarea"); if(first) first.focus();
+}
+$("dlgCancel").addEventListener("click",()=>$("dlg").close());
+$("dlgForm").addEventListener("submit",async e=>{
+  e.preventDefault(); const btn=$("dlgOk"); btn.disabled=true;
+  try{ const msg=await dlgSubmit(); $("dlg").close(); if(msg) toast(msg); await load(); }
+  catch(err){ notice("dlgNotice",err.message); }
+  finally{ btn.disabled=false; }
+});
+const v=id=>$(id).value;
+const fld=(id,label,attrs="",val="")=>`<div class="field"><label for="${id}">${label}</label><input id="${id}" ${attrs} value="${esc(val)}"></div>`;
+
+// ---- actions ----
+document.addEventListener("click",async e=>{
+  const t=e.target;
+  const f=t.closest("[data-fac]"); if(f&&f.parentElement.id==="facSeg"){ fac=f.dataset.fac; store_.set("loom.party.fac",fac); render(); return; }
+  const lf=t.closest("[data-lf]"); if(lf){ loomFilter=lf.dataset.lf; render(); return; }
+  const fp=t.closest("[data-fp]"); if(fp){ fpFac=fp.dataset.fp; renderFactories(); return; }
+  const fpt=t.closest("[data-fpt]"); if(fpt){ fpTab=fpt.dataset.fpt; renderFactories(); return; }
+  const perm=t.closest("[data-perm]"); if(perm&&!perm.disabled){
+    const on=perm.getAttribute("aria-checked")!=="true";
+    try{ await api(`/api/party/factories/${fpFac}/perms`,{method:"PUT",body:JSON.stringify({perms:{[perm.dataset.perm]:on}})}); toast(on?"Allowed.":"Turned off for the owner."); await load(); }catch(err){ toast(err.message); }
+    return;
+  }
+  const act=t.closest("[data-act]"); if(!act) return;
+  const a=act.dataset.act;
+  const req=act.closest("[data-req]"), ship=act.closest("[data-ship]"), job=act.closest("[data-job]");
+  if(req){ const fid=req.dataset.f, r=facOf(fid).requests.find(x=>x.id===req.dataset.req), noun=r.kind==="bobbin"?"bobbin":"warp";
+    if(a==="approve") return openDlg({title:`Approve ${noun} for ${r.loomName}`,sub:`${facOf(fid).name} asked for ${r.sarees} sarees (${r.meters} m). It goes on their board as ordered.`,ok:"Approve",
+      body:`<div class="two">${fld("apSarees","Sarees",`type="number" min="1" step="${r.widthType==="triple"?3:1}" required`,r.sarees)}${fld("apName",`${noun==="bobbin"?"Bobbin":"Warp"} name / ID`,'placeholder="optional, e.g. W-122"')}</div>${noun==="warp"?`<div class="two">${fld("apBody","Body colour",'placeholder="same as now"')}${fld("apBorder","Border colour",'placeholder="same as now"')}</div>`:fld("apColor","Colour",'placeholder="same as now"')}`,
+      onSubmit:async()=>{ await api(`/api/party/factories/${fid}/requests/${r.id}/decide`,{method:"POST",body:JSON.stringify({approve:true,sarees:Number(v("apSarees")),name:v("apName"),bodyColor:$("apBody")?.value,borderColor:$("apBorder")?.value,color:$("apColor")?.value})}); return "Approved. The factory sees it on order."; }});
+    if(a==="reject") return openDlg({title:`Reject ${noun} for ${r.loomName}?`,ok:"Reject",body:fld("rjReason","Reason (the factory sees this)",'placeholder="e.g. use B-36 instead"'),
+      onSubmit:async()=>{ await api(`/api/party/factories/${fid}/requests/${r.id}/decide`,{method:"POST",body:JSON.stringify({approve:false,reason:v("rjReason")})}); return "Rejected."; }});
+  }
+  if(ship){ const fid=ship.dataset.f, id=ship.dataset.ship;
+    if(a==="got"){ try{ await api(`/api/party/factories/${fid}/shipments/${id}/receive`,{method:"POST",body:"{}"}); toast("Confirmed. The factory can see it arrived."); await load(); }catch(err){ toast(err.message); } return; }
+    if(a==="issue") return openDlg({title:"Report short or damaged sarees",ok:"Confirm with issue",body:fld("shIssue","What was wrong? *",'required placeholder="e.g. 2 short, 1 damaged"'),
+      onSubmit:async()=>{ await api(`/api/party/factories/${fid}/shipments/${id}/receive`,{method:"POST",body:JSON.stringify({issue:v("shIssue")})}); return "Reported to the factory."; }});
+  }
+  if(job){ const fid=job.dataset.f, j=facOf(fid).jobOrders.find(x=>x.id===job.dataset.job);
+    if(a==="close"||a==="reopen"){ try{ await api(`/api/party/factories/${fid}/job-orders/${j.id}`,{method:"PUT",body:JSON.stringify({status:a==="close"?"closed":"open"})}); toast(a==="close"?"Order closed; its looms are free.":"Order reopened."); await load(); }catch(err){ toast(err.message); } return; }
+    if(a==="edit") return orderDialog(fid,j);
+  }
+  const f2=facOf(fpFac);
+  if(a==="addloom"||a==="editloom"){
+    const l=a==="editloom"?f2.looms.find(x=>x.id===act.closest("[data-loom]").dataset.loom):null;
+    return openDlg({title:l?`Edit ${l.name}`:`Add loom · ${f2.name}`,ok:l?"Save":"Add loom",
+      body:`<div class="two">${fld("lmName","Loom number *","required",l?.name||"")}<div class="field"><label for="lmWidth">Width *</label><select id="lmWidth"><option value="triple"${l?.widthType==="triple"?" selected":""}>Triple</option><option value="single"${l?.widthType==="single"?" selected":""}>Single</option></select></div></div><label class="check"><input type="checkbox" id="lmBobbin"${!l||l.needsBobbin?" checked":""}> Needs a bobbin bobbin</label>`,
+      onSubmit:async()=>{ const body=JSON.stringify({name:v("lmName"),widthType:v("lmWidth"),needsBobbin:$("lmBobbin").checked});
+        if(l) await api(`/api/party/factories/${fpFac}/looms/${l.id}`,{method:"PUT",body}); else await api(`/api/party/factories/${fpFac}/looms`,{method:"POST",body}); return l?"Loom saved.":"Loom added. The factory sees it now."; }});
+  }
+  if(a==="adddesign"||a==="editdesign"){
+    const d=a==="editdesign"?f2.designs.find(x=>x.id===act.closest("[data-design]").dataset.design):null;
+    return openDlg({title:d?`Edit ${d.number}`:`New design · ${f2.name}`,sub:"The factory sets the weaver's wage per saree; you set the number, name and your job rate.",ok:d?"Save":"Add design",
+      body:`<div class="two">${fld("dsNo","Design number *","required",d?.number||"")}${fld("dsName","Name","",d?.name||"")}</div>${fld("dsRate","Job rate (₹ per saree)",'type="number" min="0" step="0.01" inputmode="decimal"',d?.jobRate??"")}`,
+      onSubmit:async()=>{ const body=JSON.stringify({number:v("dsNo"),name:v("dsName"),jobRate:v("dsRate")});
+        if(d) await api(`/api/party/factories/${fpFac}/designs/${d.id}`,{method:"PUT",body}); else await api(`/api/party/factories/${fpFac}/designs`,{method:"POST",body}); return d?"Design saved.":"Design added."; }});
+  }
+});
+function orderDialog(fid,j){
+  const facs=data.factories; if(!facs.length) return toast("Register a factory first.");
+  fid=fid||(fac!=="all"?fac:facs[0].id);
+  const build=id=>{ const f=facOf(id);
+    return `<div class="field"><label for="joFac">Factory *</label><select id="joFac"${j?" disabled":""}>${facs.map(x=>`<option value="${esc(x.id)}"${x.id===id?" selected":""}>${esc(x.name)}</option>`).join("")}</select></div>
+      <div class="two"><div class="field"><label for="joDesign">Design</label><select id="joDesign"><option value="">—</option>${f.designs.map(d=>`<option value="${esc(d.id)}"${j?.designId===d.id?" selected":""}>${esc(d.number)}${d.name?` · ${esc(d.name)}`:""}</option>`).join("")}</select></div>${fld("joTarget","Sarees *",'type="number" min="1" step="1" required',j?.target||"")}</div>
+      <div class="field"><label>Looms (same width)</label><div class="checks">${f.looms.map(l=>`<label><input type="checkbox" value="${esc(l.id)}"${j?.loomIds?.includes(l.id)?" checked":""}> ${esc(l.name)} · ${l.widthType}</label>`).join("")||'<span class="sub">Add looms under Factories &amp; setup first.</span>'}</div></div>
+      ${fld("joNote","Note","",j?.note||"")}`; };
+  openDlg({title:j?`Edit ${j.code}`:"New job order",sub:"Tells the factory what to weave and on which looms. Sarees dispatched from those looms count towards it.",ok:j?"Save":"Create order",body:build(fid),
+    onSubmit:async()=>{ const f=v("joFac"), body=JSON.stringify({designId:v("joDesign"),target:Number(v("joTarget")),loomIds:[...$("dlgBody").querySelectorAll(".checks input:checked")].map(x=>x.value),note:v("joNote")});
+      if(j) await api(`/api/party/factories/${f}/job-orders/${j.id}`,{method:"PUT",body}); else await api(`/api/party/factories/${f}/job-orders`,{method:"POST",body}); return j?"Order saved.":"Order sent to the factory."; }});
+  $("joFac").addEventListener("change",e=>{ $("dlgBody").innerHTML=build(e.target.value); });
+}
+$("newOrder").addEventListener("click",()=>orderDialog(null,null));
+$("regFactory").addEventListener("click",()=>openDlg({title:"Register a factory",sub:"Creates the factory and a login for its owner. The owner runs the looms; you set them up.",ok:"Register",
+  body:`<div class="two">${fld("rfName","Factory name *","required")}${fld("rfLoc","Location")}</div><div class="two">${fld("rfOwner","Owner name *","required")}${fld("rfPhone","Owner mobile",'type="tel" inputmode="tel"')}</div><div class="two">${fld("rfUser","Owner login *",'required autocapitalize="none" placeholder="e.g. mobile number"')}${fld("rfPass","Owner password",'type="password" autocomplete="new-password" placeholder="leave empty to link an existing login"')}</div>`,
+  onSubmit:async()=>{ const d=await api("/api/party/factories",{method:"POST",body:JSON.stringify({name:v("rfName"),location:v("rfLoc"),ownerName:v("rfOwner"),ownerPhone:v("rfPhone"),username:v("rfUser"),password:v("rfPass")})}); fpFac=d.factory.id; return `Registered. ${d.owner.username} can sign in now.`; }}));
+$("annForm").addEventListener("submit",async e=>{
+  e.preventDefault(); hide("annNotice");
+  const factoryIds=[...$("annFacs").querySelectorAll("input:checked")].map(x=>x.value);
+  try{ const d=await api("/api/party/announcements",{method:"POST",body:JSON.stringify({factoryIds,kind:v("annKind"),title:v("annTitle"),body:v("annBody"),ackRequired:$("annAck").checked})});
+    $("annTitle").value=""; $("annBody").value=""; notice("annNotice",`Sent to ${d.sent.length} factor${d.sent.length===1?"y":"ies"}.`,true); await load(); }
+  catch(err){ notice("annNotice",err.message); }
+});
+const signOut=()=>{ store_.set("loom.token",null); location.replace("index.html"); };
+$("signOut").addEventListener("click",signOut); $("mSignOut").addEventListener("click",signOut);
+$("pwBtn").addEventListener("click",()=>openDlg({title:"Change password",ok:"Change password",body:`${fld("pwCur","Current password *",'type="password" required autocomplete="current-password"')}<div class="two">${fld("pwNew","New password *",'type="password" required minlength="4" autocomplete="new-password"')}${fld("pwNew2","Repeat *",'type="password" required minlength="4" autocomplete="new-password"')}</div>`,
+  onSubmit:async()=>{ if(v("pwNew")!==v("pwNew2")) throw new Error("The new passwords do not match."); const d=await api("/api/auth/password",{method:"POST",body:JSON.stringify({currentPassword:v("pwCur"),newPassword:v("pwNew")})}); token=d.token; store_.set("loom.token",token); startLive(); return "Password changed."; }}));
+
+// ---- load + live updates ----
+async function load(){ data=await api("/api/party/overview"); render(); }
+let src=null, liveT=null;
+function startLive(){
+  if(src) src.close(); if(typeof EventSource==="undefined") return;
+  src=new EventSource(`/api/events?token=${encodeURIComponent(token)}`);
+  src.onopen=()=>{ $("live").classList.remove("off"); $("liveText").textContent="Live"; };
+  src.onerror=()=>{ $("live").classList.add("off"); $("liveText").textContent="Reconnecting…"; };
+  src.onmessage=()=>{ clearTimeout(liveT); liveT=setTimeout(()=>{ if(!$("dlg").open) load().catch(()=>{}); },500); };
+}
+function licenseBar(l){
+  if(!l||l.state==="active"||!l.message) return hide("licBar");
+  const msg=!l.party?"Party features need a Party license on this PC. Ask the admin to renew it.":(l.readOnly?"Read-only: ":"")+l.message+(l.readOnly?" Ask the admin to renew the license.":"");
+  notice("licBar",msg,!l.readOnly&&l.party);
+}
+async function boot(){
+  if(!token) return location.replace("index.html");
+  const m=await api("/api/auth/me");
+  if(m.user.role!=="party") return location.replace("index.html");
+  me=m.user; $("app").hidden=false; licenseBar(m.license); route(); await load(); startLive();
+}
+boot().catch(err=>toast("Could not load: "+err.message));
+</script>
+</body>
+</html>

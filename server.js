@@ -8,13 +8,19 @@ const HOST = "0.0.0.0";
 const { DATA_DIR, backupConfig, writeJsonAtomic } = require("./paths");
 const { backupNow, safeArchiveLogs } = require("./backup");
 const store = require("./store");
-const { requireAuth, requireAdmin, factoryScope, authRouter } = require("./auth");
+const { requireAuth, requireAdmin, requireParty, factoryScope, authRouter, userFromToken } = require("./auth");
+const events = require("./events");
+const party = require("./party");
+const license = require("./license");
 
 // Larger than the default 100kb so a design image (resized in the browser) fits in one request.
 app.use(express.json({ limit: "2mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 // Served locally (not from a CDN) so dashboard image export also works on an offline LAN.
 app.use("/vendor/html2canvas", express.static(path.join(__dirname, "node_modules", "html2canvas", "dist")));
+// An expired, revoked or long-unverified license makes the app read-only (license.js): changes are refused,
+// everything can still be viewed, and licensing, backups, settings and upgrade keep working.
+app.use("/api", license.readOnlyGuard);
 
 // Each factory has its own data file (store.factoryFile). Data routes get the factory id from
 // factoryScope (X-Factory header), so every read/write below is limited to one factory.
@@ -29,8 +35,10 @@ function readDb(factoryId) {
   return db;
 }
 // Atomic (temp file + rename), so a crash or power cut mid-write never leaves a half-written file.
+// Every write tells connected pages (owners and parties of this factory) to reload: see events.js.
 function writeDb(factoryId, db) {
   writeJsonAtomic(store.factoryFile(factoryId), db);
+  events.emit(factoryId);
 }
 
 // One saree length. A warp with less than this left cannot produce another saree
@@ -44,7 +52,7 @@ function isSpent(warp) {
 // Brings older data files up to the current shape. Returns true if anything changed.
 function migrateDb(db) {
   let changed = false;
-  for (const key of ["clients", "stockMoves", "staff", "designs", "wagePayouts", "wageDeductions", "wageShifts", "partyPayments", "bobbins", "expenses"]) {
+  for (const key of ["clients", "stockMoves", "staff", "designs", "wagePayouts", "wageDeductions", "wageShifts", "partyPayments", "bobbins", "expenses", "weftStock", "jobOrders", "shipments", "requests", "announcements"]) {
     if (!Array.isArray(db[key])) { db[key] = []; changed = true; }
   }
   if (!Array.isArray(db.activity)) { db.activity = seedActivity(db); db.activityVersion = 2; changed = true; }
@@ -111,8 +119,9 @@ function settleSpentWarps(db) {
 // Activity log: every change to a factory's data adds one entry, newest first.
 const sarees = n => `${n} saree${n === 1 ? "" : "s"}`;
 const actor = req => req.user.name || req.user.username;
-function logEvent(db, req, type, text) {
-  db.activity.unshift({ id: id("LOG"), type, text, by: actor(req), at: new Date().toISOString() });
+// partyId tags entries about a party's looms or orders, so that party sees them in its live feed.
+function logEvent(db, req, type, text, partyId) {
+  db.activity.unshift({ id: id("LOG"), type, text, by: actor(req), at: new Date().toISOString(), ...(partyId ? { partyId } : {}) });
 }
 // Builds a log from existing records for data saved before the activity log existed.
 function seedActivity(db) {
@@ -213,9 +222,31 @@ function assignWarp(loom, warp, kind = "warps") {
 
 app.get("/api/health", (_req, res) => res.json({ status: "ok", app: "My Thari" }));
 app.use("/api/auth", authRouter());
-app.use("/api/admin", requireAuth, requireAdmin, require("./admin")({ flushToStock: id => flushToStock(id) }));
+app.use("/api/admin", requireAuth, requireAdmin, require("./admin")({ flushToStock: id => flushToStock(id), emit: events.emit }));
+// Live updates (Server-Sent Events). Admins hear every factory, parties the factories they registered, users theirs.
+app.get("/api/events", events.eventsRoute(userFromToken, user => {
+  if (user.role === "admin") return null;
+  if (user.role === "party") return store.partyFactories(store.readAccounts(), user.partyId).map(f => f.id);
+  return user.factoryIds || [];
+}));
+// The party app (public/party.html): see party.js.
+app.use("/api/party", requireAuth, requireParty, license.needPartyEdition, party({ readDb, writeDb, logEvent, loomState: (db, l) => loomState(db, l), newId: id }));
 // Everything below works on one factory's data and needs a signed-in user with access to it.
-app.use(["/api/data", "/api/warps", "/api/bobbins", "/api/looms", "/api/deliveries", "/api/clients", "/api/stock", "/api/order", "/api/staff", "/api/designs", "/api/wages", "/api/expenses"], requireAuth, factoryScope);
+app.use(["/api/data", "/api/warps", "/api/bobbins", "/api/looms", "/api/deliveries", "/api/clients", "/api/stock", "/api/order", "/api/staff", "/api/designs", "/api/wages", "/api/expenses", "/api/weft", "/api/requests", "/api/shipments", "/api/announcements"], requireAuth, factoryScope);
+// In a factory a party has registered, looms and designs are set up by the party (party app). Owners keep
+// running them; an admin can still change anything.
+const setupByParty = (req, res, next) => req.user.role !== "admin" && party.partyManaged(req.factory)
+  ? res.status(403).json({ error: "Looms and designs in this factory are set up by the party. Ask them to change it in their app." }) : next();
+app.post("/api/looms", setupByParty, license.needRoom("loom"));
+app.put("/api/looms/:id", setupByParty);
+app.post("/api/designs", setupByParty);
+// What the owner may do on a party's loom (factory.ownerPerms, set by that party). Returns an error message or "".
+function notAllowed(req, loom, perm) {
+  if (req.user.role === "admin" || !loom?.partyId) return "";
+  if (party.permsFor(req.factory, loom.partyId)[perm]) return "";
+  const what = { dispatch: "record dispatches", stop: "stop or resume", warp: "put warps or bobbins on", request: "request warp or bobbin for", ship: "send sarees to the party for" }[perm];
+  return `The party has not allowed you to ${what} ${loom.name}.`;
+}
 // Each factory turns the Stock module (process, stock, parties) and the Wages module (staff, designs,
 // wages) on or off in Settings (factory.modules, missing = on). Production (warps, looms, dispatch) is always on.
 // Stock + Wages factories skip the Process step unless "Include Process" is ticked (modules.process).
@@ -227,12 +258,19 @@ app.use(["/api/stock", "/api/clients"], needModule("stock", "Stock"));
 app.use(["/api/staff", "/api/designs", "/api/wages", "/api/looms/:id/setup"], needModule("wages", "Wages"));
 // Stock-only factories have no looms to cost, so Expenses is off for them too (it follows the Wages module).
 app.use("/api/expenses", needModule("wages", "Expenses"));
+// Weft is tracked per design, so it follows the Wages module too.
+app.use("/api/weft", needModule("wages", "Weft"));
 // Design images and staff photos are left out (only hasImage); the page loads each one from
 // /api/designs/:id/image or /api/staff/:id/image.
 const noImage = ({ image, ...rest }) => ({ ...rest, hasImage: !!image });
 app.get("/api/data", (req, res) => {
   const db = readDb(req.factoryId);
-  res.json({ ...db, designs: db.designs.map(noImage), staff: db.staff.map(noImage) });
+  // parties: the parties giving this factory job work, with what they let the owner do.
+  const accounts = store.readAccounts();
+  const parties = (req.factory.partyIds || []).map(pid => accounts.parties.find(p => p.id === pid)).filter(Boolean)
+    .map(p => ({ id: p.id, name: p.name, phone: p.phone || "", perms: party.permsFor(req.factory, p.id) }));
+  res.json({ ...db, designs: db.designs.map(noImage), staff: db.staff.map(noImage), parties, partyManaged: party.partyManaged(req.factory),
+    jobOrders: db.jobOrders.map(j => ({ ...j, ...party.jobStats(db, j) })) });
 });
 
 app.post("/api/warps", (req, res) => {
@@ -264,7 +302,7 @@ app.post("/api/warps", (req, res) => {
   res.status(201).json(warp);
 });
 
-// A bobbin (weft) is measured like a warp: meters, or sarees at 6.3 m each (3 per 6.3 m on triple width).
+// A bobbin (extra warp for the saree border) is measured like a warp: meters, or sarees at 6.3 m each (3 per 6.3 m on triple width).
 app.post("/api/bobbins", (req, res) => {
   const body = req.body || {};
   const name = cleanText(body.name), widthType = body.widthType, meters = positiveNumber(body.meters), color = cleanText(body.color);
@@ -340,6 +378,8 @@ app.post("/api/deliveries", (req, res) => {
   const db = readDb(req.factoryId);
   const loom = db.looms.find(l => l.id === loomId);
   if (!loom) return res.status(404).json({ error: "Select a valid loom." });
+  const denied = notAllowed(req, loom, "dispatch");
+  if (denied) return res.status(403).json({ error: denied });
   if (loom.stoppedAt) return res.status(409).json({ error: "This loom is stopped. Resume it before recording a delivery." });
   if (!Number.isInteger(quantity) || quantity <= 0) {
     return res.status(400).json({ error: "Number of sarees must be a positive whole number." });
@@ -371,13 +411,14 @@ app.post("/api/deliveries", (req, res) => {
     id: id("DEL"), loomId: loom.id, loomName: loom.name, warpId: warp.id, warpName: warp.name,
     widthType: loom.widthType, sarees: quantity, metersReduced: Number(metersToReduce.toFixed(2)),
     remainingMeters: warp.remainingMeters, note, lrNumber, createdAt: new Date().toISOString(),
+    ...(loom.partyId ? { partyId: loom.partyId } : {}), ...(loom.jobOrderId ? { jobOrderId: loom.jobOrderId } : {}),
     ...(bobbin ? { bobbinId: bobbin.id, bobbinName: bobbin.name, bobbinRemaining: bobbin.remainingMeters } : {}),
     ...(modulesOf(req.factory).wages ? dispatchWage(req.factory, db, loom, quantity, designId || loom.designId) : {})
   };
   db.deliveries.unshift(delivery);
   if (delivery.designId && loom.designId !== delivery.designId) loom.designId = delivery.designId; // the loom is now weaving this design
   const wageText = delivery.wage != null ? ` · wage ${money(delivery.wage)} to ${delivery.staffName} (${delivery.designNo})` : "";
-  logEvent(db, req, "dispatch", `${sarees(quantity)} dispatched from ${loom.name} (${warp.name}) · ${delivery.metersReduced} m used, ${warp.remainingMeters} m left${lrNumber ? ` · LR ${lrNumber}` : ""}${bobbin ? ` · bobbin ${bobbin.name} ${bobbin.remainingMeters} m left` : ""}${wageText}${warp.status === "Completed" ? ` · ${warp.name} completed, ${loom.name} free` : ""}${bobbin && bobbin.status === "Completed" ? ` · bobbin ${bobbin.name} completed` : ""}${loomState(db, loom).running ? "" : ` · ${loom.name} stopped: ${loomState(db, loom).reason}`}`);
+  logEvent(db, req, "dispatch", `${sarees(quantity)} dispatched from ${loom.name} (${warp.name}) · ${delivery.metersReduced} m used, ${warp.remainingMeters} m left${lrNumber ? ` · LR ${lrNumber}` : ""}${bobbin ? ` · bobbin ${bobbin.name} ${bobbin.remainingMeters} m left` : ""}${wageText}${warp.status === "Completed" ? ` · ${warp.name} completed, ${loom.name} free` : ""}${bobbin && bobbin.status === "Completed" ? ` · bobbin ${bobbin.name} completed` : ""}${loomState(db, loom).running ? "" : ` · ${loom.name} stopped: ${loomState(db, loom).reason}`}`, loom.partyId);
   writeDb(req.factoryId, db);
   res.status(201).json({ delivery, loom, warp, bobbin });
 });
@@ -477,6 +518,10 @@ function moveRoute(kind) {
       warp.status = "Ordered";
       delete warp.readyDate;
     } else if (to === "ready") {
+      // Marking a party's warp/bobbin as received needs that party's "receive" permission.
+      if (from === "ordered" && warp.partyId && req.user.role !== "admin" && !party.permsFor(req.factory, warp.partyId).receive) {
+        return res.status(403).json({ error: `The party has not allowed you to mark its ${noun}s received.` });
+      }
       if (from === "running") {
         if (offLoom) { offLoom[slot] = null; if (kind === "warps") offLoom.status = "Available"; }
         warp.assignedLoomId = null;
@@ -488,6 +533,8 @@ function moveRoute(kind) {
     } else if (to === "running") {
       const loom = db.looms.find(l => l.id === cleanText(body.loomId));
       if (!loom) return res.status(404).json({ error: `Select a loom to run this ${noun} on.` });
+      const denied = notAllowed(req, loom, "warp");
+      if (denied) return res.status(403).json({ error: denied });
       if (from === "ordered") { warp.status = "Ready"; warp.readyDate = date; }
       const err = assignError(loom, warp, kind);
       if (err) return res.status(err[0]).json({ error: err[1] });
@@ -498,7 +545,8 @@ function moveRoute(kind) {
     const loomNow = db.looms.find(l => l.id === warp.assignedLoomId);
     logEvent(db, req, noun, to === "ordered" ? `${Noun} ${warp.name} moved back to ordered`
       : to === "running" ? `${Noun} ${warp.name} started on ${loomNow ? loomNow.name : "a loom"}`
-      : from === "running" ? `${Noun} ${warp.name} taken off ${offLoom ? offLoom.name : "its loom"}, back to ready` : `${Noun} ${warp.name} marked ready`);
+      : from === "running" ? `${Noun} ${warp.name} taken off ${offLoom ? offLoom.name : "its loom"}, back to ready` : `${Noun} ${warp.name} marked ready`,
+      warp.partyId || loomNow?.partyId || offLoom?.partyId);
     writeDb(req.factoryId, db);
     res.json({ [noun]: warp });
   };
@@ -512,10 +560,12 @@ app.post("/api/looms/:id/assign-warp", (req, res) => {
   const warp = db.warps.find(w => w.id === cleanText(req.body?.warpId));
   if (!loom) return res.status(404).json({ error: "Loom not found." });
   if (!warp) return res.status(404).json({ error: "Warp not found." });
+  const denied = notAllowed(req, loom, "warp");
+  if (denied) return res.status(403).json({ error: denied });
   const err = assignError(loom, warp);
   if (err) return res.status(err[0]).json({ error: err[1] });
   assignWarp(loom, warp);
-  logEvent(db, req, "warp", `Warp ${warp.name} started on ${loom.name}`);
+  logEvent(db, req, "warp", `Warp ${warp.name} started on ${loom.name}`, loom.partyId);
   writeDb(req.factoryId, db);
   res.json({ loom, warp });
 });
@@ -543,10 +593,12 @@ app.post("/api/looms/:id/stop", (req, res) => {
   const db = readDb(req.factoryId);
   const loom = db.looms.find(l => l.id === req.params.id);
   if (!loom) return res.status(404).json({ error: "Loom not found." });
+  const denied = notAllowed(req, loom, "stop");
+  if (denied) return res.status(403).json({ error: denied });
   if (loom.stoppedAt) return res.status(409).json({ error: "This loom is already stopped." });
   loom.stoppedAt = new Date().toISOString();
   loom.stopReason = cleanText(req.body?.reason);
-  logEvent(db, req, "loom", `Loom ${loom.name} stopped${loom.stopReason ? ` · ${loom.stopReason}` : ""}`);
+  logEvent(db, req, "loom", `Loom ${loom.name} stopped${loom.stopReason ? ` · ${loom.stopReason}` : ""}`, loom.partyId);
   writeDb(req.factoryId, db);
   res.json(loom);
 });
@@ -555,9 +607,11 @@ app.post("/api/looms/:id/resume", (req, res) => {
   const db = readDb(req.factoryId);
   const loom = db.looms.find(l => l.id === req.params.id);
   if (!loom) return res.status(404).json({ error: "Loom not found." });
+  const denied = notAllowed(req, loom, "stop");
+  if (denied) return res.status(403).json({ error: denied });
   delete loom.stoppedAt;
   delete loom.stopReason;
-  logEvent(db, req, "loom", `Loom ${loom.name} resumed`);
+  logEvent(db, req, "loom", `Loom ${loom.name} resumed`, loom.partyId);
   writeDb(req.factoryId, db);
   res.json(loom);
 });
@@ -725,6 +779,11 @@ const round2 = n => Math.round(n * 100) / 100;
 // A loom can have several designs (designIds); designId is the one weaving now and is what a dispatch uses.
 // How a factory pays its weavers (factory settings): "saree" = sarees dispatched × the design's rate,
 // "shift" = shifts worked (entered on the Wages page) × the factory's wage per shift.
+// Weft of a design, one part at a time: main weft, meena 1, meena 2 and jari, each with grams per saree.
+// An older design with only weftGrams counts as main weft.
+const WEFT_PARTS = { main: "Main weft", meena1: "Meena 1", meena2: "Meena 2", jari: "Jari" };
+const round1 = n => Math.round(n * 10) / 10;
+const weftPartsOf = d => Array.isArray(d?.weft) && d.weft.length ? d.weft : d?.weftGrams ? [{ kind: "main", grams: d.weftGrams }] : [];
 const wageBasisOf = f => f?.wageBasis === "shift" ? "shift" : "saree";
 // The factory's shifts [{ name, start, hours, rate }] (an older single `shift` counts as "Shift 1").
 const shiftsOf = f => Array.isArray(f?.shifts) ? f.shifts : f?.shift ? [{ name: "Shift 1", ...f.shift }] : [];
@@ -734,6 +793,8 @@ function wageFor(db, loom, quantity, designId = loom.designId) {
   const design = db.designs.find(d => d.id === designId);
   const out = {};
   if (design) Object.assign(out, { designId: design.id, designNo: design.number, designName: design.name, rate: design.rate });
+  const parts = weftPartsOf(design);
+  if (parts.length) Object.assign(out, { weft: parts, weftGrams: round1(parts.reduce((t, p) => t + p.grams, 0)) }); // weft grams per saree when dispatched
   if (staff) Object.assign(out, { staffId: staff.id, staffName: staff.name });
   if (staff && design) out.wage = round2(quantity * design.rate);
   return out;
@@ -915,6 +976,57 @@ app.delete("/api/expenses/:id", (req, res) => {
   res.json({ removed: x.id });
 });
 
+// Weft (yarn for the cross threads, not the bobbin) is tracked in grams per design. A design says how many grams
+// one saree takes (design.weftGrams) and each dispatch snapshots that figure, so use = sarees × grams. Stock coming
+// in (kind "in") and other weft taken out such as wastage or returns (kind "out") are entries in db.weftStock,
+// optionally tagged with a design. Balance = in − out − used by dispatches (worked out by the page).
+function weftBody(db, body) {
+  const kind = cleanText(body.kind) || "in";
+  if (kind !== "in" && kind !== "out") return { error: "Choose received or taken out." };
+  const grams = Number(body.grams);
+  if (!Number.isFinite(grams) || grams <= 0) return { error: "Enter the weight in grams (more than 0)." };
+  const date = body.date ? isoDate(body.date) : new Date().toISOString().slice(0, 10);
+  if (!date) return { error: "Enter a valid date." };
+  const designId = cleanText(body.designId);
+  const design = designId ? db.designs.find(d => d.id === designId) : null;
+  if (designId && !design) return { error: "Design not found." };
+  const part = cleanText(body.part);
+  if (part && !WEFT_PARTS[part]) return { error: "Choose main weft, meena 1, meena 2 or jari." };
+  return { value: { kind, grams: Math.round(grams * 10) / 10, date, part, partName: WEFT_PARTS[part] || "", designId: design?.id || null, designNo: design?.number || "", designName: design?.name || "",
+    colour: cleanText(body.colour).slice(0, 60), vendor: cleanText(body.vendor).slice(0, 120), billNo: cleanText(body.billNo).slice(0, 60), note: cleanText(body.note).slice(0, 500) } };
+}
+const weftText = x => `${x.kind === "in" ? "Weft received" : "Weft taken out"} ${x.grams} g${x.partName ? ` · ${x.partName}` : ""}${x.designNo ? ` · design ${x.designNo}` : ""}${x.colour ? ` · ${x.colour}` : ""}${x.vendor ? ` · ${x.vendor}` : ""}`;
+app.post("/api/weft", (req, res) => {
+  const db = readDb(req.factoryId);
+  const r = weftBody(db, req.body || {});
+  if (r.error) return res.status(400).json({ error: r.error });
+  const x = { id: id("WFT"), ...r.value, by: actor(req), createdAt: new Date().toISOString() };
+  db.weftStock.unshift(x);
+  logEvent(db, req, "weft", weftText(x));
+  writeDb(req.factoryId, db);
+  res.status(201).json(x);
+});
+app.put("/api/weft/:id", (req, res) => {
+  const db = readDb(req.factoryId);
+  const x = db.weftStock.find(e => e.id === req.params.id);
+  if (!x) return res.status(404).json({ error: "Weft entry not found." });
+  const r = weftBody(db, req.body || {});
+  if (r.error) return res.status(400).json({ error: r.error });
+  Object.assign(x, r.value, { updatedAt: new Date().toISOString() });
+  logEvent(db, req, "weft", `${weftText(x)} (edited)`);
+  writeDb(req.factoryId, db);
+  res.json(x);
+});
+app.delete("/api/weft/:id", (req, res) => {
+  const db = readDb(req.factoryId);
+  const x = db.weftStock.find(e => e.id === req.params.id);
+  if (!x) return res.status(404).json({ error: "Weft entry not found." });
+  db.weftStock = db.weftStock.filter(e => e !== x);
+  logEvent(db, req, "weft", `${weftText(x)} (removed)`);
+  writeDb(req.factoryId, db);
+  res.json({ removed: x.id });
+});
+
 function designBody(body) {
   const number = cleanText(body.number), name = cleanText(body.name), rate = rateField(body.rate), image = imageField(body.image);
   if (!number) return { error: "Enter the design number." };
@@ -930,7 +1042,18 @@ function designBody(body) {
   };
   const picks = opt(body.picks, "Number of picks", true, 0), timing = opt(body.timing, "Timing", false, 2), pickCost = opt(body.pickCost, "Cost per pick", false, 4);
   for (const x of [picks, timing, pickCost]) if (x.error) return { error: x.error };
-  return { number, name, rate, image, picks: picks.value, timing: timing.value, pickCost: pickCost.value };
+  // Weft parts: [{ kind: main|meena1|meena2|jari, grams }], each kind once. A plain weftGrams counts as main weft.
+  const rawWeft = Array.isArray(body.weft) ? body.weft : (body.weftGrams === "" || body.weftGrams == null ? [] : [{ kind: "main", grams: body.weftGrams }]);
+  const weft = [];
+  for (const p of rawWeft) {
+    const kind = cleanText(p?.kind), grams = Number(p?.grams);
+    if (!WEFT_PARTS[kind]) return { error: "Choose main weft, meena 1, meena 2 or jari." };
+    if (!Number.isFinite(grams) || grams <= 0) return { error: `${WEFT_PARTS[kind]} grams must be a number above zero.` };
+    if (weft.some(w => w.kind === kind)) return { error: `${WEFT_PARTS[kind]} is added twice.` };
+    weft.push({ kind, grams: round1(grams) });
+  }
+  const weftGrams = { value: weft.length ? round1(weft.reduce((t, w) => t + w.grams, 0)) : null };
+  return { number, name, rate, image, picks: picks.value, timing: timing.value, pickCost: pickCost.value, weft, weftGrams: weftGrams.value };
 }
 
 app.post("/api/designs", (req, res) => {
@@ -939,7 +1062,7 @@ app.post("/api/designs", (req, res) => {
   const db = readDb(req.factoryId);
   if (db.designs.some(d => d.number.toLowerCase() === v.number.toLowerCase())) return res.status(409).json({ error: "A design with this number already exists." });
   const now = new Date().toISOString();
-  const design = { id: id("DSN"), number: v.number, name: v.name, rate: v.rate, picks: v.picks, timing: v.timing, pickCost: v.pickCost, image: v.image || null, imageAt: v.image ? now : null, createdAt: now };
+  const design = { id: id("DSN"), number: v.number, name: v.name, rate: v.rate, picks: v.picks, timing: v.timing, pickCost: v.pickCost, weft: v.weft, weftGrams: v.weftGrams, image: v.image || null, imageAt: v.image ? now : null, createdAt: now };
   db.designs.unshift(design);
   logEvent(db, req, "wages", `Design ${v.number}${v.name ? ` (${v.name})` : ""} added · ${money(v.rate)} per saree`);
   writeDb(req.factoryId, db);
@@ -954,15 +1077,19 @@ app.put("/api/designs/:id", (req, res) => {
   const db = readDb(req.factoryId);
   const design = db.designs.find(d => d.id === req.params.id);
   if (!design) return res.status(404).json({ error: "Design not found." });
+  // A party's design: the owner sets the weaver's wage and weaving details; number and name stay the party's.
+  if (design.partyId && req.user.role !== "admin") Object.assign(v, { number: design.number, name: design.name });
   if (db.designs.some(d => d !== design && d.number.toLowerCase() === v.number.toLowerCase())) return res.status(409).json({ error: "A design with this number already exists." });
   const changes = [];
   if (design.number !== v.number) changes.push(`renumbered ${v.number}`);
   if (design.rate !== v.rate) changes.push(`wage ${money(design.rate)} → ${money(v.rate)} per saree`);
   if (v.image !== undefined && v.image !== design.image) changes.push(v.image ? "image updated" : "image removed");
-  for (const [k, label] of [["picks", "picks"], ["timing", "timing"], ["pickCost", "cost per pick"]]) {
+  for (const [k, label] of [["picks", "picks"], ["timing", "timing"], ["pickCost", "cost per pick"], ["weftGrams", "weft g per saree"]]) {
     if ((design[k] ?? null) !== v[k]) changes.push(`${label} ${design[k] ?? "—"} → ${v[k] ?? "—"}`);
   }
-  Object.assign(design, { number: v.number, name: v.name, rate: v.rate, picks: v.picks, timing: v.timing, pickCost: v.pickCost });
+  const weftLine = w => w.map(x => `${WEFT_PARTS[x.kind]} ${x.grams} g`).join(", ") || "none";
+  if (weftLine(weftPartsOf(design)) !== weftLine(v.weft)) changes.push(`weft ${weftLine(weftPartsOf(design))} → ${weftLine(v.weft)}`);
+  Object.assign(design, { number: v.number, name: v.name, rate: v.rate, picks: v.picks, timing: v.timing, pickCost: v.pickCost, weft: v.weft, weftGrams: v.weftGrams });
   if (v.image !== undefined && v.image !== design.image) Object.assign(design, { image: v.image, imageAt: v.image ? new Date().toISOString() : null });
   logEvent(db, req, "wages", `Design ${design.number} updated${changes.length ? ` · ${changes.join(", ")}` : ""}`);
   writeDb(req.factoryId, db);
@@ -1386,6 +1513,72 @@ app.post("/api/stock/adjust", (req, res) => {
   res.status(201).json({ move, pool: stockFor(db) });
 });
 
+// ---- Party work (factory owner side): warp/bobbin requests, sarees sent to a party, announcements ----
+// Asks the loom's party for a new warp or bobbin. { kind: "warp"|"bobbin", loomId, sarees, needBy?, note? }
+app.post("/api/requests", (req, res) => {
+  const body = req.body || {};
+  const kind = body.kind === "bobbin" ? "bobbin" : "warp";
+  const db = readDb(req.factoryId);
+  const loom = db.looms.find(l => l.id === cleanText(body.loomId));
+  if (!loom) return res.status(404).json({ error: "Select a loom." });
+  if (!loom.partyId) return res.status(400).json({ error: `${loom.name} is not set up by a party. Add the ${kind === "bobbin" ? "bobbin" : "warp"} on the board instead.` });
+  const denied = notAllowed(req, loom, "request");
+  if (denied) return res.status(403).json({ error: denied });
+  if (kind === "bobbin" && !loom.needsBobbin) return res.status(400).json({ error: `${loom.name} runs on warp only.` });
+  const n = Number(body.sarees);
+  if (!Number.isInteger(n) || n <= 0) return res.status(400).json({ error: "Enter the number of sarees as a whole number." });
+  if (loom.widthType === "triple" && n % 3) return res.status(400).json({ error: "For a triple-width loom, enter sarees in multiples of 3." });
+  const needBy = body.needBy ? isoDate(body.needBy) : null;
+  if (body.needBy && !needBy) return res.status(400).json({ error: "Enter a valid date." });
+  if (db.requests.some(r => r.status === "pending" && r.loomId === loom.id && r.kind === kind)) return res.status(409).json({ error: `There is already a ${kind === "bobbin" ? "bobbin" : "warp"} request waiting for ${loom.name}.` });
+  const r = { id: id("REQ"), kind, loomId: loom.id, loomName: loom.name, partyId: loom.partyId, widthType: loom.widthType, sarees: n,
+    meters: party.metersFor(n, loom.widthType), needBy, note: cleanText(body.note), status: "pending", by: actor(req), createdAt: new Date().toISOString() };
+  db.requests.unshift(r);
+  logEvent(db, req, "request", `${kind === "bobbin" ? "Bobbin" : "Warp"} requested for ${loom.name} · ${sarees(n)} (${r.meters} m)${needBy ? ` · need by ${needBy}` : ""}${r.note ? ` · ${r.note}` : ""}`, loom.partyId);
+  writeDb(req.factoryId, db);
+  res.status(201).json(r);
+});
+// Withdraws a request the party has not decided yet.
+app.delete("/api/requests/:id", (req, res) => {
+  const db = readDb(req.factoryId);
+  const r = db.requests.find(x => x.id === req.params.id);
+  if (!r) return res.status(404).json({ error: "Request not found." });
+  if (r.status !== "pending") return res.status(409).json({ error: `This request is already ${r.status}.` });
+  r.status = "cancelled";
+  logEvent(db, req, "request", `${r.kind === "bobbin" ? "Bobbin" : "Warp"} request for ${r.loomName} withdrawn`, r.partyId);
+  writeDb(req.factoryId, db);
+  res.json(r);
+});
+// Sends woven sarees of a job order to its party. { jobOrderId, qty, lrNumber?, note? }
+app.post("/api/shipments", (req, res) => {
+  const body = req.body || {};
+  const db = readDb(req.factoryId);
+  const jo = db.jobOrders.find(j => j.id === cleanText(body.jobOrderId));
+  if (!jo) return res.status(404).json({ error: "Select a job order." });
+  if (req.user.role !== "admin" && !party.permsFor(req.factory, jo.partyId).ship) return res.status(403).json({ error: "The party has not allowed you to send sarees for this job order." });
+  const qty = Number(body.qty);
+  if (!Number.isInteger(qty) || qty <= 0) return res.status(400).json({ error: "Enter a positive whole number of sarees." });
+  const st = party.jobStats(db, jo);
+  if (qty > st.atFactory) return res.status(400).json({ error: `Only ${sarees(st.atFactory)} of ${jo.code} are woven and not yet sent.` });
+  const s = { id: id("SHP"), partyId: jo.partyId, jobOrderId: jo.id, jobCode: jo.code, qty, lrNumber: cleanText(body.lrNumber), note: cleanText(body.note), by: actor(req), createdAt: new Date().toISOString() };
+  db.shipments.unshift(s);
+  logEvent(db, req, "shipment", `${sarees(qty)} sent to the party for ${jo.code}${s.lrNumber ? ` · LR ${s.lrNumber}` : ""}`, jo.partyId);
+  writeDb(req.factoryId, db);
+  res.status(201).json({ shipment: s, jobOrder: { ...jo, ...party.jobStats(db, jo) } });
+});
+// The owner confirms they have read a party's announcement.
+app.post("/api/announcements/:id/ack", (req, res) => {
+  const db = readDb(req.factoryId);
+  const a = db.announcements.find(x => x.id === req.params.id);
+  if (!a) return res.status(404).json({ error: "Announcement not found." });
+  if (!a.acks.some(k => k.userId === req.user.id)) {
+    a.acks.push({ userId: req.user.id, name: actor(req), at: new Date().toISOString() });
+    logEvent(db, req, "notice", `${actor(req)} got the announcement: ${a.title}`, a.partyId);
+    writeDb(req.factoryId, db);
+  }
+  res.json(a);
+});
+
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(500).json({ error: "Unexpected server error." });
@@ -1402,13 +1595,20 @@ const server = app.listen(PORT, HOST, () => {
   safeArchiveLogs();
   // Hourly: refresh today's backup and move log entries older than 30 days to a CSV archive.
   setInterval(() => { backupNow(); safeArchiveLogs(); }, 60 * 60 * 1000);
-  if (process.env.OPEN_BROWSER) openBrowser(`http://localhost:${PORT}`);
+  // License: make the install id on first start, then check in online when the license asks for it (weekly).
+  const lic = license.state();
+  console.log(`License: ${lic.editionLabel} · ${lic.state}${lic.expiresAt ? ` · until ${lic.expiresAt}` : ""} · install ${lic.installId}`);
+  const appVersion = require("./package.json").version;
+  const checkin = () => license.checkin(false, appVersion).catch(() => {});
+  checkin();
+  setInterval(checkin, 6 * 60 * 60 * 1000);
+  if (process.env.OPEN_BROWSER) openBrowser(`http://localhost:${PORT}${process.env.OPEN_PATH || ""}`);
 });
 server.on("error", err => {
   // Double-clicking the launcher while the app is already running: just show the open app.
   if (err.code === "EADDRINUSE") {
     console.log(`My Thari is already running on port ${PORT}. Opening it in the browser.`);
-    if (process.env.OPEN_BROWSER) openBrowser(`http://localhost:${PORT}`);
+    if (process.env.OPEN_BROWSER) openBrowser(`http://localhost:${PORT}${process.env.OPEN_PATH || ""}`);
     setTimeout(() => process.exit(0), 1500);
     return;
   }

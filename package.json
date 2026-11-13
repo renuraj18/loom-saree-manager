@@ -7,7 +7,12 @@
   "config": {
     "upgradeBranch": "main"
   },
+  "bin": {
+    "my-thari": "scripts/cli.js",
+    "my-thari-party": "scripts/cli.js"
+  },
   "scripts": {
+    "party": "node scripts/cli.js party",
     "start": "node launcher.js",
     "dev": "node launcher.js",
     "reset-data": "node scripts/reset-data.js",
