@@ -38,33 +38,59 @@
   </div>
 </header>
 <main>
-  <div class="notice err show" id="pwWarn" hidden>You are using the default password. <button class="smallbtn" type="button" data-menu="password">Change it now</button></div>
-  <div class="notice" id="licenseBar"></div>
-  <section class="panel empty" id="noFactory" hidden></section>
-  <div class="lowalert" id="lowAlert" hidden></div>
-  <div class="lowalert" id="partyAlert" hidden></div>
-  <nav class="tabs" aria-label="Sections">
-    <button type="button" class="navtoggle" id="navToggle" title="Collapse menu" aria-label="Collapse menu">«</button>
-    <span class="navgroup">Floor</span>
+  <!-- Menu: a grouped row on top (Floor, Stock and Money open a short list). On phones it is the
+       "More" sheet of the bottom bar, with every group open. -->
+  <nav class="tabs" aria-label="Sections" id="mainNav">
+    <div class="sheethead"><strong>All pages</strong><button class="iconbtn" type="button" id="moreClose" aria-label="Close menu">✕</button></div>
     <a class="tab" href="#home" title="Home"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#home"></use></svg><span class="lb">Home</span></a>
-    <a class="tab" href="#loomlist" title="Looms"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#loom"></use></svg><span class="lb">Looms</span></a>
-    <a class="tab" href="#warps" title="Warps"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#warp"></use></svg><span class="lb">Warps</span></a>
-    <a class="tab" href="#bobbins" title="Bobbins"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#bobbin"></use></svg><span class="lb">Bobbins</span></a>
-    <a class="tab" href="#looms" title="Production"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#factory"></use></svg><span class="lb">Production</span></a>
+    <div class="navgrp" data-grp="floor">
+      <button class="navgrp-btn" type="button" aria-expanded="false"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#loom"></use></svg><span class="lb">Floor</span><svg class="ic chev" aria-hidden="true"><use href="img/icons.svg#chevron-down"></use></svg></button>
+      <div class="navgrp-menu">
+        <a class="tab" href="#loomlist" title="Looms"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#loom"></use></svg><span class="lb">Looms</span></a>
+        <a class="tab" href="#looms" title="Production"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#factory"></use></svg><span class="lb">Production</span></a>
+        <a class="tab" href="#warps" title="Warps"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#warp"></use></svg><span class="lb">Warps</span></a>
+        <a class="tab" href="#bobbins" title="Bobbins"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#bobbin"></use></svg><span class="lb">Bobbins</span></a>
+        <a class="tab" href="#weft" data-mod="wages" title="Weft"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#yarn"></use></svg><span class="lb">Weft</span></a>
+      </div>
+    </div>
     <a class="tab" href="#partywork" data-party hidden title="Party orders"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#orders"></use></svg><span class="lb">Party orders</span></a>
-    <span class="navgroup">Stock</span>
-    <a class="tab" href="#process" data-mod="stock" data-direct-hide title="Process"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#process"></use></svg><span class="lb">Process</span></a>
-    <a class="tab" href="#stock" data-mod="stock" title="Stock"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#stock"></use></svg><span class="lb">Stock</span></a>
-    <a class="tab" href="#parties" data-mod="stock" title="Parties"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#people"></use></svg><span class="lb">Parties</span></a>
-    <span class="navgroup">People</span>
+    <div class="navgrp" data-grp="stock" data-mod="stock">
+      <button class="navgrp-btn" type="button" aria-expanded="false"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#stock"></use></svg><span class="lb">Stock</span><svg class="ic chev" aria-hidden="true"><use href="img/icons.svg#chevron-down"></use></svg></button>
+      <div class="navgrp-menu">
+        <a class="tab" href="#process" data-mod="stock" data-direct-hide title="Process"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#process"></use></svg><span class="lb">Process</span></a>
+        <a class="tab" href="#stock" data-mod="stock" title="Stock"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#stock"></use></svg><span class="lb">Stock</span></a>
+        <a class="tab" href="#parties" data-mod="stock" title="Parties"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#people"></use></svg><span class="lb">Parties</span></a>
+      </div>
+    </div>
+    <div class="navgrp" data-grp="money" data-mod="wages">
+      <button class="navgrp-btn" type="button" aria-expanded="false"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#rupee"></use></svg><span class="lb">Money</span><svg class="ic chev" aria-hidden="true"><use href="img/icons.svg#chevron-down"></use></svg></button>
+      <div class="navgrp-menu">
+        <a class="tab" href="#wages" data-mod="wages" title="Wages"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#rupee"></use></svg><span class="lb">Wages</span></a>
+        <a class="tab" href="#staff" data-mod="wages" title="Weavers"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#user"></use></svg><span class="lb">Weavers</span></a>
+        <a class="tab" href="#expenses" data-mod="wages" title="Expenses"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#receipt"></use></svg><span class="lb">Expenses</span></a>
+      </div>
+    </div>
     <a class="tab" href="#designs" data-mod="wages" title="Designs"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#design"></use></svg><span class="lb">Designs</span></a>
-    <a class="tab" href="#staff" data-mod="wages" title="Weavers"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#user"></use></svg><span class="lb">Weavers</span></a>
-    <a class="tab" href="#wages" data-mod="wages" title="Wages"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#rupee"></use></svg><span class="lb">Wages</span></a>
-    <a class="tab" href="#expenses" data-mod="wages" title="Expenses"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#receipt"></use></svg><span class="lb">Expenses</span></a>
-    <a class="tab" href="#weft" data-mod="wages" title="Weft"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#yarn"></use></svg><span class="lb">Weft</span></a>
-    <span class="navgroup">Records</span>
     <a class="tab" href="#log" title="Log"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#log"></use></svg><span class="lb">Log</span></a>
   </nav>
+  <!-- Phones: bottom bar with the most used pages; More opens the menu above as a sheet -->
+  <nav class="bottombar" id="bottomBar" aria-label="Main" hidden>
+    <a class="bbtab" href="#home"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#home"></use></svg><span>Home</span></a>
+    <a class="bbtab" href="#loomlist"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#loom"></use></svg><span>Looms</span></a>
+    <a class="bbtab bb-main" href="#looms"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#factory"></use></svg><span>Dispatch</span></a>
+    <a class="bbtab" href="#stock" data-mod="stock"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#stock"></use></svg><span>Stock</span></a>
+    <button class="bbtab" type="button" id="moreBtn" aria-controls="mainNav" aria-expanded="false"><svg class="ic" aria-hidden="true"><use href="img/icons.svg#menu"></use></svg><span>More</span></button>
+  </nav>
+  <div class="sheetback" id="sheetBack" hidden></div>
+  <section class="panel empty" id="noFactory" hidden></section>
+  <!-- One strip for every warning; collapsed to one line each, "Show all" expands -->
+  <div class="alerts" id="alerts">
+    <div class="notice err show" id="pwWarn" hidden>You are using the default password. <button class="smallbtn" type="button" data-menu="password">Change it now</button></div>
+    <div class="notice" id="licenseBar"></div>
+    <div class="lowalert" id="lowAlert" hidden></div>
+    <div class="lowalert" id="partyAlert" hidden></div>
+    <button class="alerts-more" type="button" id="alertsMore" hidden></button>
+  </div>
 
   <div id="view-home">
     <div class="boardhead">
@@ -911,7 +937,7 @@ function lowItems() {
 function renderLowAlert() {
   const list=currentFactoryId?lowItems():[];
   $("lowAlert").hidden=!list.length;
-  $("lowAlert").innerHTML=list.length?`<strong>⚠ Running low · less than ${LOW_SAREES} sarees left</strong><ul>${list.map(x=>`<li><b>${esc(x.loom.name)}</b> · ${x.kind.toLowerCase()} ${esc(x.item.name)}: ${plural(x.left,"saree")} (${fmt(x.item.remainingMeters)} m) left</li>`).join("")}</ul>Get the next ${list.some(x=>x.kind==="Warp")&&list.some(x=>x.kind==="Bobbin")?"warp or bobbin":list[0].kind.toLowerCase()} ready: <a href="#${list.some(x=>x.kind==="Warp")?"warps":"bobbins"}">open the board</a>.`:"";
+  $("lowAlert").innerHTML=list.length?`<strong>⚠ Running low · less than ${LOW_SAREES} sarees left</strong><ul>${list.map(x=>`<li><b>${esc(x.loom.name)}</b> · ${x.kind.toLowerCase()} ${esc(x.item.name)}: ${plural(x.left,"saree")} (${fmt(x.item.remainingMeters)} m) left</li>`).join("")}</ul><span>Get the next ${list.some(x=>x.kind==="Warp")&&list.some(x=>x.kind==="Bobbin")?"warp or bobbin":list[0].kind.toLowerCase()} ready: <a href="#${list.some(x=>x.kind==="Warp")?"warps":"bobbins"}">open the board</a>.</span>`:"";
 }
 function warpSarees(w) {
   const perLength=w.widthType==="triple"?3:1;
@@ -1323,10 +1349,11 @@ function route() {
   const noFactory=!currentFactoryId&&v!=="settings";
   $("noFactory").hidden=!noFactory||!session.user;
   $("noFactory").innerHTML=isAdmin()?'No factory yet. <a href="#settings">Create one in Settings</a> to start.':"You have not been given access to a factory yet. Ask your admin to assign one.";
-  document.querySelector("nav.tabs").hidden=!currentFactoryId;
+  document.querySelector("nav.tabs").hidden=!currentFactoryId; $("bottomBar").hidden=!currentFactoryId;
   views.forEach(x=>$("view-"+x).hidden=noFactory||x!==v);
   if(v==="settings") loadSettings();
-  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.getAttribute("href")==="#"+v));
+  document.querySelectorAll(".tab,.bbtab[href]").forEach(t=>t.classList.toggle("active",t.getAttribute("href")==="#"+v));
+  syncNav(v);
   const cur=document.querySelector('nav.tabs .tab[href="#'+v+'"] .lb');
   document.title=(cur?cur.textContent+" · ":"")+"My Thari";
   window.scrollTo(0,0);
@@ -3536,16 +3563,53 @@ async function boot() {
   try{ await reloadSession(); }catch{ return; } // api() already showed the sign-in screen on 401
   route(); await refresh();
 }
-boot().catch(err=>toast("Could not load app data: "+err.message));
 
 (function(){
   const hd=document.querySelector("header"), setH=()=>document.documentElement.style.setProperty("--hh",hd.offsetHeight+"px");
   setH(); if(window.ResizeObserver) new ResizeObserver(setH).observe(hd); else addEventListener("resize",setH);
-  const t=$("navToggle"); if(!t) return;
-  const set=c=>{document.body.classList.toggle("nav-collapsed",c);t.textContent=c?"»":"«";t.title=t.ariaLabel=c?"Expand menu":"Collapse menu";try{localStorage.setItem("loom.navCollapsed",c?"1":"")}catch(e){}};
-  let c=false; try{c=!!localStorage.getItem("loom.navCollapsed")}catch(e){}
-  set(c); t.onclick=()=>set(!document.body.classList.contains("nav-collapsed"));
 })();
+// ---- Menu: groups open a short list on wide screens; on phones the menu is the bottom bar's "More" sheet ----
+const navGroups=[...document.querySelectorAll(".navgrp")];
+function closeGroups(except) { navGroups.forEach(g=>{ if(g===except) return; g.classList.remove("open"); g.querySelector(".navgrp-btn").setAttribute("aria-expanded","false"); }); }
+function setSheet(open) {
+  document.body.classList.toggle("more-open",open); $("sheetBack").hidden=!open;
+  $("moreBtn").setAttribute("aria-expanded",open?"true":"false");
+  if(open) $("moreClose").focus();
+}
+// Active states: a group is active when one of its pages is; "More" when the page is not in the bottom bar.
+function syncNav(v) {
+  closeGroups(); setSheet(false);
+  navGroups.forEach(g=>{ const a=g.querySelector(".tab.active"); g.classList.toggle("active",!!a);
+    g.querySelector(".navgrp-btn .lb").textContent=a?a.textContent:g.querySelector(".navgrp-btn").dataset.label; });
+  $("moreBtn").classList.toggle("active",!document.querySelector(".bbtab.active"));
+  // Home has its own "Needs attention" list, so the low-warp and party banners only show on other pages.
+  document.body.classList.toggle("on-home",v==="home");
+  syncAlerts();
+}
+navGroups.forEach(g=>{
+  const b=g.querySelector(".navgrp-btn"); b.dataset.label=b.querySelector(".lb").textContent;
+  b.addEventListener("click",()=>{ const open=!g.classList.contains("open"); closeGroups(g); g.classList.toggle("open",open); b.setAttribute("aria-expanded",open?"true":"false");
+    if(open) g.querySelector(".tab:not([hidden])")?.focus({preventScroll:true}); });
+});
+document.addEventListener("click",e=>{ if(!e.target.closest(".navgrp")) closeGroups(); });
+document.addEventListener("keydown",e=>{ if(e.key!=="Escape") return;
+  const g=navGroups.find(x=>x.classList.contains("open")); if(g){ closeGroups(); g.querySelector(".navgrp-btn").focus(); }
+  if(document.body.classList.contains("more-open")){ setSheet(false); $("moreBtn").focus(); } });
+$("moreBtn").addEventListener("click",()=>setSheet(!document.body.classList.contains("more-open")));
+$("moreClose").addEventListener("click",()=>setSheet(false));
+$("sheetBack").addEventListener("click",()=>setSheet(false));
+// ---- Alert strip: each warning is one line until "Show all" ----
+function syncAlerts() {
+  const box=$("alerts"), shown=[...box.children].filter(el=>el.id!=="alertsMore"&&!el.hidden&&getComputedStyle(el).display!=="none"&&el.textContent.trim());
+  const more=$("alertsMore"), clipped=shown.some(el=>el.scrollWidth>el.clientWidth+2||el.scrollHeight>el.clientHeight+2);
+  const hide=!box.classList.contains("expanded")&&!clipped, label=box.classList.contains("expanded")?"Show less":"Show all";
+  if(more.hidden!==hide) more.hidden=hide;   // only write on change: the MutationObserver below calls this
+  if(more.textContent!==label) more.textContent=label;
+}
+$("alertsMore").addEventListener("click",()=>{ $("alerts").classList.toggle("expanded"); syncAlerts(); });
+if(window.MutationObserver) new MutationObserver(()=>syncAlerts()).observe($("alerts"),{subtree:true,childList:true,attributes:true,attributeFilter:["hidden","class"],characterData:true});
+addEventListener("resize",()=>syncAlerts());
+boot().catch(err=>toast("Could not load app data: "+err.message));
 </script>
 </body>
 </html>

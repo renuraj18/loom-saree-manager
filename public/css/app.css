@@ -8,8 +8,6 @@ main{max-width:1180px;margin:22px auto;padding:0 16px 48px}
 .stat{padding:16px}
 .stat small{color:var(--muted);display:block}
 .stat strong{display:block;font-size:27px;margin-top:5px}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
-.tab{border:1px solid var(--line);border-radius:999px;padding:10px 15px;color:var(--ink);cursor:pointer;font-weight:650}
 .layout{display:grid;grid-template-columns:minmax(280px,350px) 1fr;gap:16px;align-items:start}
 .panel h2{margin:0 0 4px;font-size:19px}
 .sectionhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
@@ -31,7 +29,6 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
   .stat{padding:12px}
   .stat strong{font-size:23px}
 }
-.tab{text-decoration:none;display:inline-block}
 header a{color:inherit;text-decoration:none}
 .homegrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
 .homegrid .full{grid-column:1/-1}
@@ -48,9 +45,6 @@ footer a{color:var(--brand);font-weight:650}
 .stat{position:relative;overflow:hidden}
 .stat::before{content:"";position:absolute;inset:0 0 auto 0;height:4px}
 .stat strong{width:max-content}
-.tab{background:rgba(255,255,255,.75);border-color:rgba(255,255,255,.95);box-shadow:0 4px 12px -6px rgba(76,52,180,.25);transition:transform .15s}
-.tab:hover{transform:translateY(-1px)}
-.tab.active{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:none}
 .actbtn{transition:transform .15s}
 .actbtn:hover:not(:disabled){transform:translateY(-1px)}
 .bar{background:var(--track)}
@@ -211,7 +205,6 @@ body.signed-out header,body.signed-out main{display:none}
 .menuhead{padding:10px 12px;border-bottom:1px solid var(--line);margin-bottom:4px}
 .menuhead strong{display:block}
 .menuhead span{font-size:12px;color:var(--muted)}
-#pwWarn{margin:0 0 12px}
 #pwWarn .smallbtn{margin-left:8px}
 #noFactory{margin-top:8px}
 .field .checklist{display:grid;gap:4px;max-height:210px;overflow:auto;border:1px solid var(--line-2);border-radius:12px;padding:8px 10px}
@@ -449,7 +442,6 @@ img.sphoto[data-zoom]{cursor:zoom-in}
 .lbob.low .lbobleft{color:var(--bad);font-weight:700}
 .lbob .smallbtn{padding:5px 8px;font-size:11.5px}
 .lbobnone{margin-top:9px;display:flex;justify-content:flex-end}
-.lowalert{border-radius:14px;padding:12px 14px;margin:0 0 12px;background:#fff1f0;border:1px solid var(--bad-line);color:#7f1d1d;font-size:13px}
 .lowalert strong{display:block;margin-bottom:4px;font-size:14px}
 .lowalert ul{margin:0;padding-left:18px}
 .lowalert li{margin:2px 0}
@@ -547,21 +539,9 @@ dialog.widedlg{width:min(720px,calc(100vw - 32px))}
 @media(max-width:999px){
   .homegrid{grid-template-columns:minmax(0,1fr)}
 }
-/* ---- Menu: one wrapping tab row on desktop, one scrolling row below it. Group labels and the
-   sidebar toggle stay in the markup but are hidden. ---- */
-.navgroup,.navbrand,.navtoggle{display:none}
 .livedot{display:inline-flex;align-items:center;gap:6px;font-size:12px;opacity:.9;margin-left:10px}
 .livedot i{width:8px;height:8px;border-radius:50%;background:#5ee0a8;display:inline-block}
 .livedot.off i{background:#c9c4dc}
-@media(max-width:999px){
-  nav.tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;-webkit-overflow-scrolling:touch}
-  nav.tabs::-webkit-scrollbar{display:none}
-  nav.tabs .tab{flex-shrink:0}
-}
-/* Menu icons show on the scrolling row (below desktop width) */
-@media(max-width:999px){
-  nav.tabs .ic{width:16px;height:16px;margin-right:6px;vertical-align:-3px}
-}
 @media(min-width:1000px){
   main{max-width:var(--maxw);padding:0 28px 48px}
 }
@@ -588,13 +568,7 @@ header .usermenu .menu{right:0;top:calc(100% + 8px)}
   .livedot{margin-left:4px}
   header .adminbtn{padding:7px 10px;font-size:13px}
 }
-/* ---- Menu back on top: one wrapping tab row under the header on wide screens ---- */
 @media(min-width:1000px){
-  nav.tabs{max-width:var(--maxw);margin:14px auto 0;padding:0 28px}
-  nav.tabs .tab{font-size:14px}
-  nav.tabs .tab:hover{background:var(--surface)}
-  nav.tabs .tab.active{font-weight:700}
-  nav.tabs .ic{display:none}
   main{margin-top:14px}
 }
 /* ---- Colour fills (flat: no gradients) ---- */
@@ -720,3 +694,75 @@ header .usermenu .menu{right:0;top:calc(100% + 8px)}
 .pwbar span{height:100%}
 .lockednote{background:var(--brand-tint);color:#3a248f;border-radius:12px;padding:10px 12px;font-size:13px;margin:0 0 12px}
 .adminbtn .ic{width:16px;height:16px;vertical-align:-3px}
+
+/* ---- Menu (#mainNav) ----
+   Wide screens: one row; Home, Party orders, Designs and Log are links, Floor / Stock / Money open a short list.
+   Phones (≤600px): the row is hidden; the bottom bar shows Home, Looms, Dispatch, Stock and More, and More opens
+   this same menu as a sheet with every group listed. */
+nav.tabs{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:16px 0}
+.sheethead{display:none}
+nav.tabs .tab,.navgrp-btn{display:inline-flex;align-items:center;gap:7px;min-height:var(--tap);padding:8px 14px;border:1px solid rgba(255,255,255,.95);border-radius:var(--r-pill);background:rgba(255,255,255,.75);box-shadow:0 4px 12px -6px rgba(76,52,180,.25);color:var(--ink);font:inherit;font-size:14px;font-weight:650;text-decoration:none;cursor:pointer;white-space:nowrap}
+nav.tabs .tab .ic,.navgrp-btn .ic{width:16px;height:16px}
+nav.tabs .tab:hover,.navgrp-btn:hover{background:var(--surface)}
+nav.tabs>.tab.active,.navgrp.active>.navgrp-btn{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:none;font-weight:700}
+.navgrp{position:relative}
+.navgrp-btn .chev{width:14px;height:14px;margin:0 -4px 0 -2px;transition:transform .15s}
+.navgrp.open .navgrp-btn .chev{transform:rotate(180deg)}
+.navgrp-menu{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:45;min-width:210px;padding:6px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-pop)}
+.navgrp.open .navgrp-menu{display:grid;gap:2px}
+nav.tabs .navgrp-menu .tab{border:0;background:none;box-shadow:none;border-radius:var(--r);padding:9px 12px;font-weight:600;width:100%}
+nav.tabs .navgrp-menu .tab:hover{background:var(--surface-3)}
+nav.tabs .navgrp-menu .tab.active{background:var(--brand-tint);color:var(--brand-ink);font-weight:700}
+nav.tabs .navgrp-menu .tab .ic{color:var(--muted)}nav.tabs .navgrp-menu .tab.active .ic{color:var(--brand)}
+@media(min-width:1000px){
+  nav.tabs{margin:14px 0 16px}
+}
+@media(max-width:999px){
+  nav.tabs{gap:4px}
+  nav.tabs .tab,.navgrp-btn{padding:8px 10px;gap:6px}
+}
+/* Phones: bottom bar + "More" sheet */
+.bottombar,.sheetback{display:none}
+@media(max-width:600px){
+  body:not(.signed-out){padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+  nav.tabs{display:none}
+  body.more-open nav.tabs{display:block;position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom));z-index:56;margin:0;max-height:calc(100vh - var(--hh) - 80px);overflow:auto;padding:6px 14px 14px;background:var(--surface);border-radius:20px 20px 0 0;box-shadow:0 -18px 40px -16px rgba(30,20,80,.45)}
+  .sheethead{display:flex;align-items:center;justify-content:space-between;padding:6px 0 4px}
+  .sheethead strong{font-size:var(--fs-lg)}
+  .sheethead .iconbtn{width:var(--tap);height:var(--tap);font-size:16px;color:var(--muted)}
+  nav.tabs>.tab,nav.tabs .navgrp-menu .tab{display:flex;width:100%;min-height:44px;border:0;background:var(--surface-2);box-shadow:none;border-radius:var(--r-md);padding:10px 12px;font-size:14px;color:var(--ink)}
+    nav.tabs>.tab.active,nav.tabs .navgrp-menu .tab.active{background:var(--brand-tint);color:var(--brand-ink)}
+  nav.tabs>.tab{margin-top:8px}
+  .navgrp-btn{pointer-events:none;background:none;border:0;box-shadow:none;padding:12px 0 4px;min-height:0;font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+  .navgrp.active>.navgrp-btn{background:none;color:var(--muted);font-weight:650}
+  .navgrp-btn .ic{display:none}
+  .navgrp-btn .lb{display:none}
+  .navgrp-btn::before{content:attr(data-label)}  /* the group name, not the current page */
+  .navgrp-menu{display:grid;grid-template-columns:1fr 1fr;gap:6px;position:static;min-width:0;padding:0;border:0;box-shadow:none;background:none}
+  .bottombar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:55;height:calc(64px + env(safe-area-inset-bottom));padding:0 6px env(safe-area-inset-bottom);background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -4px 16px -10px rgba(30,20,80,.25)}
+  .bbtab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;border:0;background:none;color:var(--muted);font:inherit;font-size:11px;font-weight:650;text-decoration:none;cursor:pointer}
+  .bbtab .ic{width:22px;height:22px}
+  .bbtab.active{color:var(--brand)}
+  .bbtab.bb-main .ic{width:48px;height:48px;padding:12px;margin-top:-22px;border-radius:50%;background:var(--brand);color:#fff;box-shadow:0 8px 18px -8px rgba(91,63,217,.8);border:3px solid var(--surface)}
+  .bbtab.bb-main.active{color:var(--brand)}
+  .sheetback{display:block;position:fixed;inset:0;z-index:54;background:rgba(28,18,70,.35)}
+  .sheetback[hidden]{display:none}
+  .toast{bottom:calc(80px + env(safe-area-inset-bottom))}
+}
+/* ---- Alert strip (#alerts): password, licence, low warp/bobbin, party notices ----
+   Collapsed, each alert is one line; "Show all" expands them. Home lists low items and notices in
+   "Needs attention", so those two are hidden there. */
+.alerts{display:grid;gap:6px;margin:0 0 14px}
+.alerts:not(:has(> :not([hidden]):not(.notice:not(.show)):not(:empty))){display:none}
+.alerts>.notice,.alerts>.lowalert{margin:0;padding:8px 12px;border-radius:var(--r-md);font-size:13px;line-height:1.45}
+.lowalert{background:var(--bad-bg);border:1px solid var(--bad-line);color:#7f1d1d}
+#partyAlert{background:var(--brand-tint);border-color:#d9d0ff;color:var(--ink-2)}
+#partyAlert a{color:var(--brand-ink)}
+.alerts:not(.expanded)>.notice,.alerts:not(.expanded)>.lowalert{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.alerts:not(.expanded) .lowalert strong{display:inline;margin:0 6px 0 0;font-size:13px}
+.alerts:not(.expanded) .lowalert ul,.alerts:not(.expanded) .lowalert li{display:inline;margin:0;padding:0}
+.alerts:not(.expanded) .lowalert li+li::before{content:" · "}
+.alerts:not(.expanded) .lowalert ul+*{margin-left:6px}
+#pwWarn .smallbtn{margin-left:8px;min-height:0;padding:3px 10px}
+body.on-home #lowAlert,body.on-home #partyAlert{display:none}
+.alerts-more{justify-self:end;border:0;background:none;padding:2px 4px;color:var(--brand-ink);font:inherit;font-size:13px;font-weight:650;cursor:pointer}
